@@ -1,0 +1,100 @@
+﻿<Window x:Class="MetroEditor.Windows.RouteDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="路线查询与详情" Height="700" Width="850"
+        WindowStartupLocation="CenterOwner"
+        d:DesignHeight="700" d:DesignWidth="850">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- 输入区 -->
+            <RowDefinition Height="Auto"/>
+            <!-- 摘要区 -->
+            <RowDefinition Height="*"/>
+            <!-- 分段列表 -->
+        </Grid.RowDefinitions>
+
+        <!-- ===== 输入区 ===== -->
+        <Border Grid.Row="0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="起点：" Grid.Column="0" VerticalAlignment="Center"/>
+                <ComboBox x:Name="StartCombo" Grid.Column="1" IsEditable="True" IsTextSearchEnabled="True"
+                          Margin="5,0" VerticalAlignment="Center"/>
+                <Label Content="终点：" Grid.Column="2" VerticalAlignment="Center"/>
+                <ComboBox x:Name="EndCombo" Grid.Column="3" IsEditable="True" IsTextSearchEnabled="True"
+                          Margin="5,0" VerticalAlignment="Center"/>
+                <Button x:Name="QueryBtn" Grid.Column="4" Content="查询" Padding="15,5"
+                        Click="QueryBtn_Click" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- ===== 摘要区 ===== -->
+        <Border Grid.Row="1" BorderBrush="#eee" BorderThickness="0,0,0,1" Padding="0,0,0,8" Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="5">
+                    <TextBlock Text="起点" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                    <TextBlock x:Name="StartText" FontSize="16" FontWeight="Bold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="5">
+                    <TextBlock Text="终点" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                    <TextBlock x:Name="EndText" FontSize="16" FontWeight="Bold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="5">
+                    <TextBlock Text="距离" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                    <TextBlock x:Name="DistanceText" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Margin="5">
+                    <TextBlock Text="时间" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                    <TextBlock x:Name="TimeText" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4" Margin="5">
+                    <TextBlock Text="票价" FontWeight="SemiBold" FontSize="12" Foreground="#666"/>
+                    <TextBlock x:Name="FareText" FontSize="14"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ===== 分段列表（可展开） ===== -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="SegmentsItemsControl">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Expander Margin="0,4" IsExpanded="False">
+                            <Expander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle Width="16" Height="16" Fill="{Binding Color}" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Subtitle}" Margin="10,0,0,0" Foreground="#666"/>
+                                </StackPanel>
+                            </Expander.Header>
+                            <ListBox ItemsSource="{Binding Stations}" Margin="20,4,0,4" BorderThickness="0">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Margin="2"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Expander>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

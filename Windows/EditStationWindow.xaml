@@ -1,0 +1,45 @@
+﻿<Window x:Class="MetroEditor.Windows.EditStationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="编辑站点" Height="250" Width="350"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 站名 -->
+        <Label Grid.Row="0" Grid.Column="0" Content="站名:" HorizontalAlignment="Right"/>
+        <TextBox x:Name="NameTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,5"/>
+
+        <!-- 经度 -->
+        <Label Grid.Row="1" Grid.Column="0" Content="经度:" HorizontalAlignment="Right"/>
+        <TextBox x:Name="LonTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5"/>
+
+        <!-- 纬度 -->
+        <Label Grid.Row="2" Grid.Column="0" Content="纬度:" HorizontalAlignment="Right"/>
+        <TextBox x:Name="LatTextBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,5"/>
+
+        <!-- 城市 -->
+        <Label Grid.Row="3" Grid.Column="0" Content="城市:" HorizontalAlignment="Right"/>
+        <TextBox x:Name="CityTextBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,5"/>
+        <!-- 在 City 行之后添加预览和复制按钮 -->
+        <Label Grid.Row="4" Grid.Column="0" Content="预览:" HorizontalAlignment="Right"/>
+        <TextBox x:Name="PreviewTextBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,5" IsReadOnly="True" FontFamily="Consolas" FontSize="12" Height="60" TextWrapping="Wrap"/>
+
+        <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
+            <Button Content="高德校准" Click="AmapCalibrate_Click" Width="100" Margin="0,0,10,0"/>
+            <Button Content="复制代码" Click="CopyCode_Click" Width="100" Margin="0,0,10,0"/>
+            <Button Content="关闭" Click="Cancel_Click" Width="80" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

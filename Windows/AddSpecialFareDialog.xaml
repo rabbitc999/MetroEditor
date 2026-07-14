@@ -1,0 +1,43 @@
+﻿<Window x:Class="MetroEditor.Windows.AddSpecialFareDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="添加特殊票价" Height="300" Width="450" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="线路：" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <ComboBox x:Name="LineCombo" Grid.Row="0" Grid.Column="1" Margin="5" 
+                  DisplayMemberPath="Display" SelectedValuePath="Id" IsEditable="False"/>
+
+        <Label Content="类型：" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <ComboBox x:Name="TypeCombo" Grid.Row="1" Grid.Column="1" Margin="5" SelectedIndex="0">
+            <ComboBoxItem Content="统一票价(ALL)"/>
+            <ComboBoxItem Content="区间票价"/>
+        </ComboBox>
+
+        <Label Content="票价(元)：" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="PriceBox" Grid.Row="2" Grid.Column="1" Margin="5" Text="2"/>
+
+        <Label Content="起点：" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="StartBox" Grid.Row="3" Grid.Column="1" Margin="5" IsEnabled="False"/>
+
+        <Label Content="终点：" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="EndBox" Grid.Row="4" Grid.Column="1" Margin="5" IsEnabled="False"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="5">
+            <Button Content="确定" Click="Ok_Click" Width="80" Margin="0,0,10,0"/>
+            <Button Content="取消" Click="Cancel_Click" Width="80"/>
+        </StackPanel>
+    </Grid>
+</Window>

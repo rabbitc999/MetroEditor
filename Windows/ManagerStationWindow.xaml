@@ -1,0 +1,65 @@
+﻿<Window x:Class="MetroEditor.Windows.ManagerStationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="站点管理" Height="600" Width="700"
+        WindowStartupLocation="CenterOwner" Icon="/ic_launcher-playstore.png" ShowInTaskbar="False">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 批量添加 -->
+        <GroupBox Header="批量添加（站名以空格、逗号或换行分隔）" Grid.Row="0" Margin="0,0,0,5">
+            <StackPanel>
+                <TextBox x:Name="BatchInputTextBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto" FontSize="13"/>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <Button Content="添加站点" Click="BatchAdd_Click" Width="100" Margin="0,0,10,0"/>
+                    <Button Content="清空列表" Click="ClearAll_Click" Width="100"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- 站点列表 -->
+        <DataGrid x:Name="StationDataGrid" Grid.Row="2" AutoGenerateColumns="False" 
+                  CanUserAddRows="False" CanUserDeleteRows="True"
+                  ItemsSource="{Binding}" Margin="0,0,0,5">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="选择" Binding="{Binding IsSelected}" Width="50"/>
+                <DataGridTextColumn Header="站名" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                <DataGridTextColumn Header="经度" Binding="{Binding Lon, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                <DataGridTextColumn Header="纬度" Binding="{Binding Lat, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                <DataGridTextColumn Header="城市" Binding="{Binding City, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                <DataGridTextColumn Header="校准状态" Binding="{Binding CalibrationStatus}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- 操作按钮 -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,5" VerticalAlignment="Center">
+            <Button Content="删除选中" Click="DeleteSelected_Click" Width="100" Margin="0,0,10,0"/>
+            <Button Content="高德修正" Click="AmapCorrect_Click" Width="100" Margin="0,0,10,0"/>
+            <Button Content="计算中心坐标" Click="CalculateCenter_Click" Width="120" Margin="0,0,10,0"/>
+            <TextBlock Text="中心坐标：" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBlock x:Name="CenterCoordDisplay" Text="--" VerticalAlignment="Center" FontWeight="Bold"/>
+            <ProgressBar x:Name="ProgressBar" Width="100" Height="16" Margin="10,0,0,0" Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- 代码预览 -->
+        <GroupBox Header="生成的 STATION_LIST 代码（预览）" Grid.Row="4" Margin="0,5,0,5">
+            <TextBox x:Name="PreviewTextBox" Height="100" TextWrapping="Wrap" 
+                     VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12"
+                     IsReadOnly="False"/>
+        </GroupBox>
+
+        <!-- 底部按钮 -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="复制代码" Click="CopyCode_Click" Width="100" Margin="0,0,10,0"/>
+            <Button Content="关闭" Click="Close_Click" Width="80" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

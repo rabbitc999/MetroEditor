@@ -1,0 +1,67 @@
+﻿<Window x:Class="MetroEditor.Windows.CommuteAnalysisWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="通勤分析" Height="650" Width="900"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部控制栏 -->
+        <Border BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Label Content="起点站：" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                <ComboBox x:Name="StartStationCombo" Width="200" IsEditable="True" IsTextSearchEnabled="True"
+                          ToolTip="输入或选择起点站"/>
+                <Button x:Name="CalcButton" Content="计算所有站点" Margin="10,0" Padding="12,4" Click="CalcButton_Click"/>
+                <Button x:Name="ExportCsvButton" Content="导出 CSV" Margin="0,0,10,0" Padding="12,4" 
+                        Click="ExportCsvButton_Click" IsEnabled="False"/>
+                <TextBlock x:Name="StatusText" VerticalAlignment="Center" Foreground="#555"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 结果表格 -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <DataGrid x:Name="ResultGrid" Grid.Row="0"
+              AutoGenerateColumns="False" 
+              CanUserSortColumns="True" 
+              IsReadOnly="True" 
+              ItemsSource="{Binding}" 
+              Margin="0,0,0,10"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
+              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+              RowHeaderWidth="0" 
+              SelectionMode="Single"
+              VerticalAlignment="Stretch">
+                    <DataGrid.Columns>
+                    <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="50"/>
+                    <DataGridTextColumn Header="站点" Binding="{Binding Station}" Width="120"/>
+                    <DataGridTextColumn Header="距离(km)" Binding="{Binding Distance, StringFormat={}{0:F3}}" Width="80"/>
+                    <DataGridTextColumn Header="换乘次数" Binding="{Binding Transfers}" Width="80"/>
+                    <DataGridTextColumn Header="时间(分钟)" Binding="{Binding Time, StringFormat={}{0:F1}}" Width="80"/>
+                    <DataGridTextColumn Header="站数" Binding="{Binding StationCount}" Width="60"/>
+                    <DataGridTextColumn Header="票价(元)" Binding="{Binding Fare, StringFormat={}{0:F2}}" Width="80"/>
+                    <DataGridTextColumn Header="痛苦度" Binding="{Binding Value, StringFormat={}{0:F3}}" Width="80"/>
+                    <DataGridTextColumn Header="乘车指引" Binding="{Binding RouteDesc}" Width="*" MinWidth="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- 状态栏和提示 -->
+        <StatusBar Grid.Row="3">
+            <StatusBarItem>
+                <TextBlock Text="右键点击行可复制站点名称" Foreground="#888"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

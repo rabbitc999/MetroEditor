@@ -1,0 +1,102 @@
+﻿<Window x:Class="MetroEditor.Windows.EditLineWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="生成线路 - 可预览编辑" Height="600" Width="500" 
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Icon="/ic_launcher-playstore.png" ShowInTaskbar="False">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="110"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 原有控件 -->
+        <Label Grid.Row="0" Grid.Column="0" Content="线路ID:" HorizontalContentAlignment="Right"/>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <TextBox x:Name="LineIdTextBox" Width="150" Margin="0,0,5,0"/>
+            <Button Content="自动生成" Click="AutoGenerateId_Click" Width="80"/>
+        </StackPanel>
+
+        <Label Grid.Row="2" Grid.Column="0" Content="名称:" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="NameTextBox" Grid.Row="2" Grid.Column="1"/>
+
+        <Label Grid.Row="4" Grid.Column="0" Content="颜色:" HorizontalContentAlignment="Right"/>
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+            <TextBox x:Name="ColorTextBox" Width="150" Text="#FF0000" TextChanged="ColorTextBox_TextChanged"/>
+            <Button Content="选择颜色" Click="PickColor_Click" Margin="5,0,0,0" Width="80"/>
+            <Rectangle x:Name="ColorPreview" Width="20" Height="20" Fill="Red" Margin="5,0,0,0" Stroke="Black"/>
+        </StackPanel>
+
+        <Label Grid.Row="6" Grid.Column="0" Content="城市:" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="CityTextBox" Grid.Row="6" Grid.Column="1" Text="广州"/>
+
+        <Label Grid.Row="8" Grid.Column="0" Content="编组:" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="FormationTextBox" Grid.Row="8" Grid.Column="1"/>
+
+        <Label Grid.Row="10" Grid.Column="0" Content="最高速度 (km/h):" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="MaxspeedTextBox" Grid.Row="10" Grid.Column="1"/>
+
+        <Label Grid.Row="12" Grid.Column="0" Content="开通年份:" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="OpenYearTextBox" Grid.Row="12" Grid.Column="1"/>
+
+        <Label Grid.Row="14" Grid.Column="0" Content="运行功率 (KW):" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="PowerKwTextBox" Grid.Row="14" Grid.Column="1"/>
+
+        <Label Grid.Row="16" Grid.Column="0" Content="刹车加速度 (m/s²):" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="BrakeTextBox" Grid.Row="16" Grid.Column="1"/>
+
+        <StackPanel Grid.Row="18" Grid.ColumnSpan="2" Orientation="Vertical" Margin="0,10,0,0">
+            <CheckBox x:Name="DisabledCheckBox" Content="禁用" Margin="0,0,0,5"/>
+            <CheckBox x:Name="LinkCheckBox" Content="添加线路链接" Margin="0,0,0,5"/>
+            <TextBox x:Name="LinkTextBox" IsEnabled="{Binding IsChecked, ElementName=LinkCheckBox}" 
+                     Margin="0,0,0,0" Height="25" ToolTip="输入URL"/>
+        </StackPanel>
+
+        <!-- 预览区域 -->
+        <Border Grid.Row="20" Grid.ColumnSpan="2" BorderBrush="#888" BorderThickness="1" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="预览 (可编辑)" FontWeight="Bold" Grid.Row="0" Margin="5,0"/>
+                <TextBox x:Name="PreviewTextBox" Grid.Row="1" 
+                         AcceptsReturn="True" AcceptsTab="True"
+                         TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         FontFamily="Consolas" FontSize="12"
+                         Background="#F5F5F5" Padding="5"/>
+            </Grid>
+        </Border>
+
+        <!-- 底部按钮 -->
+        <StackPanel Grid.Row="22" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="生成预览" Width="100" Height="30" Click="GeneratePreview_Click" IsDefault="True"/>
+            <Button Content="复制" Width="80" Height="30" Click="Copy_Click" Margin="5,0,0,0"/>
+            <Button Content="取消" Width="80" Height="30" Click="Cancel_Click" Margin="10,0,0,0" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

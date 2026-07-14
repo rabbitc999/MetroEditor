@@ -1,0 +1,126 @@
+﻿<Window x:Class="MetroEditor.Windows.FareEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="票价编辑" Height="700" Width="900" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <x:Array x:Key="specialTypeOptions" Type="sys:String">
+            <sys:String>统一票价(ALL)</sys:String>
+            <sys:String>区间票价</sys:String>
+        </x:Array>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 普通票价 -->
+        <GroupBox Header="普通票价 (MONEY_START / MONEY_LIST / MONEY_CALC)" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="起步价 (元):" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5,0"/>
+                <TextBox x:Name="StartPriceBox" Grid.Row="0" Grid.Column="1" Margin="5" Text="2.0"/>
+
+                <Label Content="线性扩展:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="5,0"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="3" Margin="5">
+                    <Label Content="每" VerticalAlignment="Center"/>
+                    <TextBox x:Name="DistSegmentBox" Width="60" Text="8"/>
+                    <Label Content="km 加" VerticalAlignment="Center"/>
+                    <TextBox x:Name="AddPriceBox" Width="60" Text="1"/>
+                    <Label Content="元" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- 分段票价列表 -->
+        <GroupBox Header="分段票价 (MONEY_LIST)" Grid.Row="1" Grid.Column="0" Margin="0,0,5,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Content="添加" Click="AddSegment_Click" Margin="0,0,5,0"/>
+                    <Button Content="删除选中" Click="DeleteSegment_Click" Margin="0,0,5,0"/>
+                </StackPanel>
+                <DataGrid x:Name="SegmentGrid" Grid.Row="1" AutoGenerateColumns="False" 
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="起始里程(km)" Binding="{Binding Start, StringFormat={}{0:F2}}" Width="100"/>
+                        <DataGridTextColumn Header="结束里程(km)" Binding="{Binding End, StringFormat={}{0:F2}}" Width="100"/>
+                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <!-- 特殊线路票价 -->
+        <GroupBox Header="特殊线路票价 (SPECIAL_MONEY)" Grid.Row="1" Grid.Column="1" Margin="5,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Button Content="添加" Click="AddSpecial_Click" Margin="0,0,5,0"/>
+                    <Button Content="删除选中" Click="DeleteSpecial_Click" Margin="0,0,5,0"/>
+                </StackPanel>
+                <DataGrid x:Name="SpecialGrid" Grid.Row="1" AutoGenerateColumns="False" 
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="线路" Binding="{Binding DisplayLine}" Width="100"/>
+                        <DataGridComboBoxColumn Header="类型" 
+                                                SelectedItemBinding="{Binding TypeDisplay}" 
+                                                ItemsSource="{StaticResource specialTypeOptions}" 
+                                                Width="80"/>
+                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="起点" Binding="{Binding StartStation}" Width="100"/>
+                        <DataGridTextColumn Header="终点" Binding="{Binding EndStation}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <!-- 预览 -->
+        <GroupBox Header="代码预览" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right" Margin="5">
+                    <Button Content="更新预览" Click="RefreshPreview_Click" Margin="0,0,5,0"/>
+                    <Button Content="复制到剪贴板" Click="CopyPreview_Click"/>
+                </StackPanel>
+                <TextBox x:Name="PreviewTextBox" Grid.Row="1" IsReadOnly="True" 
+                         TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" 
+                         FontFamily="Consolas" FontSize="12" AcceptsReturn="True"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- 关闭 -->
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Right" Margin="5">
+            <Button Content="关闭" Click="Close_Click" Width="80"/>
+        </StackPanel>
+    </Grid>
+</Window>

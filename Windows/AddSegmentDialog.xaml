@@ -1,0 +1,31 @@
+﻿<Window x:Class="MetroEditor.Windows.AddSegmentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="添加分段票价" Height="200" Width="350" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="起始里程(km):" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="StartBox" Grid.Row="0" Grid.Column="1" Margin="5" Text="0"/>
+
+        <Label Content="结束里程(km):" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="EndBox" Grid.Row="1" Grid.Column="1" Margin="5" Text="4"/>
+
+        <Label Content="票价(元):" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="5"/>
+        <TextBox x:Name="PriceBox" Grid.Row="2" Grid.Column="1" Margin="5" Text="2"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="5">
+            <Button Content="确定" Click="Ok_Click" Width="80" Margin="0,0,10,0"/>
+            <Button Content="取消" Click="Cancel_Click" Width="80"/>
+        </StackPanel>
+    </Grid>
+</Window>

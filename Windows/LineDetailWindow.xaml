@@ -1,0 +1,138 @@
+﻿<Window x:Class="MetroEditor.Windows.LineDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:MetroEditor.Windows"
+        Title="线路详情" Height="600" Width="800"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <!-- 转换器 -->
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+
+        <!-- 标签样式 -->
+        <Style x:Key="TagStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="{Binding Color}"/>
+        </Style>
+
+        <!-- 站点显示模板 -->
+        <DataTemplate x:Key="StationTemplate" DataType="{x:Type local:StationDisplayItem}">
+            <Border BorderThickness="0,0,0,1" BorderBrush="#eee" Padding="8,4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Name}" FontSize="14" Margin="0,0,8,0"/>
+                    <Border Background="#FF9800" CornerRadius="4" Padding="4,1" Margin="4,0,0,0"
+                            Visibility="{Binding IsFuture, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="规划" FontSize="10" Foreground="White"/>
+                    </Border>
+                    <Border Background="#4CAF50" CornerRadius="4" Padding="4,1" Margin="4,0,0,0"
+                            Visibility="{Binding IsMain, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="主线" FontSize="10" Foreground="White"/>
+                    </Border>
+                    <Border Background="#9C27B0" CornerRadius="4" Padding="4,1" Margin="4,0,0,0"
+                            Visibility="{Binding IsMain, Converter={StaticResource InverseBoolToVisibility}}">
+                        <TextBlock Text="支线" FontSize="10" Foreground="White"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- 标题模板 -->
+        <DataTemplate x:Key="HeaderTemplate" DataType="{x:Type local:HeaderItem}">
+            <Border Background="#e0e0e0" Padding="8,4" Margin="0,4,0,2">
+                <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14"/>
+            </Border>
+        </DataTemplate>
+
+        <!-- 模板选择器 -->
+        <local:ItemTemplateSelector x:Key="TemplateSelector"
+                                     HeaderTemplate="{StaticResource HeaderTemplate}"
+                                     StationTemplate="{StaticResource StationTemplate}"/>
+
+        <!-- ListBox 样式：填充整行 -->
+        <Style x:Key="FullWidthListBoxItem" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 基本信息区域 -->
+        <StackPanel Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="线路名称" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="LineNameText" FontSize="16" FontWeight="Bold" Margin="5,0"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="所属城市" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="CityText" FontSize="14" Margin="5,0"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="编组信息" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" x:Name="FormationText" FontSize="14" Margin="5,0"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="最高速度" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="3" x:Name="MaxSpeedText" FontSize="14" Margin="5,0"/>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="开通年份" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" x:Name="OpenYearText" FontSize="14" Margin="5,0"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="线路长度" FontWeight="SemiBold" FontSize="12" Foreground="#666" Margin="5,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LengthText" FontSize="14" Margin="5,0"/>
+
+                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Margin="5,0" Grid.ColumnSpan="2">
+                    <TextBlock Text="标签：" FontWeight="SemiBold" FontSize="12" Foreground="#666" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ItemsControl x:Name="TagsItemsControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding Color}" CornerRadius="4" Padding="6,2" Margin="2,0">
+                                    <TextBlock Text="{Binding Text}" Foreground="White" FontSize="12"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <!-- 站点列表 -->
+        <GroupBox Header="站点列表（含换乘线路）" Grid.Row="2" Margin="0,5,0,0">
+            <ListBox Grid.Row="5" x:Name="StationListView" 
+                 ItemTemplateSelector="{StaticResource TemplateSelector}"
+                 ItemContainerStyle="{StaticResource FullWidthListBoxItem}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 BorderThickness="0"/>
+        </GroupBox>
+    </Grid>
+</Window>
