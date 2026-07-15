@@ -129,5 +129,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("promotions")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<JsonPromotionPolicy>? Promotions { get; set; }
+
+        /// <summary>
+        /// 优惠策略列表（如学生票、老人票）。
+        /// </summary>
+        [JsonPropertyName("language_order")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? LanguageOrder { get; set; }
     }
 }

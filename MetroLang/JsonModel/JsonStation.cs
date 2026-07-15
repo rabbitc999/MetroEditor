@@ -38,5 +38,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("city")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? City { get; set; }
+
+        /// <summary>
+        /// 所属城市标识（用于跨城数据）。
+        /// </summary>
+        [JsonPropertyName("other_names")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? OtherNames { get; set; }
     }
 }

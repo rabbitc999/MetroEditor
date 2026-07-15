@@ -1,11 +1,5 @@
-﻿using MetroEditor.MetroLang.Compiler.Command;
-using MetroEditor.MetroLang.DataModel;
+﻿using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.JsonModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetroEditor.MetroLang.Compiler
 {
@@ -139,8 +133,10 @@ namespace MetroEditor.MetroLang.Compiler
                     : null,
 
                                 Promotions = context.Promotions.Any()
-                    ? context.Promotions.Select(p => MapToJsonPromotionPolicy(p)).ToList()
+                    ? context.Promotions.Select(MapToJsonPromotionPolicy).ToList()
                     : null,
+
+                LanguageOrder = context.LanguageOrder.Any() ? context.LanguageOrder : null
             };
 
             // 补充 ViaDirections 到 Direction 对象
@@ -456,6 +452,8 @@ namespace MetroEditor.MetroLang.Compiler
                 // 添加换乘规则
                 if (transferMap.TryGetValue(stationName, out var transfers))
                     stationEntry.Transfers = transfers;
+
+                stationEntry.OtherNames = context.StationOtherNames.TryGetValue(stationName, out var names) ? names : null;
 
                 result[stationName] = stationEntry;
             }

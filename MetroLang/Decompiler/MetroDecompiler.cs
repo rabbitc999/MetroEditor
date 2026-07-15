@@ -236,6 +236,12 @@ namespace MetroEditor.MetroLang.Decompiler
                 WriteLine($"{Indent}OTHER_CITY [{cityList}]");
             }
 
+            if (_root.LanguageOrder != null && _root.LanguageOrder.Any())
+            {
+                var langList = string.Join(", ", _root.LanguageOrder.Select(lang => $"'{lang}'"));
+                WriteLine($"{Indent}LANGUAGE_ORDER [{langList}]");
+            }
+
             WriteLine($"{Indent}VERSION '{_root.Version}'");
             WriteLine($"{Indent}UPDATE_DATE '{_root.UpdateDate}'");
 
@@ -277,6 +283,17 @@ namespace MetroEditor.MetroLang.Decompiler
 
                 if (!string.IsNullOrEmpty(station.City))
                     lineBuilder.Append($" CITY '{station.City}'");
+
+                if (station.OtherNames != null && station.OtherNames.Any())
+                {
+                    if (station.OtherNames.Count == 1)
+                        lineBuilder.Append($" OTHER_NAME '{station.OtherNames[0]}'");
+                    else
+                    {
+                        var names = string.Join(", ", station.OtherNames.Select(n => $"'{n}'"));
+                        lineBuilder.Append($" OTHER_NAME [{names}]");
+                    }
+                }
 
                 WriteLine(lineBuilder.ToString());
             }

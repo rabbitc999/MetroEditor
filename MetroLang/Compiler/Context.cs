@@ -33,6 +33,12 @@ namespace MetroEditor.MetroLang.Compiler
         /// <summary>数据作者</summary>
         public string Author { get; internal set; } = "匿名";
 
+        // 新增：语言顺序列表
+        public List<string> LanguageOrder { get; internal set; } = new();
+
+        // 修改：站点其他名称映射（Key=站点ID, Value=按 LANGUAGE_ORDER 排列的名称列表）
+        public Dictionary<string, List<string>> StationOtherNames { get; internal set; } = new();
+
         // ====================================================================
         // 2. 核心路网数据
         // ====================================================================
@@ -310,6 +316,9 @@ namespace MetroEditor.MetroLang.Compiler
 
                 data.SpecialFareRules.Add(rule);
             }
+
+            data.LanguageOrder = new List<string>(LanguageOrder);
+            data.StationOtherNames = new Dictionary<string, List<string>>(StationOtherNames);
 
             return data;
         }

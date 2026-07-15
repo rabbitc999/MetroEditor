@@ -99,5 +99,9 @@ namespace MetroEditor.MetroLang.DataModel
 
         /// <summary>默认上车时间（秒），用于模拟计算</summary>
         public double DefaultBoardTime { get; set; } = 3.0;
+
+        public List<string> LanguageOrder { get; set; } = new();
+
+        public Dictionary<string, List<string>> StationOtherNames { get; set; } = new();
     }
 }

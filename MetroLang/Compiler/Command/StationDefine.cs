@@ -25,33 +25,49 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 if (parser.IsEndDefine()) { break; }
 
                 string subCommand = parser.ParseId().ToUpperInvariant();
-                if (subCommand != "NODE")
-                    throw new SyntaxException($"STATION_DEFINE 内只能使用 NODE 子命令，但遇到了 '{subCommand}'", parser.Peek());
+                string stationName = "";
+                if (subCommand == "NODE")
+                {
+                    // 解析车站名称和坐标
+                    stationName = parser.ParseString();
+                    parser.ParseId("COORD");
+                    double longitude = parser.ParseDouble();
+                    if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == ",")
+                        parser.ParseSymbol(",");
+                    double latitude = parser.ParseDouble();
 
-                // 解析车站名称和坐标
-                string stationName = parser.ParseString();
-                parser.ParseId("COORD");
-                double longitude = parser.ParseDouble();
-                if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == ",")
-                    parser.ParseSymbol(",");
-                double latitude = parser.ParseDouble();
+                    // 可选的 CITY 属性
+                    string city = null;
+                    if (parser.IsPeekId("CITY"))
+                    {
+                        parser.ParseId();
+                        city = parser.ParseString();
+                    }
 
-                // 可选的 CITY 属性
-                string city = null;
-                if (parser.IsPeekId("CITY"))
+                    // 记录车站坐标，重复定义时发出警告
+                    if (context.Stations.ContainsKey(stationName))
+                        parser.AddWarning($"站台 '{stationName}' 已存在，将覆盖");
+                    context.Stations[stationName] = (longitude, latitude);
+
+                    // 记录车站所属城市
+                    if (!string.IsNullOrEmpty(city))
+                        context.StationCity[stationName] = city;
+                }
+                else if (parser.IsPeekId("OTHER_NAME") && !string.IsNullOrEmpty(stationName))
                 {
                     parser.ParseId();
-                    city = parser.ParseString();
+                    List<string> nameList;
+                    if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == "[")
+                        nameList = parser.ParseStringList();   // 数组格式
+                    else
+                        nameList = new List<string> { parser.ParseString() }; // 单字符串
+                    context.StationOtherNames[stationName] = nameList;
                 }
+                else
+                {
+                    throw new SyntaxException($"STATION_DEFINE 内只能使用 NODE 子命令，但遇到了 '{subCommand}'", parser.Peek());
 
-                // 记录车站坐标，重复定义时发出警告
-                if (context.Stations.ContainsKey(stationName))
-                    parser.AddWarning($"站台 '{stationName}' 已存在，将覆盖");
-                context.Stations[stationName] = (longitude, latitude);
-
-                // 记录车站所属城市
-                if (!string.IsNullOrEmpty(city))
-                    context.StationCity[stationName] = city;
+                }
             }
         }
     }

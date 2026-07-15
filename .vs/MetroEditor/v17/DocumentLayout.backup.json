@@ -1,12 +1,156 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "E:\\Desktop\\Workspace\\MetroEditor\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\jsonexport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\jsonexport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\decompiler\\metrodecompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\decompiler\\metrodecompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\jsonmodel\\jsonroot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\jsonmodel\\jsonroot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\jsonmodel\\jsonstation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\jsonmodel\\jsonstation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationdefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationdefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\promotiondefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\promotiondefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\datamodel\\parseddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\datamodel\\parseddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MetroDecompiler.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Decompiler\\MetroDecompiler.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Decompiler\\MetroDecompiler.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Decompiler\\MetroDecompiler.cs",
+              "RelativeToolTip": "MetroLang\\Decompiler\\MetroDecompiler.cs",
+              "ViewState": "AgIAAOcAAAAAAAAAAAAiwO0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:53:20.684Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "JsonRoot.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonRoot.cs",
+              "RelativeDocumentMoniker": "MetroLang\\JsonModel\\JsonRoot.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonRoot.cs",
+              "RelativeToolTip": "MetroLang\\JsonModel\\JsonRoot.cs",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAiwIsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:52:11.402Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "JsonExport.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\JsonExport.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\JsonExport.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\JsonExport.cs*",
+              "RelativeToolTip": "MetroLang\\Compiler\\JsonExport.cs*",
+              "ViewState": "AgIAAIkAAAAAAAAAAAASwJAAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:51:32.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "JsonStation.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonStation.cs",
+              "RelativeDocumentMoniker": "MetroLang\\JsonModel\\JsonStation.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonStation.cs",
+              "RelativeToolTip": "MetroLang\\JsonModel\\JsonStation.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAAAgwC4AAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:50:25.375Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StationDefine.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationDefine.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationDefine.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationDefine.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationDefine.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAAkwDEAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:48:16.603Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PromotionDefine.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\PromotionDefine.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\PromotionDefine.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\PromotionDefine.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\PromotionDefine.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAIwFIAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:47:58.733Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ParsedData.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\ParsedData.cs",
+              "RelativeDocumentMoniker": "MetroLang\\DataModel\\ParsedData.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\ParsedData.cs",
+              "RelativeToolTip": "MetroLang\\DataModel\\ParsedData.cs",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAgwGsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:47:21.108Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Context.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Context.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Context.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Context.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Context.cs",
+              "ViewState": "AgIAADYBAAAAAAAAAAAAAD8BAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-15T06:45:19.141Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

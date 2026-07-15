@@ -78,6 +78,9 @@ namespace MetroEditor.MetroLang.Compiler.Command
                             else
                                 policy.Days = new List<string> { parser.ParseId().ToUpperInvariant() };
                             break;
+                        case "LANGUAGE_ORDER":
+                            context.LanguageOrder = parser.ParseStringList();  // 解析 ['en', 'zh-Hant', ...]
+                            break;
                         default:
                             throw new SyntaxException($"POLICY 内未知子命令 '{subCommand}'", parser.Peek());
                     }
