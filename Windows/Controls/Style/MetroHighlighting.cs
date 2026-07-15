@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 
-namespace MetroEditor.Controls.Style
+namespace MetroEditor.Windows.Controls.Style
 {
     /// <summary>
     /// Metro 语言语法高亮定义

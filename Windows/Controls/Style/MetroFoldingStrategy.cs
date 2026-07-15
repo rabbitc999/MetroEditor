@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MetroEditor.Controls.Style
+namespace MetroEditor.Windows.Controls.Style
 {
     /// <summary>
     /// Metro 语言专用代码折叠生成器

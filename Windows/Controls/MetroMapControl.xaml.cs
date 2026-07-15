@@ -216,6 +216,7 @@ namespace MetroEditor.Controls
         /// </summary>
         public void LoadData(JsonRoot root)
         {
+            if (root == null) return;
             _currentRoot = root ?? throw new ArgumentNullException(nameof(root));
             if (_isPageLoaded && webView.CoreWebView2 != null)
             {

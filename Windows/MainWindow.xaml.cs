@@ -1,11 +1,11 @@
 ﻿using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
-using MetroEditor.Controls.Style;
 using MetroEditor.MetroLang.Compiler;
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.Decompiler;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.MetroLang.Tool;
+using MetroEditor.Windows.Controls.Style;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;

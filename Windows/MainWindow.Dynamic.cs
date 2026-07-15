@@ -115,16 +115,9 @@ namespace MetroEditor.Windows
 
             if (result.Data != null)
             {
-                bool changed = UpdateUI(result.Data);
-                if (changed && result.Root != null)
-                {
-                    _currentRoot = result.Root;
-                    mapControl.LoadData(_currentRoot);
-                }
-                else
-                {
-                    _currentRoot = result.Root;
-                }
+                UpdateUI(result.Data);
+                _currentRoot = result.Root;
+                mapControl.LoadData(result.Root);
             }
         }
 

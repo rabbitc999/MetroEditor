@@ -383,7 +383,7 @@ namespace MetroEditor.Windows
         #region 常量与静态资源
         private const string DefaultStatus = "就绪";
         private const string DefaultCity = "北京";
-        private const double DebounceIntervalMs = 500;
+        private const double DebounceIntervalMs = 1000;
         private const double SizeChangedDebounceMs = 500;
         private const double FontSizeMin = 8;
         private const double FontSizeMax = 30;
