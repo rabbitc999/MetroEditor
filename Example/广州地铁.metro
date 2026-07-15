@@ -529,6 +529,7 @@ LINE_DEFINE F11
   FORMATION '6B'
   MAXSPEED 100
   OPEN_YEAR 2030
+  LINK 'https://baike.baidu.com/item/%E4%BD%9B%E5%B1%B1%E5%9C%B0%E9%93%8111%E5%8F%B7%E7%BA%BF'
   DIRECTION_DEFINE F11_0
     FUTURE
     STATIONS ['鹤洞东', '花围', '三山新城', '创智园', '港口路', '林岳东', '陈村北', '陈村东', '碧江', '碧江南', '顺德站', '永丰市场', '云路公园', '东乐路', '南国路', '宝林寺', '德胜西路', '容奇渡口']
