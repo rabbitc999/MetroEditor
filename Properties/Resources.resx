@@ -741,7 +741,7 @@
                     const gk = dirKeyToGroupKey.get(k);
                     if (gk) uniqueGroupKeys.add(gk);
                 });
-                const isTransfer = uniqueGroupKeys.size &gt; 1;
+                const isTransfer = uniqueGroupKeys.size &gt; 0;
 
                 return {
                     name,
@@ -1984,7 +1984,7 @@
                     const gk = dirKeyToGroupKey.get(k);
                     if (gk) uniqueGroupKeys.add(gk);
                 });
-                const isTransfer = uniqueGroupKeys.size &gt; 1;
+                const isTransfer = uniqueGroupKeys.size &gt; 0;
 
                 return {
                     name,

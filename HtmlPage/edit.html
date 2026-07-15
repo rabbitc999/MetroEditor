@@ -621,7 +621,7 @@
                     const gk = dirKeyToGroupKey.get(k);
                     if (gk) uniqueGroupKeys.add(gk);
                 });
-                const isTransfer = uniqueGroupKeys.size > 1;
+                const isTransfer = uniqueGroupKeys.size > 0;
 
                 return {
                     name,

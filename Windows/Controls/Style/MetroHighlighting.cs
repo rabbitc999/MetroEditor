@@ -127,7 +127,7 @@ namespace MetroEditor.Windows.Controls.Style
                 
                 // 线路属性
                 "NAME", "COLOR", "FORMATION", "MAXSPEED", "OPEN_YEAR",
-                "POWER", "BRAKE", "DISABLE", "SPECIAL", "LINK",
+                "POWER", "BRAKE", "DISABLE", "SPECIAL", "LINK", "DISTANCE",
                 
                 // 方向属性
                 "STATIONS", "NICK_NAME", "NICK_COLOR", "REVERSE",
