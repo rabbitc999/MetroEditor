@@ -1,78 +1,779 @@
-﻿# 主城市定义
+﻿# ============================================================
+#  情感地铁 · MetroLang 数据文件
+#  作者：你自己
+#  版本：V1.0
+#  更新日期：2026-07-16
+#  说明：这不是一份普通的地铁图。
+#        这是一段感情的全景回放——
+#        从初遇到热恋，从争吵到沉默，从换乘到各奔东西。
+#        每一站都是心跳的坐标，每一条线都是情绪的轨迹。
+# ============================================================
+
 PROGRAM_DEFINE
-    KEY_CITY '广州'
-    OTHER_CITY ['佛山', '中山']
+    KEY_CITY '心里'
+    OTHER_CITY ['回忆城', '未来市']
     VERSION 'V1.0'
-    UPDATE_DATE '2026-7-11'
+    UPDATE_DATE '2026-07-16'
+    AUTHOR '你'
+    CREATE_DATE '2026-07-16'
 END_DEFINE
 
-# 车站列表
+# ============================================================
+#  车站列表
+#  每个站点都是这段感情里一个真实的瞬间。
+#  坐标不重要，重要的是它们被记住了。
+# ============================================================
 STATION_DEFINE
-  NODE "广州东站" COORD 113.332, 23.156 CITY "广州"
-  NODE "体育中心" COORD 113.328, 23.142 CITY "广州"
-  NODE "西塱" COORD 113.233, 23.082 CITY "广州"
+  NODE '擦肩' COORD 113.300000, 23.100000 CITY '心里'
+  NODE '偷看' COORD 113.301000, 23.101000 CITY '心里'
+  NODE '加微信' COORD 113.302000, 23.102500 CITY '心里'
+  NODE '第一次聊天' COORD 113.303000, 23.104000 CITY '心里'
+  NODE '失眠' COORD 113.304000, 23.106000 CITY '心里'
+  NODE '心动' COORD 113.305000, 23.108000 CITY '心里'
+  NODE '牵手' COORD 113.306000, 23.110000 CITY '心里'
+  NODE '第一次约会' COORD 113.307500, 23.112000 CITY '心里'
+  NODE '说晚安' COORD 113.309000, 23.114000 CITY '心里'
+  NODE '吃火锅' COORD 113.310500, 23.116000 CITY '心里'
+  NODE '见朋友' COORD 113.312000, 23.118000 CITY '心里'
+  NODE '去海边' COORD 113.314000, 23.120000 CITY '心里'
+  NODE '我爱你' COORD 113.316000, 23.122000 CITY '心里'
+  NODE '冷战' COORD 113.308000, 23.115000 CITY '心里'
+  NODE '误会' COORD 113.306500, 23.113500 CITY '心里'
+  NODE '摔门' COORD 113.305000, 23.112000 CITY '心里'
+  NODE '沉默' COORD 113.303500, 23.110500 CITY '心里'
+  NODE '眼泪' COORD 113.302000, 23.109000 CITY '心里'
+  NODE '道歉' COORD 113.311000, 23.117000 CITY '心里'
+  NODE '拥抱' COORD 113.313000, 23.119000 CITY '心里'
+  NODE '和好' COORD 113.315000, 23.121000 CITY '心里'
+  NODE '习惯' COORD 113.317000, 23.123000 CITY '心里'
+  NODE '忙碌' COORD 113.318500, 23.124000 CITY '心里'
+  NODE '忽略' COORD 113.320000, 23.125000 CITY '心里'
+  NODE '孤独' COORD 113.321500, 23.125500 CITY '心里'
+  NODE '分手' COORD 113.323000, 23.126000 CITY '心里'
+  NODE '一个人' COORD 113.324500, 23.126500 CITY '心里'
+  NODE '搬家' COORD 113.326000, 23.127000 CITY '未来市'
+  NODE '养猫' COORD 113.327500, 23.127200 CITY '未来市'
+  NODE '结婚' COORD 113.329000, 23.127000 CITY '未来市'
+  NODE '旅行' COORD 113.330500, 23.126500 CITY '未来市'
+  NODE '老去' COORD 113.332000, 23.125800 CITY '未来市'
+  NODE '第一次吵架' COORD 113.320854, 23.121927 CITY '回忆城'
+  NODE '第一次旅行' COORD 113.314520, 23.124081 CITY '回忆城'
+  NODE '第一个生日' COORD 113.313760, 23.126804 CITY '回忆城'
+  NODE '第一次搬家' COORD 113.314963, 23.129401 CITY '回忆城'
+  NODE '第一次说永远' COORD 113.319714, 23.129148 CITY '回忆城'
+  NODE '早睡' COORD 113.325000, 23.128000 CITY '心里'
+  NODE '跑步' COORD 113.326000, 23.129000 CITY '心里'
+  NODE '写代码' COORD 113.327000, 23.130000 CITY '心里'
+  NODE '新朋友' COORD 113.328000, 23.131000 CITY '心里'
+  NODE '原谅自己' COORD 113.329000, 23.132000 CITY '心里'
+  NODE '重新出发' COORD 113.330000, 23.133000 CITY '心里'
 END_DEFINE
 
-# 线路定义
-LINE_DEFINE GZ1
-  NAME '1号线'
-  COLOR '#F47920'
-  OPEN_YEAR 2000
-  SPECIAL
-  DIRECTION_DEFINE GZ1_0
-    STATIONS ['广州东站', '体育中心', '西塱']
-    DISTANCE [2.083711, 11.787928, NIL]
-    VIA GZ1_1
-  END_DEFINE
-  DIRECTION_DEFINE GZ1_1 REV GZ1_0
-  POWER 1100
-END_DEFINE
-
-# 运营参数
+# ============================================================
+#  运营参数
+#  进站需要勇气，出站需要时间。
+#  换乘最累，但有时候不得不换。
+# ============================================================
 OPERATION_DEFINE
-  TRANSFER_TIME 180
-  OUT_STATION_TRANSFER_TIME 300
-  STOP_TIME 30
-  ENTRY_TIME 120
+    TRANSFER_TIME 180
+    DWELL_TIME 45
+    OUT_STATION_TRANSFER_TIME 900
+    ENTRY_TIME 120
+    AVG_BOARD_TIME 3
 END_DEFINE
 
-# 自定义停站时间
-STOP_TIME '体育中心' GZ1 30.00
-STOP_TIME '体育中心' GZ1 30.00
-STOP_TIME '西塱' GZ1 36.00
-STOP_TIME '西塱' GZ1 36.00
+# ============================================================
+#  换乘类型定义
+#  有些换乘是体面的，有些是狼狈的，
+#  有些，需要走很长的路才能到达另一个人。
+# ============================================================
+TRANSFER_TYPE SAME "同台换乘"
+    TIME 60
+    STATUS operating
+END_DEFINE
 
-# 票价规则
+TRANSFER_TYPE STAIR "楼梯换乘"
+    TIME 120
+    STATUS operating
+END_DEFINE
+
+TRANSFER_TYPE HALL "站厅换乘"
+    TIME 180
+    STATUS operating
+END_DEFINE
+
+TRANSFER_TYPE CHANNEL "通道换乘"
+    TIME 300
+    STATUS operating
+END_DEFINE
+
+TRANSFER_TYPE CHANNEL_LONG "长距离通道换乘"
+    TIME 600
+    STATUS operating
+END_DEFINE
+
+TRANSFER_TYPE OUT "出站换乘"
+    TIME 900
+    STATUS out_station
+END_DEFINE
+
+TRANSFER_TYPE PENDING "暂缓开通换乘"
+    TIME 300
+    STATUS pending
+END_DEFINE
+
+TRANSFER_TYPE TEARS "含泪换乘"
+    TIME 1200
+    STATUS operating
+END_DEFINE
+
+# ============================================================
+#  1号线 —— 「初遇线」
+#  颜色：暖橙色，像第一次见面时脸红的温度
+#  从擦肩到心动，只需要六站。
+#  但你知道，这六站花了多长时间才走到。
+# ============================================================
+LINE_DEFINE L1
+    NAME '初遇线'
+    COLOR '#FF6B35'
+    CITY '心里'
+    FORMATION '2人'
+    MAXSPEED 30
+    OPEN_YEAR 2024
+    LINK 'https://memory.local/first-meeting'
+    DIRECTION_DEFINE L1_0
+        STATIONS ['擦肩', '偷看', '加微信', '第一次聊天', '失眠', '心动']
+        DISTANCE [0.5, 0.8, 1.2, 2.0, 1.5, NIL]
+    END_DEFINE
+    DIRECTION_DEFINE L1_1 REV L1_0
+END_DEFINE
+
+# ============================================================
+#  2号线 —— 「热恋线」（1号线的自然延伸）
+#  颜色：炽热红，像火锅沸腾时的气泡
+#  从牵手到"我爱你"，一路加速。
+#  这段路走得最快，也记得最清楚。
+# ============================================================
+LINE_DEFINE L2
+    NAME '热恋线'
+    COLOR '#E63946'
+    CITY '心里'
+    FORMATION '2人'
+    MAXSPEED 120
+    OPEN_YEAR 2024
+    LINK 'https://memory.local/in-love'
+    DIRECTION_DEFINE L2_0
+        STATIONS ['心动', '牵手', '第一次约会', '说晚安', '吃火锅', '见朋友', '去海边', '我爱你']
+        DISTANCE [0.8, 1.5, 2.0, 1.2, 1.8, 2.5, 3.0, NIL]
+    END_DEFINE
+    DIRECTION_DEFINE L2_1 REV L2_0
+END_DEFINE
+
+# ============================================================
+#  3号线 —— 「争吵支线」
+#  颜色：暗紫色，像深夜吵架后挂掉的电话
+#  这是从"去海边"分岔出去的一条支线。
+#  本来是要去更远的地方的，结果拐进了死胡同。
+#  支线标记：BRANCH
+# ============================================================
+LINE_DEFINE L3
+    NAME '争吵支线'
+    COLOR '#5B2C6F'
+    CITY '心里'
+    FORMATION '1人'
+    MAXSPEED 60
+    OPEN_YEAR 2025
+    LINK 'https://memory.local/fight'
+    DIRECTION_DEFINE L3_0
+        STATIONS ['去海边', '冷战', '误会', '摔门', '沉默', '眼泪']
+        DISTANCE [1.0, 0.8, 1.2, 0.5, 1.5, NIL]
+        NICK_NAME '情绪短路'
+        NICK_COLOR '#7D3C98'
+        BRANCH
+    END_DEFINE
+    DIRECTION_DEFINE L3_1 REV L3_0
+END_DEFINE
+
+# ============================================================
+#  4号线 —— 「挽回支线」
+#  颜色：温柔粉，像道歉时递过来的一杯热奶茶
+#  从"吃火锅"分岔，试图绕回主线的轨道。
+#  有些努力成功了（和好），有些没有。
+#  支线标记：BRANCH
+# ============================================================
+LINE_DEFINE L4
+    NAME '挽留支线'
+    COLOR '#F06292'
+    CITY '心里'
+    FORMATION '2人'
+    MAXSPEED 40
+    OPEN_YEAR 2025
+    LINK 'https://memory.local/try-again'
+    DIRECTION_DEFINE L4_0
+        STATIONS ['吃火锅', '道歉', '拥抱', '和好']
+        DISTANCE [0.6, 1.0, 0.8, NIL]
+        NICK_NAME '再试一次'
+        NICK_COLOR '#EC407A'
+        BRANCH
+    END_DEFINE
+    DIRECTION_DEFINE L4_1 REV L4_0
+END_DEFINE
+
+# ============================================================
+#  5号线 —— 「平淡线」（主线继续）
+#  颜色：灰色蓝，像每天重复的对话和渐渐安静的晚安
+#  从"我爱你"到"分手"，中间隔着最容易被忽略的"习惯"。
+#  没有大吵大闹，只是慢慢走散。
+# ============================================================
+LINE_DEFINE L5
+    NAME '平淡线'
+    COLOR '#6C8EBF'
+    CITY '心里'
+    FORMATION '2人'
+    MAXSPEED 20
+    OPEN_YEAR 2025
+    LINK 'https://memory.local/routine'
+    DIRECTION_DEFINE L5_0
+        STATIONS ['我爱你', '习惯', '忙碌', '忽略', '孤独', '分手']
+        DISTANCE [2.0, 3.0, 2.5, 3.5, 4.0, NIL]
+    END_DEFINE
+    DIRECTION_DEFINE L5_1 REV L5_0
+END_DEFINE
+
+# ============================================================
+#  6号线 —— 「终点线」
+#  颜色：深灰，像凌晨三点手机屏幕的光
+#  只有两站。从"分手"到"一个人"。
+#  距离很短，但走完用了整整一个夏天。
+# ============================================================
+LINE_DEFINE L6
+    NAME '终点线'
+    COLOR '#4A4A4A'
+    CITY '心里'
+    FORMATION '1人'
+    MAXSPEED 10
+    OPEN_YEAR 2026
+    LINK 'https://memory.local/the-end'
+    DIRECTION_DEFINE L6_0
+        STATIONS ['分手', '一个人']
+        DISTANCE [1.5, NIL]
+    END_DEFINE
+    DIRECTION_DEFINE L6_1 REV L6_0
+END_DEFINE
+
+# ============================================================
+#  7号线 —— 「未来规划线」（暂缓开通）
+#  颜色：淡金色，像许诺时认真的眼神
+#  这些站永远停在了"规划"状态。
+#  不是不想开通，是有些人走不到那里了。
+#  FUTURE 标记：规划中，暂未开通
+# ============================================================
+LINE_DEFINE L7
+    NAME '未来规划线'
+    COLOR '#D4A017'
+    CITY '未来市'
+    FORMATION '2人'
+    MAXSPEED 80
+    OPEN_YEAR 2030
+    LINK 'https://memory.local/what-if'
+    DIRECTION_DEFINE L7_0
+        FUTURE
+        STATIONS ['分手', '搬家', '养猫', '结婚', '旅行', '老去']
+        DISTANCE AUTO
+    END_DEFINE
+    DIRECTION_DEFINE L7_1 REV L7_0
+END_DEFINE
+
+# ============================================================
+#  8号线 —— 「回忆环线」
+#  颜色：湖水绿，像翻旧照片时泛起的情绪
+#  环线，没有终点。你可以一直坐下去，
+#  从"第一次吵架"到"第一次说永远"，再绕回来。
+#  但环线坐久了会晕，所以大多数人只坐一圈就下了。
+#  LOOP 标记：环线
+# ============================================================
+LINE_DEFINE L8
+    NAME '回忆环线'
+    COLOR '#1ABC9C'
+    CITY '回忆城'
+    FORMATION '1人'
+    MAXSPEED 15
+    OPEN_YEAR 2026
+    LINK 'https://memory.local/loop'
+    DIRECTION_DEFINE L8_0
+        STATIONS ['分手', '第一次吵架', '第一次旅行', '第一个生日', '第一次搬家', '第一次说永远', '分手']
+        DISTANCE [2.0, 1.5, 1.8, 2.2, 1.6, 2.0, NIL]
+        NICK_NAME '回不去的从前'
+        NICK_COLOR '#16A085'
+        LOOP OUTER
+    END_DEFINE
+    DIRECTION_DEFINE L8_1
+        STATIONS ['分手', '第一次说永远', '第一次搬家', '第一个生日', '第一次旅行', '第一次吵架', '分手']
+        DISTANCE [2.0, 2.0, 1.6, 2.2, 1.8, 1.5, NIL]
+        NICK_NAME '倒带的记忆'
+        NICK_COLOR '#148F77'
+        LOOP INNER
+    END_DEFINE
+END_DEFINE
+
+# ============================================================
+#  9号线 —— 「治愈新线」（正在建设）
+#  颜色：朝阳橙，像清晨五点半的天边
+#  这是分手后才开始修的线。
+#  不连接任何人，只通往自己。
+#  FUTURE 标记：规划中，但这次是为了自己
+# ============================================================
+LINE_DEFINE L9
+    NAME '治愈新线'
+    COLOR '#FF8C42'
+    CITY '心里'
+    FORMATION '1人'
+    MAXSPEED 50
+    OPEN_YEAR 2027
+    LINK 'https://memory.local/healing'
+    DIRECTION_DEFINE L9_0
+        FUTURE
+        STATIONS ['一个人', '早睡', '跑步', '写代码', '新朋友', '原谅自己', '重新出发']
+        DISTANCE AUTO
+    END_DEFINE
+    DIRECTION_DEFINE L9_1 REV L9_0
+END_DEFINE
+
+# ============================================================
+#  换乘定义
+#  这些换乘站，是感情里最纠结的十字路口。
+# ============================================================
+
+# 心动站：初遇线 → 热恋线（同台换乘，因为那一刻你毫不犹豫）
+TRANSFER SAME "心动" L1 L2
+
+# 去海边站：热恋线 → 争吵支线（通道换乘，吵起来要走的路很长）
+TRANSFER CHANNEL "去海边" L2 L3
+
+# 吃火锅站：热恋线 → 挽留支线（楼梯换乘，道歉需要爬坡）
+TRANSFER STAIR "吃火锅" L2 L4
+
+# 和好站：挽留支线 → 热恋线（站厅换乘，和好后重新汇入人海）
+TRANSFER HALL "和好" L4 L2
+
+# 我爱你站：热恋线 → 平淡线（含泪换乘，从炽热到温吞，只需要一个转身）
+TRANSFER TEARS "我爱你" L2 L5
+
+# 分手站：所有线路的终点 / 起点
+# 这是一个超级换乘站 —— 所有故事在这里交汇，也在这里分岔。
+TRANSFER CHANNEL_LONG "分手" L5 L6        # 平淡 → 终点（长距离，走得很累）
+TRANSFER HALL "分手" L5 L7                  # 平淡 → 未来（站厅换乘，但未来暂缓）
+TRANSFER PENDING "分手" L5 L7               # 未来规划线暂缓开通
+TRANSFER SAME "分手" L6 L8                  # 终点 → 回忆（同台，因为回忆总在不经意间涌来）
+TRANSFER STAIR "分手" L6 L9                 # 终点 → 治愈（爬楼梯上楼，每一步都重）
+TRANSFER PENDING "分手" L7 L9               # 未来 → 治愈（都还没开通，遥遥相望）
+
+# 一个人站：终点线 → 治愈新线（出站换乘，需要走出车站才能重新开始）
+TRANSFER OUT "一个人" L6 L9
+
+# 沉默站：争吵支线 → 平淡线（通道换乘，冷战之后是更深的沉默）
+TRANSFER CHANNEL "沉默" L3 L5
+
+# 眼泪站：争吵支线 → 回忆环线（含泪换乘，哭着回忆更难受）
+TRANSFER TEARS "眼泪" L3 L8
+
+# 见朋友站：热恋线 → 回忆环线（站厅换乘，和朋友吃饭时突然想起你）
+TRANSFER HALL "见朋友" L2 L8
+
+# ============================================================
+#  站点状态
+#  有些站，永远停在了"建设中"。
+#  不是不去，是去不了。
+# ============================================================
+STATION_STATUS '搬家' L7 PENDING
+STATION_STATUS '养猫' L7 PENDING
+STATION_STATUS '结婚' L7 PENDING
+STATION_STATUS '旅行' L7 PENDING
+STATION_STATUS '老去' L7 PENDING
+STATION_STATUS '原谅自己' L9 PENDING
+STATION_STATUS '重新出发' L9 PENDING
+
+# ============================================================
+#  拥挤度定义
+#  早高峰的地铁挤不挤，取决于心里装着谁。
+# ============================================================
+
+# 初遇线：人少，世界只有你们两个
+CROWD_PROFILE L1_0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 1.0
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 1.0
+    PERIOD TIME_RANGE 18:00 24:00 VALUE 1.0
+END_DEFINE
+CROWD_PROFILE L1_1
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.0
+END_DEFINE
+
+# 热恋线：高峰期挤到窒息（幸福得喘不过气）
+CROWD_PROFILE L2_0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 2.5
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 2.0
+    PERIOD TIME_RANGE 18:00 24:00 VALUE 2.5
+END_DEFINE
+CROWD_PROFILE L2_1
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 2.5
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 2.0
+    PERIOD TIME_RANGE 18:00 24:00 VALUE 2.5
+END_DEFINE
+
+# 争吵支线：时堵时通，情绪不稳定
+CROWD_PROFILE L3_0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 10:00 14:00 VALUE 2.0
+    PERIOD TIME_RANGE 20:00 23:00 VALUE 2.8
+END_DEFINE
+CROWD_PROFILE L3_1
+    PERIOD TIME_RANGE 20:00 23:00 VALUE 2.8
+    PERIOD TIME_RANGE 10:00 14:00 VALUE 2.0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+END_DEFINE
+
+# 挽留支线：人很少，因为只有一个人愿意低头
+CROWD_PROFILE L4_0
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.1
+END_DEFINE
+CROWD_PROFILE L4_1
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.1
+END_DEFINE
+
+# 平淡线：越来越空，因为心在慢慢撤离
+CROWD_PROFILE L5_0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 1.8
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 1.5
+    PERIOD TIME_RANGE 18:00 22:00 VALUE 1.2
+    PERIOD TIME_RANGE 22:00 24:00 VALUE 1.0
+END_DEFINE
+CROWD_PROFILE L5_1
+    PERIOD TIME_RANGE 22:00 24:00 VALUE 1.0
+    PERIOD TIME_RANGE 18:00 22:00 VALUE 1.2
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 1.5
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 1.8
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+END_DEFINE
+
+# 终点线：只有你一个人
+CROWD_PROFILE L6_0
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.0
+END_DEFINE
+CROWD_PROFILE L6_1
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.0
+END_DEFINE
+
+# 未来规划线：虚线运行，无人乘坐
+CROWD_PROFILE L7_0
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.0
+END_DEFINE
+CROWD_PROFILE L7_1
+    PERIOD TIME_RANGE 00:00 24:00 VALUE 1.0
+END_DEFINE
+
+# 回忆环线：周末最挤（一个人没事做的时候最容易回忆）
+CROWD_PROFILE L8_0
+    PERIOD TIME_RANGE 00:00 09:00 VALUE 1.0
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 1.5 WORKDAY
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 2.2 WEEKEND
+    PERIOD TIME_RANGE 18:00 24:00 VALUE 2.0
+END_DEFINE
+CROWD_PROFILE L8_1
+    PERIOD TIME_RANGE 18:00 24:00 VALUE 2.0
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 2.2 WEEKEND
+    PERIOD TIME_RANGE 09:00 18:00 VALUE 1.5 WORKDAY
+    PERIOD TIME_RANGE 00:00 09:00 VALUE 1.0
+END_DEFINE
+
+# 治愈新线：清晨人少，适合和自己相处
+CROWD_PROFILE L9_0
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 1.2
+    PERIOD TIME_RANGE 09:00 24:00 VALUE 1.0
+END_DEFINE
+CROWD_PROFILE L9_1
+    PERIOD TIME_RANGE 09:00 24:00 VALUE 1.0
+    PERIOD TIME_RANGE 06:00 09:00 VALUE 1.2
+    PERIOD TIME_RANGE 00:00 06:00 VALUE 1.0
+END_DEFINE
+
+# ============================================================
+#  发车间隔
+#  想念的频率，就是发车的频率。
+# ============================================================
+HEADWAY_PROFILE L1
+    PERIOD 08:00 22:00 600
+    PERIOD 22:00 08:00 1800
+END_DEFINE
+
+HEADWAY_PROFILE L2
+    PERIOD 07:00 09:00 60
+    PERIOD 09:00 17:00 120
+    PERIOD 17:00 19:00 60
+    PERIOD 19:00 23:00 180
+    PERIOD 23:00 07:00 600
+END_DEFINE
+
+HEADWAY_PROFILE L3
+    PERIOD 10:00 14:00 300
+    PERIOD 20:00 23:00 120
+    PERIOD 23:00 10:00 3600
+END_DEFINE
+
+HEADWAY_PROFILE L4
+    PERIOD 00:00 24:00 1800
+END_DEFINE
+
+HEADWAY_PROFILE L5
+    PERIOD 07:00 09:00 300
+    PERIOD 09:00 18:00 600
+    PERIOD 18:00 22:00 900
+    PERIOD 22:00 07:00 3600
+END_DEFINE
+
+HEADWAY_PROFILE L6
+    PERIOD 00:00 24:00 3600
+END_DEFINE
+
+HEADWAY_PROFILE L7
+    PERIOD 00:00 24:00 86400
+END_DEFINE
+
+HEADWAY_PROFILE L8
+    PERIOD 09:00 18:00 600 WORKDAY
+    PERIOD 09:00 18:00 300 WEEKEND
+    PERIOD 18:00 24:00 450
+    PERIOD 00:00 09:00 1800
+END_DEFINE
+
+HEADWAY_PROFILE L9
+    PERIOD 06:00 09:00 900
+    PERIOD 09:00 24:00 1800
+    PERIOD 00:00 06:00 3600
+END_DEFINE
+
+# ============================================================
+#  停站时间
+#  有些站你舍不得走，多停一会儿。
+#  有些站你不敢停，一秒都不想多待。
+# ============================================================
+DWELL_TIME_DEFINE
+    # 主线默认30秒
+    LINE L1 30
+    LINE L2 30
+    LINE L3 30
+    LINE L4 30
+    LINE L5 30
+    LINE L6 30
+    LINE L7 30
+    LINE L8 30
+    LINE L9 30
+
+    # 重要站点多停一会儿
+    NODE '心动' L1 60
+    NODE '心动' L2 60
+    NODE '我爱你' L2 90
+    NODE '我爱你' L5 90
+    NODE '拥抱' L4 120
+    NODE '和好' L4 120
+    NODE '分手' L5 180
+    NODE '分手' L6 180
+    NODE '一个人' L6 120
+    NODE '失眠' L1 90
+    NODE '眼泪' L3 120
+    NODE '原谅自己' L9 180
+    NODE '重新出发' L9 60
+END_DEFINE
+
+# ============================================================
+#  运营时间
+#  心里的地铁，有些线全天运行（因为失眠）。
+#  有些线只在特定时段开（因为只敢在深夜想你）。
+# ============================================================
+OPEN_TIME GLOBAL 00:00 24:00
+
+OPEN_TIME L1 06:00 23:00
+OPEN_TIME L2 06:00 23:30
+OPEN_TIME L3 10:00 23:00
+OPEN_TIME L4 08:00 20:00
+OPEN_TIME L5 06:00 22:00
+OPEN_TIME L6 00:00 24:00
+OPEN_TIME L7 00:00 00:00
+OPEN_TIME L8 00:00 24:00
+OPEN_TIME L9 05:00 22:00
+
+# ============================================================
+#  票价规则
+#  心的距离，不能用钱衡量。
+#  但每一段路，都有它的代价。
+# ============================================================
 PRICE_DEFINE
-  DEFAULT_FARE 2.00
-  SEGMENT 0.00 6.00 2.00
-  SEGMENT 6.00 12.00 3.00
-  LINEAR_EXTENSION THRESHOLD 12.00 BASE_FARE 3.00 RATE_PER_KM 0.200000
-  SPECIAL_LINE GZ1 ALL 25.00
+    DEFAULT_FARE 0.00
+    SEGMENT 0.00 2.00 0.00
+    SEGMENT 2.00 5.00 1.00
+    SEGMENT 5.00 10.00 2.00
+    SEGMENT 10.00 20.00 5.00
+    SEGMENT 20.00 50.00 10.00
+    LINEAR_EXTENSION THRESHOLD 50.00 BASE_FARE 10.00 RATE_PER_KM 0.5
 END_DEFINE
 
-# 发车间隔
-HEADWAY_PROFILE GZ1
-   PERIOD TIME_RANGE 07:00 09:00 VALUE 120
+# ============================================================
+#  标签定义
+#  在地图上标注那些说不出口的话。
+# ============================================================
+LABEL_DEFINE
+    NODE '这里你笑了' COORD 113.310000, 23.115000
+    NODE '这里你说"没关系"' COORD 113.305500, 23.111000
+    NODE '这里你哭了' COORD 113.302500, 23.109500
+    NODE '这里你们合照了' COORD 113.314500, 23.120500
+    NODE '这里你说"再见"' COORD 113.323500, 23.125500
+    NODE '这里你开始一个人吃饭' COORD 113.325500, 23.128500
+    NODE '这里你重新笑了' COORD 113.329500, 23.132500
 END_DEFINE
 
-# 站点进出模式
-STATION_MODE '体育中心' ENTRY_ONLY TIME_RANGE 07:30 09:00 WORKDAY
+# ============================================================
+#  无障碍设施
+#  心碎的人也需要无障碍通道。
+#  伤过的人，更应该被温柔以待。
+# ============================================================
+FACILITY_DEFINE
+    TOILET '分手' POSITION paid_area ACCESSIBLE GENDER mixed
+    ACCESSIBLE_TOILET '分手' POSITION paid_area GENDER mixed
+    ELEVATOR '分手' LOCATION 'A口，直通地面' ACCESSIBLE
+    WIDE_GATE '分手' QUANTITY 3
+    ESCALATOR '分手' QUANTITY 2 DIRECTION up
+    TACTILE_PAVING '分手' STATUS available
 
-# 拥挤度系数
-CROWD_PROFILE GZ1_0
-  PERIOD 07:00 09:00 1.50 WORKDAY
+    TOILET '一个人' POSITION paid_area
+    ELEVATOR '一个人' LOCATION '站厅东侧' ACCESSIBLE
+    ESCALATOR '一个人' QUANTITY 1 DIRECTION both
+    TACTILE_PAVING '一个人' STATUS available
+
+    TOILET '拥抱' POSITION paid_area GENDER mixed
+    TACTILE_PAVING '拥抱' STATUS available
+
+    TOILET '重新出发' POSITION unpaid_area ACCESSIBLE GENDER mixed
+    ELEVATOR '重新出发' LOCATION '出口正前方' ACCESSIBLE
+    ESCALATOR '重新出发' QUANTITY 2 DIRECTION both
+    TACTILE_PAVING '重新出发' STATUS available
 END_DEFINE
 
-# 运营时间
-OPEN_TIME GLOBAL 06:00 23:00
-OPEN_TIME GZ1 06:30 22:30 WEEKEND
+# ============================================================
+#  票价优惠策略
+#  有些路，走得越久越便宜。
+#  有些路，从一开始就免费。
+# ============================================================
+PROMOTION_DEFINE
+    POLICY first_love_discount
+        NAME '初恋折扣'
+        DESCRIPTION '第一次心动的人，永远半价'
+        TYPE rate
+        VALUE 0.5
+        APPLICABLE_LINES [L1, L2]
+    END_POLICY
 
-# 车辆段
-DEPOT GZ1 '西塱' GZ1_0 06:00
+    POLICY breakup_free
+        NAME '分手免费'
+        DESCRIPTION '从"分手"站出发，全线网免费'
+        TYPE fixed_discount
+        VALUE 999.0
+        APPLICABLE_LINES [L5, L6, L8, L9]
+    END_POLICY
 
-# 区间限速
-SPEED_LIMIT_DEFINE GZ1_0
-  NODE '广州东站' '体育中心' 70
-  NODE '体育中心' '西塱' 60
+    POLICY healing_pass
+        NAME '自愈月票'
+        DESCRIPTION '通往"重新出发"的路，一口价'
+        TYPE fixed
+        VALUE 0.0
+        APPLICABLE_LINES [L9]
+    END_POLICY
+
+    POLICY memory_transfer
+        NAME '回忆换乘优惠'
+        DESCRIPTION '在回忆环线换乘，立减'
+        TYPE fixed_discount
+        VALUE 2.0
+        APPLICABLE_LINES [L8]
+    END_POLICY
 END_DEFINE
+
+# ============================================================
+#  站点进出模式
+#  有些站，你只能进不能出（因为不想面对）。
+#  有些站，你只能出不能进（因为回不去了）。
+# ============================================================
+STATION_MODE '分手' BOTH
+STATION_MODE '一个人' BOTH
+STATION_MODE '老去' EXIT_ONLY
+STATION_MODE '重新出发' ENTRY_ONLY
+STATION_MODE '失眠' BOTH TIME_RANGE 00:00 06:00
+
+# ============================================================
+#  虚拟换乘
+#  有些距离，地图上没有，但心里有。
+# ============================================================
+VIRTUAL_TRANSFER_DEFINE '眼泪' '原谅自己'
+    TIME_MINUTES 30
+END_DEFINE
+
+VIRTUAL_TRANSFER_DEFINE '分手' '重新出发'
+    TIME_MINUTES 60
+END_DEFINE
+
+# ============================================================
+#  车辆段
+#  车停在哪里，心就停在哪里。
+# ============================================================
+DEPOT L1 '失眠' L1_0 23:00
+DEPOT L2 '我爱你' L2_0 23:30
+DEPOT L5 '孤独' L5_0 22:00
+DEPOT L6 '一个人' L6_0 24:00
+DEPOT L8 '第一次说永远' L8_0 02:00
+DEPOT L9 '写代码' L9_0 22:00
+
+# ============================================================
+#  限速定义
+#  有些路段必须慢行。
+#  不是因为限速牌，而是因为风景太好，想多看一眼。
+# ============================================================
+SPEED_LIMIT_DEFINE L2_0
+    NODE '牵手' '第一次约会' 15
+    NODE '去海边' '我爱你' 20
+END_DEFINE
+
+SPEED_LIMIT_DEFINE L5_0
+    NODE '孤独' '分手' 5
+END_DEFINE
+
+SPEED_LIMIT_DEFINE L9_0
+    NODE '原谅自己' '重新出发' 10
+END_DEFINE
+
+# ============================================================
+#  共线声明
+#  "和好"站之后，挽留支线和热恋线短暂共线——
+#  就像复合后那几天，一切看起来都像从前。
+# ============================================================
+VIA L4_0 L2_0
+
+# ============================================================
+#  终点站注释
+# ============================================================
+#  "分手"站是全线网最大的换乘枢纽。
+#  从这里，你可以去回忆环线绕圈，
+#  可以去未来规划线（虽然暂缓开通），
+#  也可以去治愈新线（虽然还在建设）。
+#  但不管选哪条线，你都已经买了单程票。
+#
+#  好消息是——
+#  L9「治愈新线」的终点站「重新出发」，
+#  是全线网唯一一个 ENTRY_ONLY 的站。
+#  你只能进，不能出。
+#  因为从那里开始，没有回头路。
+#
+#  这大概就是最好的结局吧。
+# ============================================================
