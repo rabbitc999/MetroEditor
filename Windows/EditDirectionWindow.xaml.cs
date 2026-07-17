@@ -189,27 +189,15 @@ namespace MetroEditor.Windows
                 string input = SearchTextBox.Text.Trim();
                 if (string.IsNullOrEmpty(input)) return;
 
-                // 忽略大小写匹配站点
-                var match = _allStations.FirstOrDefault(s =>
-                    s.Equals(input, StringComparison.OrdinalIgnoreCase));
-
-                if (match != null)
+                if (!SelectedStationListBox.Items.Contains(input))
                 {
-                    if (!SelectedStationListBox.Items.Contains(match))
-                    {
-                        SelectedStationListBox.Items.Add(match);
-                        SearchTextBox.Text = ""; // 清空输入，方便继续添加
-                    }
-                    else
-                    {
-                        MessageBox.Show($"站点 '{match}' 已添加", "提示",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                    SelectedStationListBox.Items.Add(input);
+                    SearchTextBox.Text = ""; // 清空输入，方便继续添加
                 }
                 else
                 {
-                    MessageBox.Show($"未找到站点 '{input}'，请先添加该站点", "提示",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"站点 '{input}' 已添加", "提示",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 e.Handled = true;
             }
@@ -242,19 +230,15 @@ namespace MetroEditor.Windows
                 int added = 0, notFound = 0;
                 foreach (var line in lines)
                 {
-                    var match = _allStations.FirstOrDefault(st =>
-                        st.Equals(line, StringComparison.OrdinalIgnoreCase));
-                    if (match != null)
+                    if (!SelectedStationListBox.Items.Contains(line))
                     {
-                        if (!SelectedStationListBox.Items.Contains(match))
-                        {
-                            SelectedStationListBox.Items.Add(match);
-                            added++;
-                        }
+                        SelectedStationListBox.Items.Add(line);
+                        SearchTextBox.Text = ""; // 清空输入，方便继续添加
                     }
                     else
                     {
-                        notFound++;
+                        MessageBox.Show($"站点 '{line}' 已添加", "提示",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
 

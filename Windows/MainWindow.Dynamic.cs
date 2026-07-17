@@ -461,7 +461,7 @@ namespace MetroEditor.Windows
 
         private void GenerateDirection_Click(object sender, EventArgs e)
         {
-            if (_currentParsedData == null || _currentParsedData.Stations.Count == 0)
+            if (_currentParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获得站台列表", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
