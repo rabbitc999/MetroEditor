@@ -14,216 +14,183 @@ namespace MetroEditor.Windows.Controls.Style
     public static class MetroFoldingGenerator
     {
         // ===== 代码块起始关键字集合 =====
-        // 包含所有支持块结构的 MetroLang 命令
+        // 包含所有支持块结构的 MetroLang 命令（包括新增的 TEMPLATE 和 MODIFY 块）
         private static readonly HashSet<string> BlockStartKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "PROGRAM_DEFINE",      // 程序定义块
-            "LINE_DEFINE",         // 线路定义块
-            "DIRECTION_DEFINE",    // 方向定义块
-            "STATION_DEFINE",      // 车站定义块
-            "PRICE_DEFINE",        // 票价定义块
-            "TRANSFER_DEFINE",     // 换乘定义块
-            "TRANSFER_TYPE",       // 换乘类型定义块
-            "VIRTUAL_TRANSFER_DEFINE", // 虚拟换乘定义块
-            "OPERATION_DEFINE",    // 运营参数定义块
-            "HEADWAY_PROFILE",     // 发车间隔配置块
-            "CROWD_PROFILE",       // 拥挤度配置块
-            "DWELL_TIME_DEFINE",   // 停站时间定义块
-            "SPEED_LIMIT_DEFINE",  // 限速定义块
-            "LABEL_DEFINE",        // 标注定义块
-            "SPECIAL_DEFINE",      // 特殊线路定义块
-            "FACILITY_DEFINE",     // 设施定义块
-            "PROMOTION_DEFINE",    // 优惠策略定义块
-            "IF",                  // 条件编译块
+            "PROGRAM_DEFINE",
+            "LINE_DEFINE",
+            "DIRECTION_DEFINE",
+            "STATION_DEFINE",
+            "PRICE_DEFINE",
+            "TRANSFER_DEFINE",
+            "TRANSFER_TYPE",
+            "VIRTUAL_TRANSFER_DEFINE",
+            "OPERATION_DEFINE",
+            "HEADWAY_PROFILE",
+            "CROWD_PROFILE",
+            "DWELL_TIME_DEFINE",
+            "SPEED_LIMIT_DEFINE",
+            "LABEL_DEFINE",
+            "SPECIAL_DEFINE",
+            "FACILITY_DEFINE",
+            "PROMOTION_DEFINE",
+            // 新增：模板与修改块
+            "LINE_TEMPLATE",
+            "DIRECTION_TEMPLATE",
+            "LINE_MODIFY",
+            "DIRECTION_MODIFY",
+            "POLICY",          // PROMOTION_DEFINE 内部策略块
+            "IF",              // 普通 IF / %if
         };
 
         /// <summary>
         /// 获取文档中所有多行注释的范围
-        /// 扫描 /* ... */ 格式的注释块
         /// </summary>
-        /// <param name="document">文本文档对象</param>
-        /// <returns>多行注释的起始和结束位置列表</returns>
         private static List<(int Start, int End)> GetMultiLineCommentRanges(TextDocument document)
         {
             var ranges = new List<(int, int)>();
             var text = document.Text;
             int index = 0;
-
-            // 遍历整个文档文本
             while (index < text.Length)
             {
-                // 检测多行注释起始标记 /*
                 if (text[index] == '/' && index + 1 < text.Length && text[index + 1] == '*')
                 {
-                    int startPosition = index;
-                    // 查找多行注释结束标记 */
-                    int endPosition = text.IndexOf("*/", index + 2);
-                    if (endPosition == -1)
-                        endPosition = text.Length;  // 未找到结束标记，扩展到文档末尾
-                    else
-                        endPosition += 2;  // 包含结束标记本身
-
-                    ranges.Add((startPosition, endPosition));
-                    index = endPosition;  // 跳过已处理的注释块
+                    int start = index;
+                    int end = text.IndexOf("*/", index + 2);
+                    if (end == -1) end = text.Length;
+                    else end += 2;
+                    ranges.Add((start, end));
+                    index = end;
                 }
-                else
-                {
-                    index++;
-                }
+                else index++;
             }
             return ranges;
         }
 
         /// <summary>
         /// 生成完整的折叠区域列表
-        /// 整合多行注释折叠、代码块折叠和REGION折叠
         /// </summary>
-        /// <param name="document">文本文档对象</param>
-        /// <returns>按起始位置排序的折叠区域集合</returns>
         public static IEnumerable<NewFolding> CreateFolds(TextDocument document)
         {
             var foldings = new List<NewFolding>();
-            if (document == null || document.TextLength == 0)
-                return foldings;
+            if (document == null || document.TextLength == 0) return foldings;
 
-            // ===== 第一阶段：处理多行注释折叠 =====
-            var commentRanges = GetMultiLineCommentRanges(document);
-            foreach (var (start, end) in commentRanges)
-            {
-                // 仅对长度超过20字符的注释进行折叠，避免小注释干扰编辑体验
+            // 多行注释折叠
+            foreach (var (start, end) in GetMultiLineCommentRanges(document))
                 if (end - start > 20)
-                {
-                    var folding = new NewFolding(start, end)
-                    {
-                        Name = "/* 注释 */",      // 折叠后显示的标题
-                        DefaultClosed = false     // 默认展开状态
-                    };
-                    foldings.Add(folding);
-                }
-            }
+                    foldings.Add(new NewFolding(start, end) { Name = "/* 注释 */", DefaultClosed = false });
 
-            // ===== 第二阶段：处理代码块和REGION折叠 =====
+            // 代码块折叠
             var lines = document.Lines;
-            var blockStack = new Stack<BlockInfo>();      // 代码块堆栈（处理DEFINE/IF）
-            var regionStack = new Stack<RegionInfo>();   // REGION堆栈（处理自定义区域）
+            var blockStack = new Stack<BlockInfo>();
+            var regionStack = new Stack<RegionInfo>();
 
-            // 逐行扫描文档
-            for (int lineIndex = 0; lineIndex < lines.Count; lineIndex++)
+            for (int lineIdx = 0; lineIdx < lines.Count; lineIdx++)
             {
-                var line = lines[lineIndex];
+                var line = lines[lineIdx];
                 string lineText = document.GetText(line).Trim();
 
-                // 跳过空行
-                if (string.IsNullOrEmpty(lineText))
-                    continue;
+                if (string.IsNullOrEmpty(lineText)) continue;
 
-                // ----- 处理 #REGION 开始标记 -----
+                // ----- #REGION 处理 -----
                 if (IsRegionStart(lineText, out string regionComment))
                 {
-                    regionStack.Push(new RegionInfo
-                    {
-                        StartLine = lineIndex,
-                        StartOffset = line.Offset,
-                        Comment = regionComment ?? ""
-                    });
-                    continue;  // REGION行本身不作为普通代码块处理
+                    regionStack.Push(new RegionInfo { StartLine = lineIdx, StartOffset = line.Offset, Comment = regionComment });
+                    continue;
                 }
-
-                // ----- 处理 #END_REGION 结束标记 -----
                 if (IsRegionEnd(lineText))
                 {
                     if (regionStack.Count > 0)
                     {
-                        var regionInfo = regionStack.Pop();
-                        // 仅当REGION跨越多行时才创建折叠区域
-                        if (regionInfo.StartLine < lineIndex)
-                        {
-                            var folding = new NewFolding(regionInfo.StartOffset, line.EndOffset)
-                            {
-                                Name = $"# REGION {regionInfo.Comment}".Trim(),
-                                DefaultClosed = false
-                            };
-                            foldings.Add(folding);
-                        }
+                        var reg = regionStack.Pop();
+                        if (reg.StartLine < lineIdx)
+                            foldings.Add(new NewFolding(reg.StartOffset, line.EndOffset)
+                            { Name = $"# REGION {reg.Comment}".Trim(), DefaultClosed = false });
                     }
-                    continue;  // END_REGION行本身不作为普通代码块处理
+                    continue;
                 }
 
-                // ----- 跳过普通注释行（不以#开头的注释）-----
-                if (lineText.StartsWith("#"))
-                    continue;
+                // 跳过单行注释
+                if (lineText.StartsWith("#")) continue;
 
-                // ----- 检测代码块起始标记 -----
+                // ----- 检测块起始 (支持普通和预处理 %if) -----
                 if (IsBlockStart(lineText, out string keyword))
                 {
-                    // 规则1：跳过同一行内包含END_DEFINE/END_IF的单行块
+                    // 跳过单行块（同一行有结束标记）
                     if (lineText.IndexOf("END_DEFINE", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        lineText.IndexOf("END_IF", StringComparison.OrdinalIgnoreCase) >= 0)
+                        lineText.IndexOf("END_IF", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        lineText.IndexOf("END_TEMPLATE", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        lineText.IndexOf("END_POLICY", StringComparison.OrdinalIgnoreCase) >= 0)
                         continue;
 
-                    // 规则2：特殊处理DIRECTION_DEFINE的REV简写（单行结构）
+                    // 跳过 REV 简写方向
                     if (keyword.Equals("DIRECTION_DEFINE", StringComparison.OrdinalIgnoreCase) &&
                         lineText.IndexOf("REV", StringComparison.OrdinalIgnoreCase) >= 0)
                         continue;
 
-                    // 将代码块起始信息压入堆栈
                     blockStack.Push(new BlockInfo
                     {
-                        StartLine = lineIndex,
+                        StartLine = lineIdx,
                         Keyword = keyword,
                         StartOffset = line.Offset,
                     });
                 }
 
-                // ----- 检测代码块结束标记 -----
+                // ----- 检测块结束 (支持 END_DEFINE, END_IF, END_TEMPLATE, END_POLICY, %endif) -----
                 if (IsBlockEnd(lineText, out string endKeyword))
                 {
                     if (blockStack.Count == 0) continue;
 
-                    var blockInfo = blockStack.Pop();
+                    var block = blockStack.Pop();
 
-                    // 验证块起始和结束标记的匹配性
-                    bool isMatch = blockInfo.Keyword.Equals("IF", StringComparison.OrdinalIgnoreCase) &&
-                                   endKeyword.Equals("END_IF", StringComparison.OrdinalIgnoreCase) ||
-                                  blockInfo.Keyword != "IF" &&
-                                   endKeyword.Equals("END_DEFINE", StringComparison.OrdinalIgnoreCase);
+                    // 匹配检查：IF 必须与 END_IF 配对，其他与 END_DEFINE/END_TEMPLATE/END_POLICY 配对
+                    bool isMatch = false;
+                    if (block.Keyword.Equals("IF", StringComparison.OrdinalIgnoreCase))
+                        isMatch = endKeyword.Equals("END_IF", StringComparison.OrdinalIgnoreCase);
+                    else if (block.Keyword.Equals("LINE_TEMPLATE", StringComparison.OrdinalIgnoreCase) ||
+                             block.Keyword.Equals("DIRECTION_TEMPLATE", StringComparison.OrdinalIgnoreCase))
+                        isMatch = endKeyword.Equals("END_TEMPLATE", StringComparison.OrdinalIgnoreCase);
+                    else if (block.Keyword.Equals("POLICY", StringComparison.OrdinalIgnoreCase))
+                        isMatch = endKeyword.Equals("END_POLICY", StringComparison.OrdinalIgnoreCase);
+                    else
+                        isMatch = endKeyword.Equals("END_DEFINE", StringComparison.OrdinalIgnoreCase);
 
-                    // 仅当块跨越多行时才创建折叠区域
-                    if (isMatch && blockInfo.StartLine < lineIndex - 1)
+                    if (isMatch && block.StartLine < lineIdx - 1)
                     {
-                        var folding = new NewFolding(blockInfo.StartOffset, line.EndOffset)
+                        foldings.Add(new NewFolding(block.StartOffset, line.EndOffset)
                         {
-                            Name = $"▼ {blockInfo.Keyword}",  // 折叠后显示的标题
+                            Name = $"▼ {block.Keyword}",
                             DefaultClosed = false
-                        };
-                        foldings.Add(folding);
+                        });
                     }
                 }
             }
 
-            // 按起始位置排序，确保折叠区域正确嵌套
             return foldings.OrderBy(f => f.StartOffset);
         }
 
         /// <summary>
-        /// 检测是否为代码块起始行
+        /// 检测是否为块起始行（支持普通命令和预处理 %if）
         /// </summary>
-        /// <param name="lineText">行文本内容</param>
-        /// <param name="keyword">输出的关键字</param>
-        /// <returns>是否为代码块起始行</returns>
         private static bool IsBlockStart(string lineText, out string keyword)
         {
             keyword = null;
-            var upperLine = lineText.ToUpperInvariant();
+            var upper = lineText.ToUpperInvariant();
 
-            // 遍历所有预定义的块起始关键字
-            foreach (var blockKeyword in BlockStartKeywords)
+            // 预处理 %if 检测
+            if (upper.StartsWith("%IF") && (upper.Length == 3 || upper[3] == ' '))
             {
-                // 检查行是否以关键字开头（后跟空格或整行就是关键字）
-                if (upperLine.StartsWith(blockKeyword + " ", StringComparison.OrdinalIgnoreCase) ||
-                    upperLine.Equals(blockKeyword, StringComparison.OrdinalIgnoreCase))
+                keyword = "IF";
+                return true;
+            }
+
+            // 普通块起始关键字
+            foreach (var k in BlockStartKeywords)
+            {
+                if (upper.StartsWith(k + " ", StringComparison.OrdinalIgnoreCase) ||
+                    upper.Equals(k, StringComparison.OrdinalIgnoreCase))
                 {
-                    keyword = blockKeyword;
+                    keyword = k;
                     return true;
                 }
             }
@@ -231,31 +198,36 @@ namespace MetroEditor.Windows.Controls.Style
         }
 
         /// <summary>
-        /// 检测是否为代码块结束行
+        /// 检测是否为块结束行（支持 END_DEFINE, END_IF, END_TEMPLATE, END_POLICY, %endif）
         /// </summary>
-        /// <param name="lineText">行文本内容</param>
-        /// <param name="keyword">输出的结束关键字</param>
-        /// <returns>是否为代码块结束行</returns>
         private static bool IsBlockEnd(string lineText, out string keyword)
         {
             keyword = null;
-            var upperLine = lineText.ToUpperInvariant();
+            var upper = lineText.ToUpperInvariant();
 
-            // 检测 END_DEFINE 结束标记
-            if (upperLine.StartsWith("END_DEFINE", StringComparison.OrdinalIgnoreCase) ||
-                upperLine.Equals("END_DEFINE", StringComparison.OrdinalIgnoreCase))
-            {
-                keyword = "END_DEFINE";
-                return true;
-            }
-
-            // 检测 END_IF 结束标记
-            if (upperLine.StartsWith("END_IF", StringComparison.OrdinalIgnoreCase) ||
-                upperLine.Equals("END_IF", StringComparison.OrdinalIgnoreCase))
+            // 预处理 %endif
+            if (upper.StartsWith("%ENDIF") && (upper.Length == 6 || upper[6] == ' '))
             {
                 keyword = "END_IF";
                 return true;
             }
+
+            // 普通结束标记
+            if (upper.StartsWith("END_DEFINE", StringComparison.OrdinalIgnoreCase) ||
+                upper.Equals("END_DEFINE", StringComparison.OrdinalIgnoreCase))
+            { keyword = "END_DEFINE"; return true; }
+
+            if (upper.StartsWith("END_IF", StringComparison.OrdinalIgnoreCase) ||
+                upper.Equals("END_IF", StringComparison.OrdinalIgnoreCase))
+            { keyword = "END_IF"; return true; }
+
+            if (upper.StartsWith("END_TEMPLATE", StringComparison.OrdinalIgnoreCase) ||
+                upper.Equals("END_TEMPLATE", StringComparison.OrdinalIgnoreCase))
+            { keyword = "END_TEMPLATE"; return true; }
+
+            if (upper.StartsWith("END_POLICY", StringComparison.OrdinalIgnoreCase) ||
+                upper.Equals("END_POLICY", StringComparison.OrdinalIgnoreCase))
+            { keyword = "END_POLICY"; return true; }
 
             return false;
         }

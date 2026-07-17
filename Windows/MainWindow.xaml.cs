@@ -732,7 +732,7 @@ namespace MetroEditor.Windows
                     statusInfo.Text = "正在编译...";
 
                     var parser = new MetorCompiler();
-                    parser.Parse(" " + textEditor.Text);
+                    parser.Parse(textEditor.Text, Path.GetDirectoryName(_currentFilePath));
                     var root = parser.ExportJson();
 
                     // 序列化为 JSON（紧凑，保留中文字符）
@@ -993,7 +993,7 @@ namespace MetroEditor.Windows
                 {
                     dialog.AddStation(new ManagerStationWindow.StationItem
                     {
-                        City = GetStationCity(item.Key, _currentParsedData),
+                        City = _currentParsedData.StationCities.GetValueOrDefault(item.Key, _currentParsedData?.MainCity ?? DefaultCity),
                         Name = item.Key,
                         Lat = item.Value.Lat,
                         Lon = item.Value.Lon
@@ -1162,7 +1162,7 @@ namespace MetroEditor.Windows
             try
             {
                 // 调用迁移助手，若失败会抛出异常
-                string newCode = MigrationHelper.Migrate(textEditor.Text, out var _, true);
+                string newCode = MigrationHelper.Migrate(textEditor.Text, _currentFilePath, out var _, true);
 
                 // 替换编辑器内容
                 textEditor.Text = newCode;

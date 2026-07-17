@@ -24,14 +24,14 @@ namespace MetroEditor.MetroLang.Tool
         /// 为 false 时返回 null 并通过 out 参数返回错误信息。
         /// </param>
         /// <returns>新语法源文本；若失败且未抛出异常，则返回 null</returns>
-        public static string? Migrate(string legacySourceCode, out List<string>? errors, bool throwOnError = false)
+        public static string? Migrate(string legacySourceCode, string filePath, out List<string>? errors, bool throwOnError = false)
         {
             errors = null;
             try
             {
                 // 1. 使用旧编译器解析旧语法
                 var compiler = new MetorCompiler();
-                compiler.Parse(legacySourceCode);
+                compiler.Parse(legacySourceCode, filePath);
 
                 // 2. 导出为标准化 JSON（作为中间表示层）
                 JsonRoot jsonRoot = compiler.ExportJson();
@@ -85,7 +85,7 @@ namespace MetroEditor.MetroLang.Tool
                 throw new IOException($"目标文件已存在且未允许覆盖: {targetFilePath}");
 
             // 执行迁移
-            string? migratedSourceCode = Migrate(legacySourceCode, out var errors, throwOnError);
+            string? migratedSourceCode = Migrate(legacySourceCode, Path.GetDirectoryName(sourceFilePath), out var errors, throwOnError);
             if (migratedSourceCode == null)
             {
                 if (throwOnError)

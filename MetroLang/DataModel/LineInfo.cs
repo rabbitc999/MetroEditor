@@ -31,5 +31,8 @@
 
         /// <summary>是否已禁用/废弃</summary>
         public bool Disabled { get; set; }
+
+        /// <summary>图片Base64编码</summary>
+        public string ImageBase64 { get; set; }
     }
 }

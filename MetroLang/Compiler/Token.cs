@@ -27,16 +27,22 @@ namespace MetroEditor.MetroLang.Compiler
         public int Line { get; }
 
         /// <summary>
+        /// 该 Token 所在文件的绝对目录
+        /// </summary>
+        public string SourceDirectory { get; }
+
+        /// <summary>
         /// 构造一个新的 Token。
         /// </summary>
         /// <param name="type">Token 类型。</param>
         /// <param name="value">原始文本。</param>
         /// <param name="line">行号。</param>
-        public Token(TokenType type, string value, int line = 0)
+        public Token(TokenType type, string value, int line = 0, string sourceDirectory = "")
         {
             TokenType = type;
             Value = value;
             Line = line;
+            SourceDirectory = sourceDirectory;
         }
 
         /// <summary>

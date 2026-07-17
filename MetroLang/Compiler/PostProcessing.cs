@@ -28,10 +28,282 @@ namespace MetroEditor.MetroLang.Compiler
             ApplyPendingTransfers();
             RemoveDuplicateDirections();
             RemoveSingleStationDirections();
-            RemoveUnusedStations();
             InferStationCities();
             FinalChecks();
             ExpandTransferTemplates();
+            EvaluateAssertions();
+            ProcessEchoMessages();
+            FormatStationKeys();
+        }
+
+        private void ProcessEchoMessages()
+        {
+            foreach (var raw in context.EchoMessages)
+            {
+                string resolved = ResolveVariables(raw);
+                // 输出到控制台（或日志系统）
+                Console.WriteLine($"[ECHO] {resolved}");
+                // 同时存入警告列表，便于在 IDE 中查看
+                parser.AddWarning($"[信息] {resolved}");
+            }
+        }
+
+        private void FormatStationKeys()
+        {
+            // 1. 构建旧键 -> 新键的映射
+            var keyMap = new Dictionary<string, string>(StringComparer.Ordinal);
+            var newStations = new Dictionary<string, (double Lon, double Lat)>();
+            var newStationCity = new Dictionary<string, string>();
+            var newOtherNames = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+            foreach (var kv in context.Stations)
+            {
+                string oldKey = kv.Key;
+                var coord = kv.Value;
+                string city = context.StationCity.TryGetValue(oldKey, out var c) ? c : context.MainCity;
+
+                string newKey;
+                if (oldKey.Contains("::"))
+                {
+                    string name = oldKey.Split(new[] { "::" }, StringSplitOptions.None)[1];
+                    newKey = $"{name} ({city})";
+                }
+                else
+                {
+                    newKey = oldKey; // 纯键保持不变
+                }
+
+                keyMap[oldKey] = newKey;
+                newStations[newKey] = coord;
+                newStationCity[newKey] = city;
+
+                if (context.StationOtherNames.TryGetValue(oldKey, out var aliases))
+                    newOtherNames[newKey] = aliases.ToList();
+            }
+
+            // 2. 更新所有引用站点的数据结构
+            // 2.1 方向中的站点列表
+            foreach (var dir in context.Directions.Values)
+            {
+                for (int i = 0; i < dir.Stations.Count; i++)
+                {
+                    string old = dir.Stations[i];
+                    if (keyMap.TryGetValue(old, out var newName))
+                        dir.Stations[i] = newName;
+                }
+            }
+
+            // 2.2 换乘规则
+            foreach (var transfer in context.Transfers)
+            {
+                if (keyMap.TryGetValue(transfer.Station, out var newStation))
+                    transfer.Station = newStation;
+            }
+
+            // 2.3 虚拟换乘
+            foreach (var vt in context.VirtualTransfers)
+            {
+                if (keyMap.TryGetValue(vt.StationA, out var newA))
+                    vt.StationA = newA;
+                if (keyMap.TryGetValue(vt.StationB, out var newB))
+                    vt.StationB = newB;
+            }
+
+            // 2.4 车辆段
+            foreach (var depot in context.Depots)
+            {
+                if (keyMap.TryGetValue(depot.Station, out var newStation))
+                    depot.Station = newStation;
+            }
+
+            // 2.5 停站时间（键是 (Station, LineId)）
+            var dwellKeys = context.DwellTimes.Keys.ToList();
+            foreach (var key in dwellKeys)
+            {
+                if (keyMap.TryGetValue(key.Station, out var newStation))
+                {
+                    var value = context.DwellTimes[key];
+                    context.DwellTimes.Remove(key);
+                    context.DwellTimes[(newStation, key.LineId)] = value;
+                }
+            }
+
+            // 2.6 车站状态（键是 (Station, LineId?)）
+            var statusKeys = context.StationStatus.Keys.ToList();
+            foreach (var key in statusKeys)
+            {
+                if (keyMap.TryGetValue(key.Station, out var newStation))
+                {
+                    var value = context.StationStatus[key];
+                    context.StationStatus.Remove(key);
+                    context.StationStatus[(newStation, key.LineId)] = value;
+                }
+            }
+
+            // 2.7 限速规则
+            foreach (var limit in context.SpeedLimits)
+            {
+                if (keyMap.TryGetValue(limit.FromStation, out var newFrom))
+                    limit.FromStation = newFrom;
+                if (keyMap.TryGetValue(limit.ToStation, out var newTo))
+                    limit.ToStation = newTo;
+            }
+
+            // 2.8 设施（Facilities 的键）
+            var facilityKeys = context.Facilities.Keys.ToList();
+            foreach (var oldKey in facilityKeys)
+            {
+                if (keyMap.TryGetValue(oldKey, out var newKey))
+                {
+                    var value = context.Facilities[oldKey];
+                    context.Facilities.Remove(oldKey);
+                    context.Facilities[newKey] = value;
+                }
+            }
+
+            // 2.9 换乘模板中的 Station? （TransferTemplate.Station）
+            foreach (var template in context.TransferTemplates)
+            {
+                if (keyMap.TryGetValue(template.Station, out var newStation))
+                    template.Station = newStation;
+            }
+
+            // 2.10 车站模式（StationModeRule.Station）
+            foreach (var mode in context.StationModes)
+            {
+                if (keyMap.TryGetValue(mode.Station, out var newStation))
+                    mode.Station = newStation;
+            }
+
+            // 3. 替换字典
+            context.Stations.Clear();
+            foreach (var kv in newStations)
+                context.Stations[kv.Key] = kv.Value;
+
+            context.StationCity.Clear();
+            foreach (var kv in newStationCity)
+                context.StationCity[kv.Key] = kv.Value;
+
+            context.StationOtherNames.Clear();
+            foreach (var kv in newOtherNames)
+                context.StationOtherNames[kv.Key] = kv.Value;
+        }
+
+        private string ResolveVariables(string raw)
+        {
+            var vars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["STATION_COUNT"] = context.Stations.Count.ToString(),
+                ["LINE_COUNT"] = context.Lines.Count.ToString(),
+                ["DIRECTION_COUNT"] = context.Directions.Count.ToString(),
+                ["TRANSFER_COUNT"] = context.Transfers.Count.ToString(),
+                ["CITY"] = context.MainCity,
+                ["VERSION"] = context.Version
+            };
+
+            foreach (var kv in vars)
+                raw = raw.Replace($"{{{kv.Key}}}", kv.Value);
+            return raw;
+        }
+
+        private void EvaluateAssertions()
+        {
+            foreach (var assertion in context.Assertions)
+            {
+                bool result = Evaluate(assertion);
+                if (!result)
+                {
+                    string msg = assertion.Message ?? $"断言失败: {FormatAssertion(assertion)}";
+                    parser.ErrorList.Add(msg);
+                }
+            }
+        }
+
+        private string FormatAssertion(Assertion assertion)
+        {
+            // 简单格式化，用于默认错误消息
+            return $"条件不满足 ({assertion.Predicate})";
+        }
+
+        private bool Evaluate(Assertion assertion)
+        {
+            if (assertion.Operator != null)
+            {
+                switch (assertion.Operator)
+                {
+                    case "NOT": return !Evaluate(assertion.Left);
+                    case "AND": return Evaluate(assertion.Left) && Evaluate(assertion.Right);
+                    case "OR": return Evaluate(assertion.Left) || Evaluate(assertion.Right);
+                    default: throw new InvalidOperationException("未知操作符");
+                }
+            }
+
+            // 计算谓词值（返回 double 或 bool）
+            object value = ComputePredicate(assertion);
+            if (assertion.Comparison == CompareOp.None)
+            {
+                // 期望布尔值
+                if (value is bool b) return b;
+                throw new InvalidOperationException("谓词返回非布尔值，但未指定比较操作");
+            }
+            else
+            {
+                // 比较操作
+                if (value is double d)
+                {
+                    double compare = assertion.CompareValue.Value;
+                    return assertion.Comparison switch
+                    {
+                        CompareOp.Equal => Math.Abs(d - compare) < 1e-9,
+                        CompareOp.NotEqual => Math.Abs(d - compare) >= 1e-9,
+                        CompareOp.LessThan => d < compare,
+                        CompareOp.LessOrEqual => d <= compare,
+                        CompareOp.GreaterThan => d > compare,
+                        CompareOp.GreaterOrEqual => d >= compare,
+                        _ => false,
+                    };
+                }
+                throw new InvalidOperationException("只能对数值类型进行比较");
+            }
+        }
+
+        private object ComputePredicate(Assertion assertion)
+        {
+            switch (assertion.Predicate)
+            {
+                case PredicateType.DirectionExists:
+                    return context.Directions.ContainsKey((string)assertion.Arguments[0]);
+                case PredicateType.LineExists:
+                    return context.Lines.ContainsKey((string)assertion.Arguments[0]);
+                case PredicateType.StationExists:
+                    return context.Stations.ContainsKey((string)assertion.Arguments[0]);
+                case PredicateType.StationCount:
+                    string lineId = (string)assertion.Arguments[0];
+                    if (!context.Lines.ContainsKey(lineId)) return 0.0; // 或抛出？
+                    int count = context.Directions.Values.Where(d => d.LineId == lineId).SelectMany(d => d.Stations).Distinct().Count();
+                    return (double)count;
+                case PredicateType.TransferExists:
+                    string station = (string)assertion.Arguments[0];
+                    string l1 = (string)assertion.Arguments[1];
+                    string l2 = (string)assertion.Arguments[2];
+                    return context.Transfers.Any(t => t.Station == station && ((t.L1 == l1 && t.L2 == l2) || (t.L1 == l2 && t.L2 == l1)));
+                case PredicateType.DistanceBetween:
+                    string stationA = (string)assertion.Arguments[0];
+                    string stationB = (string)assertion.Arguments[1];
+                    if (!context.Stations.ContainsKey(stationA) || !context.Stations.ContainsKey(stationB))
+                        return double.NaN;
+                    var coordA = context.Stations[stationA];
+                    var coordB = context.Stations[stationB];
+                    double dist = Utils.Haversine(coordA.Lat, coordA.Lon, coordB.Lat, coordB.Lon) * 1000; // 转为米
+                    return dist;
+                case PredicateType.DirectionAttr:
+                    string dirId = (string)assertion.Arguments[0];
+                    string attr = (string)assertion.Arguments[1];
+                    if (!context.Directions.TryGetValue(dirId, out var dir)) return false;
+                    return dir.Attrs.Contains(attr.ToUpperInvariant());
+                default:
+                    throw new InvalidOperationException("未知谓词");
+            }
         }
 
         // ====================================================================
@@ -284,7 +556,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// 移除未被任何方向引用的孤立车站
         /// 清理解析过程中产生的无用数据，确保输出数据的整洁性
         /// </summary>
-        private void RemoveUnusedStations()
+        public void RemoveUnusedStations()
         {
             // 收集所有被方向引用的车站
             var usedStations = new HashSet<string>();

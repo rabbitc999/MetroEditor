@@ -6,7 +6,7 @@ namespace MetroEditor.MetroLang.Compiler
     public class JsonExport
     {
         private Context context;
-        
+
         public JsonExport(Context context)
         {
             this.context = context;
@@ -23,6 +23,10 @@ namespace MetroEditor.MetroLang.Compiler
             // 前置校验：主城市是路网数据的核心标识，必须存在
             if (string.IsNullOrEmpty(context.MainCity))
                 throw new InvalidOperationException("未定义主城市");
+
+            Parser parser = new Parser(new List<Token>());
+            PostProcessor postProcessor = new PostProcessor(parser, context);
+            postProcessor.RemoveUnusedStations();
 
             // 构建 JSON 根对象，逐项映射编译中间态数据
             var root = new JsonRoot
@@ -484,8 +488,8 @@ namespace MetroEditor.MetroLang.Compiler
                     Brake = lineInfo.Brake,
                     Disabled = lineInfo.Disabled,
                     Direction = new List<JsonDirection>(),
-                    // 标记为特殊线路（如机场线、磁悬浮等）
-                    IsSpecial = context.SpecialLineIds.Contains(lineId)
+                    IsSpecial = context.SpecialLineIds.Contains(lineId),
+                    ImageBase64 = lineInfo.ImageBase64,
                 };
 
                 // 添加该线路下的所有方向定义

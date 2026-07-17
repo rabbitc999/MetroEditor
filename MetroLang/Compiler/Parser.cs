@@ -551,5 +551,12 @@ namespace MetroEditor.MetroLang.Compiler
             }
             return distanceList;
         }
+
+        public string GetCurrentTokenSourceDirectory()
+        {
+            if (_pos > 0 && _pos <= _tokens.Count)
+                return _tokens[_pos - 1].SourceDirectory;
+            return "";
+        }
     }
 }

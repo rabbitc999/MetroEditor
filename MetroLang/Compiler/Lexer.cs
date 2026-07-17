@@ -26,7 +26,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// 7: 非法字符
         /// </summary>
         private static readonly Regex _tokenRegex = new Regex(
-            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""[^""]*""|'[^']*')|([A-Za-z_][A-Za-z0-9_]*)|([\[\](){}:,=])|(.)",
+            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""[^""]*""|'[^']*')|([A-Za-z_][A-Za-z0-9_]*)|([\[\](){}:,=%])|(.)",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         /// <param name="sourceText">源代码</param>
         /// <returns>词法分析后的代码</returns>
-        public static Parser Tokenize(string sourceText)
+        public static Parser Tokenize(string sourceText, string sourceDirectory = "")
         {
             var generatedTokens = new List<Token>();
             string processedText = RemoveComments(sourceText);
@@ -114,27 +114,27 @@ namespace MetroEditor.MetroLang.Compiler
                     // 组 3: 数字
                     if (regexMatch.Groups[3].Success)
                     {
-                        generatedTokens.Add(new Token(TokenType.Number, regexMatch.Groups[3].Value, currentLineNumber));
+                        generatedTokens.Add(new Token(TokenType.Number, regexMatch.Groups[3].Value, currentLineNumber, sourceDirectory));
                     }
                     // 组 4: 字符串
                     else if (regexMatch.Groups[4].Success)
                     {
-                        generatedTokens.Add(new Token(TokenType.String, regexMatch.Groups[4].Value, currentLineNumber));
+                        generatedTokens.Add(new Token(TokenType.String, regexMatch.Groups[4].Value, currentLineNumber, sourceDirectory));
                     }
                     // 组 5: 标识符
                     else if (regexMatch.Groups[5].Success)
                     {
-                        generatedTokens.Add(new Token(TokenType.Id, regexMatch.Groups[5].Value, currentLineNumber));
+                        generatedTokens.Add(new Token(TokenType.Id, regexMatch.Groups[5].Value, currentLineNumber, sourceDirectory));
                     }
                     // 组 6: 符号
                     else if (regexMatch.Groups[6].Success)
                     {
-                        generatedTokens.Add(new Token(TokenType.Symbol, regexMatch.Groups[6].Value, currentLineNumber));
+                        generatedTokens.Add(new Token(TokenType.Symbol, regexMatch.Groups[6].Value, currentLineNumber, sourceDirectory));
                     }
                     // 组 7: 非法字符
                     else if (regexMatch.Groups[7].Success)
                     {
-                        generatedTokens.Add(new Token(TokenType.Mismatch, regexMatch.Groups[7].Value, currentLineNumber));
+                        generatedTokens.Add(new Token(TokenType.Mismatch, regexMatch.Groups[7].Value, currentLineNumber, sourceDirectory));
                     }
                 }
 

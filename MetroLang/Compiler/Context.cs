@@ -33,10 +33,10 @@ namespace MetroEditor.MetroLang.Compiler
         /// <summary>数据作者</summary>
         public string Author { get; internal set; } = "匿名";
 
-        // 新增：语言顺序列表
+        /// <summary>语言顺序列表</summary>
         public List<string> LanguageOrder { get; internal set; } = new();
 
-        // 修改：站点其他名称映射（Key=站点ID, Value=按 LANGUAGE_ORDER 排列的名称列表）
+        /// <summary>站点其他名称映射（Key=站点ID, Value=按 LANGUAGE_ORDER 排列的名称列表）</summary>
         public Dictionary<string, List<string>> StationOtherNames { get; internal set; } = new();
 
         // ====================================================================
@@ -153,6 +153,16 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public List<TransferTemplate> TransferTemplates { get; internal set; } = new();
 
+        /// <summary>
+        /// 线路模板
+        /// </summary>
+        public Dictionary<string, LineTemplate> LineTemplates { get; } = new();
+
+        /// <summary>
+        /// 方向模板
+        /// </summary>
+        public Dictionary<string, DirectionTemplate> DirectionTemplates { get; } = new();
+
         // ====================================================================
         // 9. 辅助映射
         // ====================================================================
@@ -161,6 +171,15 @@ namespace MetroEditor.MetroLang.Compiler
         /// 该映射在解析过程中由 STATION_DEFINE 的 CITY 属性显式指定，或由语义分析器推断
         /// </summary>
         public Dictionary<string, string> StationCity { get; internal set; } = new();
+
+        /// <summary>编译期条件符号集合（不区分大小写）</summary>
+        public HashSet<string> DefinedSymbols { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>编译期断言信息（不区分大小写）</summary>
+        public List<Assertion> Assertions { get; internal set; } = new();
+
+        /// <summary>输出信息</summary>
+        public List<string> EchoMessages { get; internal set; } = new();
 
         // ====================================================================
         // 10. 编译警告列表（用于收集非致命问题）

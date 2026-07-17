@@ -1,4 +1,7 @@
 ﻿using MetroEditor.MetroLang.DataModel;
+using System.IO;
+using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
@@ -29,6 +32,19 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 OpenYear = 2000
             };
             context.Lines[lineId] = lineInfo;
+
+            string? templateId = null;
+
+            if (parser.IsPeekId("INHERITS"))
+            {
+                parser.ParseId(); // 消耗 INHERITS
+                templateId = parser.ParseId();
+                if (!string.IsNullOrEmpty(templateId))
+                {
+                    var resolved = Utils.ResolveLineTemplate(context, templateId);
+                    ApplyLineTemplate(lineInfo, resolved, lineId);
+                }
+            }
 
             while (true)
             {
@@ -110,6 +126,16 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         context.SpecialLineIds.Add(lineId);
                         ParseSpecialSubDefine(lineId);
                         break;
+                    case "IMAGE":
+                        string imagePath = parser.ParseString();   // 相对或绝对路径
+                                                                   // 获取当前 Token 的来源目录（Paser 需能访问当前 Token）
+                        string sourceDir = parser.GetCurrentTokenSourceDirectory();
+                        string fullPath = Path.GetFullPath(Path.Combine(sourceDir, imagePath));
+                        if (!File.Exists(fullPath))
+                            throw new SyntaxException($"图片文件不存在: {fullPath}", parser.Peek());
+                        byte[] bytes = File.ReadAllBytes(fullPath);
+                        lineInfo.ImageBase64 = Convert.ToBase64String(bytes);
+                        break;
                     default:
                         throw new SyntaxException($"LINE_DEFINE 内未知子命令 '{command}'", parser.Peek());
                 }
@@ -120,6 +146,23 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 throw new SyntaxException($"线路 '{lineId}' 必须定义 COLOR", parser.Peek());
 
             context.Lines[lineId] = lineInfo;
+        }
+
+        private void ApplyLineTemplate(LineInfo line, LineTemplate template, string lineId)
+        {
+            if (template.Name != null) line.Name = template.Name;
+            if (template.Color != null) line.Color = template.Color;
+            if (template.City != null) line.City = template.City;
+            if (template.OpenYear.HasValue) line.OpenYear = template.OpenYear.Value;
+            if (template.Formation != null) line.Formation = template.Formation;
+            if (template.Maxspeed.HasValue) line.Maxspeed = template.Maxspeed;
+            if (template.PowerKw.HasValue) line.PowerKw = template.PowerKw;
+            if (template.Brake.HasValue) line.Brake = template.Brake;
+            if (template.Disabled.HasValue) line.Disabled = template.Disabled.Value;
+            if (template.ImageBase64 != null) line.ImageBase64 = template.ImageBase64;
+            if (template.Link != null) context.LineLinks[lineId] = template.Link;
+            if (template.IsSpecial.HasValue && template.IsSpecial.Value)
+                context.SpecialLineIds.Add(lineId);
         }
 
         // ====================================================================

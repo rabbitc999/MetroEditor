@@ -69,6 +69,19 @@ namespace MetroEditor.MetroLang.Compiler.Command
             bool hasAutoDistance = false;
             bool reversed = false;
 
+            // 检测 INHERITS
+            string? templateId = null;
+            if (parser.IsPeekId("INHERITS"))
+            {
+                parser.ParseId();
+                templateId = parser.ParseId();
+                if (!string.IsNullOrEmpty(templateId))
+                {
+                    var resolved = Utils.ResolveDirectionTemplate(context, templateId);
+                    ApplyDirectionTemplate(dirInfo, resolved);
+                }
+            }
+
             while (true)
             {
                 parser.ParseNewlines();
@@ -154,6 +167,31 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         ParseDepot(parser, context, lineId, dirId);
                         break;
 
+                    case "MERGE":
+                        string dirId1 = parser.ParseId();
+                        string dirId2 = parser.ParseId();
+
+                        if (!context.Directions.TryGetValue(dirId1, out var dir1) ||
+                            !context.Directions.TryGetValue(dirId2, out var dir2))
+                            throw new SyntaxException("合并引用的方向未定义", parser.Peek());
+
+                        if (!context.Distances.TryGetValue(dirId1, out var dist1) ||
+                            !context.Distances.TryGetValue(dirId2, out var dist2))
+                            throw new SyntaxException("参与合并的方向必须已定义 DISTANCE", parser.Peek());
+
+                        try
+                        {
+                            var (mergedStations, mergedDist) = Utils.MergeDirections(dir1, dir2, dist1, dist2);
+                            dirInfo.Stations = mergedStations;
+                            context.Distances[dirId] = mergedDist;
+                            hasStations = true;  // 标记已定义站点
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new SyntaxException($"合并失败: {ex.Message}", parser.Peek());
+                        }
+                        break;
+
                     default:
                         throw new SyntaxException($"DIRECTION_DEFINE 内未知子命令 '{command}'", parser.Peek());
                 }
@@ -161,7 +199,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
             // ---------- 后置校验 ----------
             if (!hasStations)
-                throw new SyntaxException($"方向 '{dirId}' 必须定义 STATIONS（或使用 REVERSE）", parser.Peek());
+                throw new SyntaxException($"方向 '{dirId}' 必须定义 STATIONS（或使用 REVERSE 或 MERGE）", parser.Peek());
 
             context.Directions[dirId] = dirInfo;
 
@@ -172,6 +210,17 @@ namespace MetroEditor.MetroLang.Compiler.Command
             // 警告：未定义 DISTANCE
             if (!context.Distances.ContainsKey(dirId))
                 parser.AddWarning($"方向 '{dirId}' 未定义 DISTANCE，将使用默认值");
+        }
+
+        private static void ApplyDirectionTemplate(DirectionInfo dir, DirectionTemplate template)
+        {
+            if (template.Alias != null) dir.Alias = template.Alias;
+            if (template.AliasColor != null) dir.AliasColor = template.AliasColor;
+            if (template.IsFuture.HasValue) dir.IsFuture = template.IsFuture.Value;
+            if (template.ConnectStation != null) dir.ConnectStation = template.ConnectStation;
+            if (template.DirectionType != null) dir.DirectionType = template.DirectionType;
+            foreach (var attr in template.Attrs)
+                dir.Attrs.Add(attr);
         }
 
         // ====================================================================

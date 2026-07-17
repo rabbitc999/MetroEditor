@@ -2,6 +2,7 @@
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.JsonModel;
 using System.ComponentModel;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,7 +76,7 @@ namespace MetroEditor.Windows
             var parser = new MetorCompiler();
             try
             {
-                parser.Parse(new StringBuilder().Append(" ").Append(text).ToString());
+                parser.Parse(new StringBuilder().Append(" ").Append(text).ToString(), Path.GetDirectoryName(_currentFilePath));
                 data = parser.GetParsedData();
                 root = parser.ExportJson();
                 string successText = $"编译成功 | 线路: {data.Lines.Count}，站台: {data.Stations.Count}，方向: {data.Directions.Count}";

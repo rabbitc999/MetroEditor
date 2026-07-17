@@ -1,7 +1,7 @@
 # MetroLang 语言参考手册
 
 MetroLang 是一种面向地铁网络描述的领域特定语言（DSL），设计目标为**可读性强、版本控制友好、支持人工编辑与自动化编译**。  
-本手册定义其语法、命令及语义，并明确区分**推荐的新块语法**与**保留的传统命令**。所有块均使用 `END_DEFINE` 作为结束标记。
+本手册定义其语法、命令及语义，并明确区分**块语法**与**单行命令**。所有块均使用 `END_DEFINE` 作为结束标记。
 
 ---
 
@@ -16,12 +16,40 @@ MetroLang 是一种面向地铁网络描述的领域特定语言（DSL），设�
   - 纯数字（如 `30`） → 30 秒
   - 数字加冒号（如 `1:`） → 1 分钟（60 秒）
   - 分:秒（如 `1:30`） → 90 秒
-- **块结构**：使用 `命令 ... END_DEFINE` 界定，块内子命令顺序自由，支持嵌套块（如 `SPECIAL_DEFINE`）。
-- **变量定义**：使用 `DEF` 定义编译时常量，支持条件编译（详见第 15 章）。
+- **块结构**：使用 `命令 ... END_DEFINE` 界定，块内子命令顺序自由，支持嵌套块。
+- **通配符**：在 `COPY`、`RENAME`、`DELETE` 等操作中支持 `*` 匹配任意字符串，用于批量操作。
 
 ---
 
-## 2. 程序定义（`PROGRAM_DEFINE` 块）
+## 2. 预处理指令
+
+预处理指令在词法分析后、语法分析前执行，以 `%` 开头，独占一行。
+
+| 指令 | 语法 | 说明 |
+|------|------|------|
+| `%define` | `%define 符号名` | 定义编译期符号（大小写不敏感） |
+| `%undefine` | `%undefine 符号名` | 移除符号定义 |
+| `%if` | `%if 符号名` | 条件编译开始，若符号已定义则保留后续代码 |
+| `%else` | `%else` | 与最近的 `%if` 配对，取反条件 |
+| `%endif` | `%endif` | 结束条件编译块 |
+| `%include` | `%include "文件路径"` | 嵌入外部 `.metro` 文件（支持相对/绝对路径，自动防循环） |
+| `%import` | `%import "文件路径" AS STATIONS` | 从 CSV 导入站点数据（自动生成 `STATION_DEFINE`） |
+
+**示例**：
+```metro
+%define CITY_BJ
+%if CITY_BJ
+    %include "beijing_config.metro"
+%else
+    %include "shanghai_config.metro"
+%endif
+
+%import "stations.csv" AS STATIONS
+```
+
+---
+
+## 3. 程序定义（`PROGRAM_DEFINE` 块）
 
 ```metro
 PROGRAM_DEFINE
@@ -43,33 +71,84 @@ END_DEFINE
 
 ---
 
-## 3. 站点定义（`STATION_DEFINE` 块）
+## 4. 站点定义（`STATION_DEFINE` 块）
 
 ```metro
 STATION_DEFINE
     NODE '站名' COORD 经度, 纬度 [CITY '城市']
+    OTHER_NAME '别名'                   # 紧随 NODE 之后，为当前站点添加多语言别名
     NODE ...
 END_DEFINE
 ```
 
 - `NODE`：定义单个站点，包含站名、经纬度坐标，可选指定所属城市。
+- `OTHER_NAME`：紧随 `NODE` 之后，为当前站点添加别名（支持单字符串或列表），用于多语言展示。
 - 如果未指定 `CITY`，编译器会根据途经线路自动推断。
+- **站点键归一化**：若同一站名出现在多个城市，内部使用 `城市::站名` 存储；若仅一个城市，则使用纯站名（兼容旧逻辑）。最终导出 JSON 时，复合键格式为 `站名 (城市)`。
 
 ---
 
-## 4. 线路定义（`LINE_DEFINE` 块）
+## 5. 站点操作命令（单行）
+
+| 命令 | 语法 | 说明 |
+|------|------|------|
+| `STATION_COPY` | `STATION_COPY 旧站名 新站名` | 复制站点坐标、城市、别名（支持通配符） |
+| `STATION_RENAME` | `STATION_RENAME 旧站名 新站名` | 重命名站点，自动更新所有引用（支持通配符） |
+| `STATION_DELETE` | `STATION_DELETE 站名 [站名...]` | 删除站点，若被方向引用则报错（支持通配符） |
+| `STATION_MODIFY` | `STATION_MODIFY 站名 ... END_DEFINE` | 修改站点属性（坐标、城市、别名等） |
+
+**`STATION_MODIFY` 块内子命令**：
+```metro
+STATION_MODIFY '旧站名'
+    SET COORD 经度, 纬度
+    SET CITY '城市'
+    SET OTHER_NAMES ['别名1', '别名2']   # 覆盖别名列表
+    ADD OTHER_NAME '别名'                # 追加别名
+    REMOVE OTHER_NAME '别名'             # 删除别名
+END_DEFINE
+```
+
+---
+
+## 6. 线路模板（`LINE_TEMPLATE` 块）
+
+定义可复用的线路属性模板，支持继承。
 
 ```metro
-LINE_DEFINE 线路ID
+LINE_TEMPLATE 模板ID [INHERITS 父模板ID]
+    NAME '名称'
+    COLOR '颜色'
+    CITY '城市'
+    OPEN_YEAR 年份
+    FORMATION '编组'
+    MAXSPEED 速度
+    POWER_KW 功率
+    BRAKE 减速度
+    DISABLED TRUE|FALSE
+    IMAGE '图片路径'
+    LINK 'URL'
+    SPECIAL
+END_DEFINE
+```
+
+- 在 `LINE_DEFINE` 中使用 `INHERITS 模板ID` 应用模板，可覆盖模板中的属性。
+
+---
+
+## 7. 线路定义（`LINE_DEFINE` 块）
+
+```metro
+LINE_DEFINE 线路ID [INHERITS 模板ID]
     NAME '线路名称'                    # 必填
     COLOR '颜色'                       # 必填
     CITY '城市'                        # 可选，默认 KEY_CITY
     FORMATION '编组'                   # 如 '6B', '8A'
     MAXSPEED 80                        # 最高速度 (km/h)
     OPEN_YEAR 2000                     # 开通年份
-    POWER 3680                         # 牵引功率 (kW)
+    POWER_KW 3680                      # 牵引功率 (kW)
     BRAKE 0.85                         # 制动减速度 (m/s²)
     LINK 'URL'                         # 百科链接
+    IMAGE '图片路径'                   # 线路示意图（转为 Base64 存储）
     DISABLE                            # 标记为停运
     SPECIAL                            # 标记为特殊线路（如机场线、APM线）
     PENDING ['站名1', '站名2']         # 暂缓开通站点（支持单个或列表）
@@ -82,14 +161,59 @@ END_DEFINE
 - 方向定义可以**嵌套**在 `LINE_DEFINE` 内部，也可以独立定义。
 - 嵌套的 `DIRECTION_DEFINE` 自动继承外层线路ID，无需重复指定。
 - `PENDING` 支持单个站点（`'站名'`）或列表（`['站1', '站2']`）。
+- `IMAGE` 支持相对路径（相对于当前文件）和绝对路径，图片内容自动转为 Base64。
 
 ---
 
-## 5. 方向定义（`DIRECTION_DEFINE` 块）
+## 8. 线路操作命令（单行，支持通配符 `*`）
+
+| 命令 | 语法 | 说明 |
+|------|------|------|
+| `LINE_COPY` | `LINE_COPY 源模式 目标模式` | 复制整条线路及所有关联数据（方向、票价、时刻表等） |
+| `LINE_RENAME` | `LINE_RENAME 源模式 目标模式` | 重命名线路，自动更新所有引用 |
+| `LINE_DELETE` | `LINE_DELETE 线路ID [线路ID...]` | 删除线路及所有关联数据 |
+| `LINE_MERGE` | `LINE_MERGE 线路1 线路2 ... INTO 新线路 [KEEP_ORIGINAL]` | 合并多条线路为一条新线路（自动处理方向ID冲突） |
+| `LINE_MODIFY` | `LINE_MODIFY 线路ID ... END_DEFINE` | 修改线路属性 |
+
+**`LINE_MODIFY` 块内子命令**：
+```metro
+LINE_MODIFY 线路ID
+    SET NAME '新名称'
+    SET COLOR '#新颜色'
+    SET MAXSPEED 新速度
+    SET IMAGE '新图片路径'
+    ADD SPECIAL
+    REMOVE SPECIAL
+END_DEFINE
+```
+
+---
+
+## 9. 方向模板（`DIRECTION_TEMPLATE` 块）
+
+定义可复用的方向属性模板，支持继承。
 
 ```metro
-DIRECTION_DEFINE 方向ID [线路ID]      # 当独立使用时需提供线路ID，嵌套时可省略
-    STATIONS ['站1', '站2', ...]       # 必填
+DIRECTION_TEMPLATE 模板ID [INHERITS 父模板ID]
+    NICK_NAME '别名'
+    NICK_COLOR '颜色'
+    IS_FUTURE TRUE|FALSE
+    CONNECT_STATION '站名'
+    LOOP [INNER | OUTER]
+    BRANCH
+    FAST
+END_DEFINE
+```
+
+- 在 `DIRECTION_DEFINE` 中使用 `INHERITS 模板ID` 应用模板，可覆盖模板中的属性。
+
+---
+
+## 10. 方向定义（`DIRECTION_DEFINE` 块）
+
+```metro
+DIRECTION_DEFINE 方向ID [INHERITS 模板ID] [线路ID]      # 独立使用时需提供线路ID，嵌套时可省略
+    STATIONS ['站1', '站2', ...]       # 必填（除非使用 MERGE 或 REVERSE）
     DISTANCE AUTO | [距离列表]         # 可选，AUTO 自动计算
     NICK_NAME '别名'                   # 可选
     NICK_COLOR '颜色'                  # 可选
@@ -104,6 +228,7 @@ DIRECTION_DEFINE 方向ID [线路ID]      # 当独立使用时需提供线路ID�
     OPEN_TIME HH:mm HH:mm
     VIA 方向ID                         # 共线/跨线经过的方向
     REVERSE 原方向ID                   # 复制并反转另一个方向的所有属性（可继续追加额外子命令）
+    MERGE 方向A 方向B                  # 合并两个方向（公共后缀-前缀匹配）
 END_DEFINE
 ```
 
@@ -114,6 +239,7 @@ DIRECTION_DEFINE 方向ID REV 原方向ID
 
 - `REV` 为纯快捷方式，自动继承原方向所有属性并反转站点和距离，**不能**再添加额外子命令。
 - `REVERSE` 同样复制并反转，但允许在块内继续添加额外子命令（如增加 `NICK_NAME`、`CROWD` 等），支持更灵活的反向定义。
+- `MERGE` 将两个已有方向合并为一个新方向（站点和距离自动拼接），要求两个方向有公共后缀-前缀。
 
 **距离列表说明**：
 - 非环线方向：距离数量 = 站点数 - 1，最后一个距离应为 `NIL`。
@@ -126,7 +252,33 @@ DIRECTION_DEFINE 方向ID REV 原方向ID
 
 ---
 
-## 6. 票价定义（`PRICE_DEFINE` 块）
+## 11. 方向操作命令（单行，支持通配符 `*`）
+
+| 命令 | 语法 | 说明 |
+|------|------|------|
+| `DIRECTION_COPY` | `DIRECTION_COPY 源模式 目标模式` | 复制方向（站点、距离、属性） |
+| `DIRECTION_RENAME` | `DIRECTION_RENAME 源模式 目标模式` | 重命名方向，自动更新所有引用 |
+| `DIRECTION_DELETE` | `DIRECTION_DELETE 方向ID [方向ID...]` | 删除方向，自动清理引用规则 |
+| `DIRECTION_MODIFY` | `DIRECTION_MODIFY 方向ID ... END_DEFINE` | 修改方向属性 |
+| `DIRECTION_SPLIT` | `DIRECTION_SPLIT 方向ID AT '站名' INTO 新方向1 新方向2` | 在指定站点拆分方向为两个新方向 |
+| `DIRECTION_REVERSE` | `DIRECTION_REVERSE 方向ID [新方向ID]` | 原地反转或复制反转方向（自动更新规则） |
+
+**`DIRECTION_MODIFY` 块内子命令**：
+```metro
+DIRECTION_MODIFY 方向ID
+    ADD BRANCH | FAST | LOOP            # 添加属性
+    REMOVE BRANCH | FAST | LOOP         # 移除属性
+    SET NICK_NAME '新别名'
+    SET NICK_COLOR '#新颜色'
+    SET CONNECT_STATION '站名'
+    SET IS_FUTURE TRUE|FALSE
+    SET DIRECTION_TYPE inner|outer      # 仅环线有效
+END_DEFINE
+```
+
+---
+
+## 12. 票价定义（`PRICE_DEFINE` 块）
 
 ```metro
 PRICE_DEFINE
@@ -143,7 +295,7 @@ END_DEFINE
 
 ---
 
-## 7. 换乘定义
+## 13. 换乘定义
 
 ### 换乘类型定义（`TRANSFER_TYPE` 块）
 ```metro
@@ -181,7 +333,7 @@ END_DEFINE
 
 ---
 
-## 8. 运营参数（`OPERATION_DEFINE` 块）
+## 14. 运营参数（`OPERATION_DEFINE` 块）
 
 ```metro
 OPERATION_DEFINE
@@ -196,7 +348,7 @@ END_DEFINE
 
 ---
 
-## 9. 时段配置文件（块语法）
+## 15. 时段配置文件（块语法）
 
 ### `HEADWAY_PROFILE` —— 按线路定义发车间隔
 ```metro
@@ -218,7 +370,7 @@ END_DEFINE
 
 ---
 
-## 10. 停站时间定义（`DWELL_TIME_DEFINE` 块）
+## 16. 停站时间定义（`DWELL_TIME_DEFINE` 块）
 
 ```metro
 DWELL_TIME_DEFINE
@@ -231,7 +383,7 @@ END_DEFINE
 
 ---
 
-## 11. 限速定义（`SPEED_LIMIT_DEFINE` 块）
+## 17. 限速定义（`SPEED_LIMIT_DEFINE` 块）
 
 ```metro
 SPEED_LIMIT_DEFINE 方向ID
@@ -242,7 +394,7 @@ END_DEFINE
 
 ---
 
-## 12. 站点进出模式（单行命令）
+## 18. 站点进出模式（单行命令）
 
 ```metro
 STATION_MODE '站名' 模式 [TIME_RANGE HH:mm HH:mm] [星期修饰符]
@@ -251,7 +403,7 @@ STATION_MODE '站名' 模式 [TIME_RANGE HH:mm HH:mm] [星期修饰符]
 
 ---
 
-## 13. 运营时间（单行命令）
+## 19. 运营时间（单行命令）
 
 ```metro
 OPEN_TIME [GLOBAL | 线路ID] HH:mm HH:mm [星期修饰符]
@@ -260,7 +412,7 @@ OPEN_TIME [GLOBAL | 线路ID] HH:mm HH:mm [星期修饰符]
 
 ---
 
-## 14. 车辆段（单行命令）
+## 20. 车辆段（单行命令）
 
 ```metro
 DEPOT 线路ID '站名' [方向ID] [HH:mm]
@@ -268,7 +420,7 @@ DEPOT 线路ID '站名' [方向ID] [HH:mm]
 
 ---
 
-## 15. 共线/跨线声明（单行命令）
+## 21. 共线/跨线声明（单行命令）
 
 ```metro
 VIA 方向A 方向B
@@ -277,7 +429,7 @@ VIA 方向A 方向B
 
 ---
 
-## 16. 标签定义（`LABEL_DEFINE` 块）
+## 22. 标签定义（`LABEL_DEFINE` 块）
 
 ```metro
 LABEL_DEFINE
@@ -288,7 +440,7 @@ END_DEFINE
 
 ---
 
-## 17. 无障碍设施（`FACILITY_DEFINE` 命令）
+## 23. 车站状态（单行命令）
 
 ```metro
 STATION_STATUS ['站名1', '站名2'] [线路ID] 状态
@@ -298,222 +450,150 @@ STATION_STATUS ['站名1', '站名2'] [线路ID] 状态
 
 ---
 
-### 概述
+## 24. 无障碍设施（`FACILITY_DEFINE` 块）
 
 `FACILITY_DEFINE` 块用于描述各站点的无障碍设施、卫生间、电梯、自动扶梯、盲道等信息。**这些数据仅用于前端展示和查询，不参与路径规划或票价计算。**
 
-### 语法格式
-
 ```metro
 FACILITY_DEFINE
-    # 普通卫生间
     TOILET '站名' POSITION paid_area [ACCESSIBLE] [GENDER male|female|mixed]
-
-    # 无障碍卫生间（残疾人/母婴）
     ACCESSIBLE_TOILET '站名' POSITION paid_area [ACCESSIBLE] [GENDER male|female|mixed]
-
-    # 无障碍电梯
     ELEVATOR '站名' LOCATION '具体位置描述' [ACCESSIBLE]
-
-    # 宽闸机（轮椅通道）
     WIDE_GATE '站名' QUANTITY 数量
-
-    # 自动扶梯（数量及方向）
     ESCALATOR '站名' QUANTITY 数量 [DIRECTION up|down|both]
-
-    # 盲道铺设情况
     TACTILE_PAVING '站名' STATUS available|partial|none
 END_DEFINE
 ```
 
-### 子命令详解
-
-| 子命令 | 参数 | 说明 |
-|--------|------|------|
-| `TOILET` | `'站名'`、`POSITION`（`paid_area`/`unpaid_area`）、可选 `ACCESSIBLE`、可选 `GENDER` | 普通卫生间，`ACCESSIBLE` 表示无障碍卫生间（若同时指定，表示该卫生间具备无障碍设施） |
-| `ACCESSIBLE_TOILET` | 同上 | 专门的无障碍卫生间（优先推荐给轮椅使用者），可独立于普通卫生间 |
-| `ELEVATOR` | `'站名'`、`LOCATION '描述'`、可选 `ACCESSIBLE` | 无障碍电梯，`ACCESSIBLE` 表示该电梯可供轮椅使用（通常都是） |
-| `WIDE_GATE` | `'站名'`、`QUANTITY`（整数） | 宽闸机数量 |
-| `ESCALATOR` | `'站名'`、`QUANTITY`（整数）、可选 `DIRECTION`（`up`/`down`/`both`） | 自动扶梯，数量及运行方向，默认 `both` |
-| `TACTILE_PAVING` | `'站名'`、`STATUS`（`available`/`partial`/`none`） | 盲道铺设情况 |
-
 **参数说明**：
-- `POSITION`：卫生间位置，`paid_area`（付费区内）或 `unpaid_area`（付费区外）。
-- `ACCESSIBLE`：布尔标志，表示是否具备无障碍设施（如扶手、轮椅空间等）。
-- `GENDER`：卫生间性别，默认 `mixed`（不分男女），可设为 `male` 或 `female`。
-
-### 示例
-
-```metro
-FACILITY_DEFINE
-    TOILET '公园前' POSITION paid_area ACCESSIBLE GENDER mixed
-    ACCESSIBLE_TOILET '公园前' POSITION paid_area GENDER mixed
-    ELEVATOR '公园前' LOCATION 'A口出口旁' ACCESSIBLE
-    WIDE_GATE '公园前' QUANTITY 2
-    ESCALATOR '公园前' QUANTITY 4 DIRECTION both
-    TACTILE_PAVING '公园前' STATUS available
-
-    TOILET '广州东站' POSITION unpaid_area
-    ELEVATOR '广州东站' LOCATION '站厅中部'
-END_DEFINE
-```
-
-### 注意事项
-- 每个站点的设施可以多次出现（例如多条扶梯、多部电梯），编译器会合并到同一个站点的设施列表中。
-- 若某个设施类型（如 `TOILET`）在同一个站点重复定义，后面的会覆盖前面的（建议只定义一次）。
-- 站名必须已通过 `STATION_DEFINE` 定义。
+- `POSITION`：`paid_area`（付费区内）或 `unpaid_area`（付费区外）。
+- `ACCESSIBLE`：表示具备无障碍设施。
+- `GENDER`：卫生间性别，默认 `mixed`。
 
 ---
 
-## 18. 票价优惠策略（`PROMOTION_DEFINE` 命令）
-
-### 概述
-
-`PROMOTION_DEFINE` 块用于定义票价优惠策略（如学生卡、老人卡、月票等）。**这些策略仅供展示说明，不参与实际票价计算**（票价计算由 `PRICE_DEFINE` 决定）。
-
-### 语法格式
+## 25. 票价优惠策略（`PROMOTION_DEFINE` 块）
 
 ```metro
 PROMOTION_DEFINE
     POLICY 优惠ID
         NAME '优惠名称'
-        DESCRIPTION '详细描述'          # 可选
+        DESCRIPTION '详细描述'
         TYPE rate|fixed|fixed_discount
         VALUE 数值
         APPLICABLE_LINES [线路ID列表]   # 可选，空表示全线网
-        TIME_RANGE HH:mm HH:mm          # 可选，有效时间段
-        DAYS 星期修饰符                 # 可选，如 WORKDAY、WEEKEND 或 [Monday, ...]
+        TIME_RANGE HH:mm HH:mm          # 可选
+        DAYS 星期修饰符                 # 可选
     END_POLICY
-
     POLICY ...
 END_DEFINE
 ```
 
-### 子命令详解
-
-| 子命令 | 参数/值 | 说明 |
-|--------|---------|------|
-| `POLICY` | `优惠ID`（标识符） | 开始定义一个优惠策略，`END_POLICY` 结束 |
-| `NAME` | `'展示名称'` | 必填，显示给用户的名称 |
-| `DESCRIPTION` | `'描述文本'` | 可选，详细说明 |
-| `TYPE` | `rate` / `fixed` / `fixed_discount` | **必填**：`rate` 表示折扣比例（如 0.5 为半价）；`fixed` 表示一口价（如月票 100 元）；`fixed_discount` 表示固定减免金额（如换乘立减 1 元） |
-| `VALUE` | 数字 | **必填**：对应类型的数值 |
-| `APPLICABLE_LINES` | `[线路ID, ...]` | 可选，限制适用线路；若不指定或为空，表示适用于全路网 |
-| `TIME_RANGE` | `HH:mm HH:mm` | 可选，有效时间段（如平峰优惠） |
-| `DAYS` | `WORKDAY`/`WEEKEND`/单个星期/星期列表 | 可选，适用日期；默认每日 |
-
-### 示例
-
-```metro
-PROMOTION_DEFINE
-    POLICY student_card
-        NAME '学生卡'
-        DESCRIPTION '广州市中小学生卡'
-        TYPE rate
-        VALUE 0.5
-        APPLICABLE_LINES [G1, G2]
-    END_POLICY
-
-    POLICY elder_card
-        NAME '老人卡'
-        DESCRIPTION '60岁以上老人'
-        TYPE rate
-        VALUE 0.4
-        TIME_RANGE 09:00 17:00
-        DAYS WORKDAY
-    END_POLICY
-
-    POLICY monthly_pass_g1
-        NAME '1号线月票'
-        DESCRIPTION '1号线无限次乘坐'
-        TYPE fixed
-        VALUE 100.0
-        APPLICABLE_LINES [G1]
-    END_POLICY
-
-    POLICY transfer_discount
-        NAME '换乘立减'
-        DESCRIPTION '120分钟内换乘优惠1元'
-        TYPE fixed_discount
-        VALUE 1.0
-    END_POLICY
-END_DEFINE
-```
-
-### 注意事项
-- 每个 `POLICY` 必须包含 `NAME`、`TYPE`、`VALUE`，否则编译器会报错。
-- `APPLICABLE_LINES` 的线路ID必须已在 `LINE_DEFINE` 中定义。
-- `DAYS` 支持单个星期（如 `MONDAY`）、预定义组合（`WORKDAY`/`WEEKEND`）或列表（如 `[MONDAY, WEDNESDAY]`），与现有规则保持一致。
+**子命令详解**：
+- `TYPE`：`rate`（折扣比例）、`fixed`（一口价）、`fixed_discount`（固定减免）。
+- `VALUE`：对应类型的数值。
+- `APPLICABLE_LINES`：限制适用线路，不指定或为空表示全线网。
 
 ---
 
-## 19. 示例编写
+## 26. 编译时断言（`ASSERT`）
+
+`ASSERT` 在编译完成后执行，用于自定义业务校验。
 
 ```metro
+ASSERT <表达式> [MESSAGE "自定义错误信息"]
+```
+
+**支持的谓词**（括号内参数为字符串，用引号括起）：
+- `DIRECTION_EXISTS("方向ID")`
+- `LINE_EXISTS("线路ID")`
+- `STATION_EXISTS("站名")`
+- `STATION_COUNT("线路ID")`（返回站点数）
+- `TRANSFER_EXISTS("站名", "线路A", "线路B")`
+- `DISTANCE_BETWEEN("站A", "站B")`（返回米数）
+- `DIRECTION_ATTR("方向ID", "属性名")`（如 BRANCH、FAST）
+
+**比较操作**：`<`, `>`, `<=`, `>=`, `==`, `!=`（仅对数值有效）  
+**逻辑运算**：`AND`, `OR`, `NOT`，支持括号分组。
+
+**示例**：
+```metro
+ASSERT DIRECTION_EXISTS("LINE1_0") MESSAGE "1号线正向方向未定义"
+ASSERT STATION_COUNT("LINE1") >= 5 MESSAGE "1号线站点数不足"
+ASSERT (DIRECTION_EXISTS("LINE1_0") AND STATION_EXISTS("C")) MESSAGE "方向或站点缺失"
+ASSERT DISTANCE_BETWEEN("A", "B") < 5000
+```
+
+---
+
+## 27. 后处理输出（`ECHO`）
+
+`ECHO` 在编译完成后输出信息，用于调试和数据统计。
+
+```metro
+ECHO "自定义消息"
+ECHO "字符串{变量}字符串"
+```
+
+**内置变量**：
+- `STATION_COUNT`（站点总数）
+- `LINE_COUNT`（线路总数）
+- `DIRECTION_COUNT`（方向总数）
+- `TRANSFER_COUNT`（换乘规则总数）
+- `CITY`（主城市名称）
+- `VERSION`（数据版本）
+
+**示例**：
+```metro
+ECHO "数据加载完成"
+ECHO "主城市：{CITY}"
+ECHO "站点总数：{STATION_COUNT}"
+ECHO "方向总数：{DIRECTION_COUNT}"
+```
+
+---
+
+## 28. 完整示例
+
+```metro
+%define CITY_BJ
+%include "base_stations.metro"
+
 PROGRAM_DEFINE
-    KEY_CITY '广州'
-    OTHER_CITY ['佛山']
+    KEY_CITY '北京'
     VERSION 'V2.0'
     UPDATE_DATE '2026-07-11'
     AUTHOR '路网编制组'
-    CREATE_DATE '2024-01-01'
 END_DEFINE
 
 STATION_DEFINE
-    NODE '广州东站' COORD 113.332, 23.156
-    NODE '体育中心' COORD 113.328, 23.142
-    NODE '西塱' COORD 113.233, 23.082
+    NODE '复兴门' COORD 116.35, 39.91 CITY '北京'
+    NODE '西单' COORD 116.37, 39.91
 END_DEFINE
 
-OPERATION_DEFINE
-    TRANSFER_TIME 180
-    DWELL_TIME 30
-    OUT_STATION_TRANSFER_TIME 300
-    ENTRY_TIME 120
-    AVG_BOARD_TIME 3
+LINE_TEMPLATE URBAN
+    FORMATION '6B'
+    MAXSPEED 80
 END_DEFINE
 
-LINE_DEFINE GZ1
+LINE_DEFINE LINE1 INHERITS URBAN
     NAME '1号线'
-    COLOR '#F47920'
-    DIRECTION_DEFINE GZ1_0
-        STATIONS ['广州东站', '体育中心', '西塱']
+    COLOR '#FF0000'
+    CITY '北京'
+    IMAGE 'line1.png'
+    DIRECTION_DEFINE LINE1_0
+        STATIONS ['复兴门', '西单']
         DISTANCE AUTO
-        CROWD TIME_RANGE 07:00 09:00 1.5 WORKDAY
-        HEADWAY TIME_RANGE 07:00 09:00 VALUE 120
     END_DEFINE
-    DIRECTION_DEFINE GZ1_1 REV GZ1_0
 END_DEFINE
 
-PRICE_DEFINE
-    DEFAULT_FARE 2.0
-    SEGMENT 0 6 2.0
-    SEGMENT 6 12 3.0
-    LINEAR_EXTENSION THRESHOLD 12 BASE_FARE 3.0 RATE_PER_KM 0.2
-END_DEFINE
+%if CITY_BJ
+    LINE_COPY LINE1 LINE1_BACKUP
+%endif
 
-FACILITY_DEFINE
-    TOILET '体育中心' POSITION paid_area ACCESSIBLE GENDER mixed
-    ELEVATOR '体育中心' LOCATION 'A口出口旁' ACCESSIBLE # 仅为示例
-    ESCALATOR '体育中心' QUANTITY 4 DIRECTION both
-    WIDE_GATE '体育中心' QUANTITY 2
-    TACTILE_PAVING '体育中心' STATUS available
-END_DEFINE
+DIRECTION_REVERSE LINE1_0 LINE1_1
 
-PROMOTION_DEFINE
-    POLICY student_card
-        NAME '学生卡'
-        DESCRIPTION '广州市中小学生卡'
-        TYPE rate
-        VALUE 0.5
-        APPLICABLE_LINES [G1, G2]
-    END_POLICY
-    POLICY elder_card
-        NAME '老人卡'
-        TYPE rate
-        VALUE 0.4
-        TIME_RANGE 09:00 17:00
-        DAYS WORKDAY
-    END_POLICY
-END_DEFINE
+ASSERT DIRECTION_EXISTS("LINE1_0") MESSAGE "方向未定义"
+
+ECHO "编译完成，版本：{VERSION}"
 ```

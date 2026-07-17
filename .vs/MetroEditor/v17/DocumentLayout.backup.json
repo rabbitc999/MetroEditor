@@ -1,7 +1,208 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "E:\\Desktop\\Workspace\\MetroEditor\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\metorcompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\metorcompiler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationmodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationmodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\mainwindows\\mainwindow.data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\mainwindows\\mainwindow.data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\controls\\style\\metrohighlighting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\controls\\style\\metrohighlighting.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\controls\\style\\metrofoldingstrategy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\controls\\style\\metrofoldingstrategy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\postprocessing.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\postprocessing.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\assertion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\assertion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\echo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\echo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationmode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationmode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linedefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linedefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directiondefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directiondefine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\commandlist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\commandlist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\preprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\preprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directionparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directionparser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directiontemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directiontemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linetemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linetemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\datamodel\\linetemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\datamodel\\linetemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linesplit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linesplit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linemerge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linemerge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\jsonexport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\jsonexport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\datamodel\\lineinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\datamodel\\lineinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\parser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\parser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\assert.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\assert.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directionreverse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directionreverse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationdelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationdelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationrename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationrename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directionmodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directionmodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linemodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linemodify.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\stationcopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\stationcopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linedelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linedelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linerename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linerename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\linecopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\linecopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directionrename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directionrename.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directioncopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directioncopy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directiondelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directiondelete.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\command\\directionsplit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\command\\directionsplit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\tool\\migrationhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\tool\\migrationhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\mainwindows\\mainwindow.dynamic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\mainwindows\\mainwindow.dynamic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\batchcompilewindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\batchcompilewindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\token.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\token.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\compiler\\lexer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\compiler\\lexer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\metrolang\\jsonmodel\\jsonline.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:metrolang\\jsonmodel\\jsonline.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\utils\\securestoragehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\utils\\securestoragehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\managerstationwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\managerstationwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\editstationwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\editstationwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\editstationwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\editstationwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\editdirectionwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\editdirectionwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|e:\\desktop\\workspace\\metroeditor\\windows\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{882B9B00-F709-4F9E-A95D-AE0F824AD31E}|MetroEditor.csproj|solutionrelative:windows\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +210,613 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 5,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MetroHighlighting.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Controls\\Style\\MetroHighlighting.cs",
+              "RelativeDocumentMoniker": "Windows\\Controls\\Style\\MetroHighlighting.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Controls\\Style\\MetroHighlighting.cs",
+              "RelativeToolTip": "Windows\\Controls\\Style\\MetroHighlighting.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAgwPYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T19:05:19.248Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Context.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Context.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Context.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Context.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Context.cs",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAAwLQAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:01:15.059Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "PostProcessing.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\PostProcessing.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\PostProcessing.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\PostProcessing.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\PostProcessing.cs",
+              "ViewState": "AgIAALMAAAAAAAAAAAASwLwAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:50:26.354Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "LineDefine.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineDefine.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineDefine.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineDefine.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineDefine.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAASwJYAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:24:17.069Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainWindow.Data.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindows\\MainWindow.Data.cs",
+              "RelativeDocumentMoniker": "Windows\\MainWindows\\MainWindow.Data.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindows\\MainWindow.Data.cs",
+              "RelativeToolTip": "Windows\\MainWindows\\MainWindow.Data.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAswA8AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:55:56.2Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MetorCompiler.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\MetorCompiler.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\MetorCompiler.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\MetorCompiler.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\MetorCompiler.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAnwBAAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:50:59.395Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "StationModify.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationModify.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationModify.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationModify.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationModify.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAArwBQAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:52:58.676Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MetroFoldingStrategy.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Controls\\Style\\MetroFoldingStrategy.cs",
+              "RelativeDocumentMoniker": "Windows\\Controls\\Style\\MetroFoldingStrategy.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Controls\\Style\\MetroFoldingStrategy.cs",
+              "RelativeToolTip": "Windows\\Controls\\Style\\MetroFoldingStrategy.cs",
+              "ViewState": "AgIAANQAAAAAAAAAAAAswOgAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T19:05:21.853Z"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CommandList.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\CommandList.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\CommandList.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\CommandList.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\CommandList.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAiwCkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:01:26.837Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "StationMode.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationMode.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationMode.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationMode.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationMode.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:53:58.957Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Echo.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\Echo.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\Echo.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\Echo.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\Echo.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAqwCsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:19:28.751Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DirectionDefine.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionDefine.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionDefine.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionDefine.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionDefine.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAADwvwoAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:42:28.952Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Assertion.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Assertion.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Assertion.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Assertion.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Assertion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:57:10.904Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "DirectionParser.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionParser.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionParser.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionParser.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionParser.cs",
+              "ViewState": "AgIAALgAAAAAAAAAAAAiwN8AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:59:54.42Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "DirectionTemplate.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionTemplate.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionTemplate.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionTemplate.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionTemplate.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAiwEEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:08:24.728Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "LineTemplate.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineTemplate.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineTemplate.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineTemplate.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineTemplate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:08:13.343Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Preprocessor.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Preprocessor.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Preprocessor.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Preprocessor.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Preprocessor.cs",
+              "ViewState": "AgIAAGEBAAAAAAAAAAAAAG8BAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:08:28.591Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "LineTemplate.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\LineTemplate.cs",
+              "RelativeDocumentMoniker": "MetroLang\\DataModel\\LineTemplate.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\LineTemplate.cs",
+              "RelativeToolTip": "MetroLang\\DataModel\\LineTemplate.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAqwB4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:07:26.03Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "LineSplit.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineSplit.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineSplit.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineSplit.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineSplit.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAAAiwEkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:05:37.776Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "LineMerge.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineMerge.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineMerge.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineMerge.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineMerge.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAA4wB0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T18:03:38.953Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "Assert.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\Assert.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\Assert.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\Assert.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\Assert.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:57:30.631Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Parser.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Parser.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Parser.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Parser.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Parser.cs",
+              "ViewState": "AgIAABwCAAAAAAAAAAAqwC8CAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:50:13.402Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "LineInfo.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\LineInfo.cs",
+              "RelativeDocumentMoniker": "MetroLang\\DataModel\\LineInfo.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\DataModel\\LineInfo.cs",
+              "RelativeToolTip": "MetroLang\\DataModel\\LineInfo.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAcwAYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:24:47.524Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "JsonExport.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\JsonExport.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\JsonExport.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\JsonExport.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\JsonExport.cs",
+              "ViewState": "AgIAANgBAAAAAAAAAADwv+sBAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:50:23.026Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "DirectionReverse.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionReverse.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionReverse.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionReverse.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionReverse.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAiwGYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:55:51.63Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "StationDelete.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationDelete.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationDelete.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationDelete.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationDelete.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAkwBkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:52:47.615Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "StationRename.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationRename.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationRename.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationRename.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationRename.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAiwE4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:52:36.043Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "StationCopy.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationCopy.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\StationCopy.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\StationCopy.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\StationCopy.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:51:52.226Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "LineDelete.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineDelete.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineDelete.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineDelete.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineDelete.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:48:27.657Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "LineRename.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineRename.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineRename.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineRename.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineRename.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwCMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:48:17.918Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "LineCopy.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineCopy.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineCopy.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineCopy.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineCopy.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAiwCMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:48:08.106Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "LineModify.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineModify.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\LineModify.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\LineModify.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\LineModify.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAASwCgAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:47:54.452Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "DirectionModify.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionModify.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionModify.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionModify.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionModify.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAiwFUAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:45:56.925Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "DirectionSplit.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionSplit.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionSplit.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionSplit.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionSplit.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAiwF8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:42:06.654Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "DirectionDelete.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionDelete.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionDelete.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionDelete.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionDelete.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAiwDYAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:00:56.71Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "DirectionCopy.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionCopy.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionCopy.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionCopy.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionCopy.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAkwEQAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:17:31.622Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "DirectionRename.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionRename.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Command\\DirectionRename.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Command\\DirectionRename.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Command\\DirectionRename.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAcwA4AAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:17:44.388Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Windows\\MainWindow.xaml.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindow.xaml.cs",
+              "RelativeToolTip": "Windows\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAHoEAAAAAAAAAAAnwIoEAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T08:26:53.323Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "MainWindow.Dynamic.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindows\\MainWindow.Dynamic.cs",
+              "RelativeDocumentMoniker": "Windows\\MainWindows\\MainWindow.Dynamic.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindows\\MainWindow.Dynamic.cs",
+              "RelativeToolTip": "Windows\\MainWindows\\MainWindow.Dynamic.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAApwE4AAAB9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T08:27:10.992Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "MigrationHelper.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Tool\\MigrationHelper.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Tool\\MigrationHelper.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Tool\\MigrationHelper.cs",
+              "RelativeToolTip": "MetroLang\\Tool\\MigrationHelper.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAMwBoAAABOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:31:38.645Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "BatchCompileWindow.xaml.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\BatchCompileWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Windows\\BatchCompileWindow.xaml.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\BatchCompileWindow.xaml.cs",
+              "RelativeToolTip": "Windows\\BatchCompileWindow.xaml.cs",
+              "ViewState": "AgIAAIEAAAAAAAAAAAApwJQAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:32:14.462Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "JsonLine.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonLine.cs",
+              "RelativeDocumentMoniker": "MetroLang\\JsonModel\\JsonLine.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\JsonModel\\JsonLine.cs",
+              "RelativeToolTip": "MetroLang\\JsonModel\\JsonLine.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAqwFMAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:25:23.447Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "Lexer.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Lexer.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Lexer.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Lexer.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Lexer.cs",
+              "ViewState": "AgIAAGwAAAAAAAAAAAApwHkAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:53:00.509Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Token.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Token.cs",
+              "RelativeDocumentMoniker": "MetroLang\\Compiler\\Token.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\MetroLang\\Compiler\\Token.cs",
+              "RelativeToolTip": "MetroLang\\Compiler\\Token.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAEwCoAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:22:21.459Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "SecureStorageHelper.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Utils\\SecureStorageHelper.cs",
+              "RelativeDocumentMoniker": "Windows\\Utils\\SecureStorageHelper.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\Utils\\SecureStorageHelper.cs",
+              "RelativeToolTip": "Windows\\Utils\\SecureStorageHelper.cs",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAUwGEAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T17:20:24.177Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "EditStationWindow.xaml.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditStationWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Windows\\EditStationWindow.xaml.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditStationWindow.xaml.cs",
+              "RelativeToolTip": "Windows\\EditStationWindow.xaml.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAAwBQAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:56:43.273Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "ManagerStationWindow.xaml.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\ManagerStationWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Windows\\ManagerStationWindow.xaml.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\ManagerStationWindow.xaml.cs",
+              "RelativeToolTip": "Windows\\ManagerStationWindow.xaml.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T16:57:24.649Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "EditStationWindow.xaml",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditStationWindow.xaml",
+              "RelativeDocumentMoniker": "Windows\\EditStationWindow.xaml",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditStationWindow.xaml",
+              "RelativeToolTip": "Windows\\EditStationWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-17T16:56:36.425Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "EditDirectionWindow.xaml.cs",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditDirectionWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Windows\\EditDirectionWindow.xaml.cs",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\EditDirectionWindow.xaml.cs",
+              "RelativeToolTip": "Windows\\EditDirectionWindow.xaml.cs",
+              "ViewState": "AgIAAAMBAAAAAAAAAAD4vwkBAABdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-17T08:27:30.858Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "Windows\\MainWindow.xaml",
+              "ToolTip": "E:\\Desktop\\Workspace\\MetroEditor\\Windows\\MainWindow.xaml",
+              "RelativeToolTip": "Windows\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-07-17T08:26:49.547Z",
+              "EditorCaption": ""
             }
           ]
         }

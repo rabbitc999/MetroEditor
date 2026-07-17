@@ -79,5 +79,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("special")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool IsSpecial { get; set; }
+
+        /// <summary>
+        /// 图片Base64编码
+        /// </summary>
+        [JsonPropertyName("image")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string ImageBase64 { get; set; }
     }
 }

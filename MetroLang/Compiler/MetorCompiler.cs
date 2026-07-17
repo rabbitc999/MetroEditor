@@ -69,51 +69,55 @@ namespace MetroEditor.MetroLang.Compiler
         // 主解析入口：将源代码文本解析为中间数据结构
         // 执行词法分析、语法分析和语义分析，构建编译中间态
         // ====================================================================
-        public void Parse(string sourceText)
+        public void Parse(string sourceText, string baseDirectory)
         {
-            // 词法分析：将文本转换为 Token 流
-            parser = Lexer.Tokenize(sourceText);
+            // 1. 词法分析
+            var rawParser = Lexer.Tokenize(sourceText);
+            var rawTokens = rawParser.Tokens;
+
+            // 2. 预处理（过滤条件编译指令）
+            var processedTokens = Preprocessor.Process(rawTokens, baseDirectory, context, out var preprocessorErrors);
+
+            // 3. 重新初始化解析器（使用过滤后的 Token 流）
+            parser = new Parser(processedTokens);
             parser.ErrorList.Clear();
+            if (preprocessorErrors.Count > 0)
+            {
+                parser.ErrorList.AddRange(preprocessorErrors);
+                // 如果预处理有致命错误，可以在这里选择停止
+            }
 
-            const int maxErrorCount = 49;   // 错误数量上限，防止过多错误导致性能问题
-
-            // 语法分析主循环
+            // 4. 语法分析
             while (parser.Position < parser.Length)
             {
                 var currentToken = parser.SkipPeek();
-                if (currentToken.TokenType == TokenType.End) return;
+                if (currentToken.TokenType == TokenType.End) break;
 
                 try
                 {
-                    // 解析单个命令
                     ParseCommand();
                 }
-                catch (SyntaxException syntaxException)
+                catch (SyntaxException ex)
                 {
-                    parser.ErrorList.Add(syntaxException.Message);
-
-                    if (parser.ErrorCount >= maxErrorCount)
-                        break;    // 错误过多，停止解析
+                    parser.ErrorList.Add(ex.Message);
+                    if (parser.ErrorCount >= 49) break;
                     parser.SynchronizeToNextCommand();
                 }
-                catch (Exception generalException)
+                catch (Exception ex)
                 {
-                    parser.ErrorList.Add($"第{currentToken.Line}行: {generalException.Message}");
-
-                    if (parser.ErrorCount >= maxErrorCount)
-                        break;
+                    parser.ErrorList.Add($"第{currentToken.Line}行: {ex.Message}");
+                    if (parser.ErrorCount >= 49) break;
                     parser.SynchronizeToNextCommand();
                 }
             }
 
-            // 语义分析和后处理（仅在错误较少时执行）
-            if (parser.ErrorCount < maxErrorCount)
+            // 5. 后处理（与之前相同）
+            if (parser.ErrorCount < 49)
             {
-                PostProcessor processing = new PostProcessor(parser, context);
-                processing.DoProcess();
+                PostProcessor processor = new PostProcessor(parser, context);
+                processor.DoProcess();
             }
 
-            // 如果存在错误，抛出聚合异常
             if (parser.ErrorCount > 0)
                 throw new AggregateException("解析发现以下错误:\n" + string.Join("\n", parser.ErrorList));
         }

@@ -35,11 +35,36 @@ namespace MetroEditor.MetroLang.Compiler.Compiler
             command["PROMOTION_DEFINE"] = new PromotionDefine();
 
             // ============================================================
-            // 3. 旧语法兼容指令（无块结构，逐步迁移中）
+            // 3. 单指令
             // ============================================================
-            command["STATION_MODE"] = new StationMode();        // 车站运营模式（旧语法）
-            command["DEPOT"] = new Depot();                     // 车辆段定义（旧语法）
-            command["VIA"] = new Via();                         // 经由方向定义（旧语法）
+            command["STATION_MODE"] = new StationMode();
+            command["DEPOT"] = new Depot();
+            command["VIA"] = new Via();
+            command["ECHO"] = new Echo();
+
+            command["DIRECTION_DELETE"] = new DirectionDelete();
+            command["DIRECTION_COPY"] = new DirectionCopy();
+            command["DIRECTION_RENAME"] = new DirectionRename();
+            command["DIRECTION_SPLIT"] = new DirectionSplit();
+            command["DIRECTION_MODIFY"] = new DirectionModify();
+            command["DIRECTION_REVERSE"] = new DirectionReverse();
+
+            command["LINE_COPY"] = new LineCopy();
+            command["LINE_RENAME"] = new LineRename();
+            command["LINE_DELETE"] = new LineDelete();
+            command["LINE_MODIFY"] = new LineModify();
+            command["LINE_MERGE"] = new LineMerge();
+            command["LINE_SPLIT"] = new LineSplit();
+
+            command["STATION_COPY"] = new StationCopy();
+            command["STATION_RENAME"] = new StationRename();
+            command["STATION_DELETE"] = new StationDelete();
+            command["STATION_MODIFY"] = new StationModify();
+
+            command["ASSERT"] = new Assert();
+
+            command["LINE_TEMPLATE"] = new LineTemplateCommand();
+            command["DIRECTION_TEMPLATE"] = new DirectionTemplateCommand();
 
             return command;
         }
