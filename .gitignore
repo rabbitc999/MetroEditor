@@ -1,20 +1,4 @@
-*.iml
-*.osm.pbf
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-
+# ========== 通用编译输出 ==========
 *.d
 *.slo
 *.lo
@@ -33,14 +17,48 @@ local.properties
 *.lib
 *.out
 *.app
+*.pdb
+*.tmp
 
-# 用户特定文件
+# ========== IDE/编辑器 ==========
+*.iml
+*.osm.pbf
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+
+# ========== 构建目录（深度屏蔽） ==========
+# 匹配任何层级的 bin、obj、.vs 目录
+**/bin/
+**/obj/
+**/.vs/
+
+# 同时也匹配根目录下的（兼容旧写法）
+[Bb]in/
+[Oo]bj/
+.vs/
+MetroEditor/.vs/
+
+# ========== 其他输出目录 ==========
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# ========== 用户特定文件 ==========
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# 编译输出目录
+# ========== 编译输出 ==========
 [Bb]in/
 [Oo]bj/
 [Ll]og/
@@ -49,23 +67,18 @@ local.properties
 x64/
 x86/
 
-# VS 缓存目录
-MetroEditor/.vs/
-
-# 测试结果
+# ========== 测试结果 ==========
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-# NuGet 包
+# ========== NuGet 包 ==========
 *.nupkg
 **/packages/*
 !**/packages/build/
 
-# 发布配置
+# ========== 发布配置 ==========
 *.pubxml
 *.publishproj
 
-# 其他常见忽略项
+# ========== 其他 ==========
 node_modules/
-*.pdb
-*.tmp
