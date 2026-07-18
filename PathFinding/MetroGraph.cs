@@ -956,17 +956,33 @@ namespace MetroEditor.PathFinding
         /// </remarks>
         private string BuildDirectionDisplay(string lineId, string dirKey, List<string> stations)
         {
+            // 优先显示方向别名
+            if (_externalKeyToDirInfo.TryGetValue(dirKey, out var dirInfo) && !string.IsNullOrEmpty(dirInfo.Alias))
+                return dirInfo.Alias;
+
             // 环线处理
             if (_hasLoopMap.TryGetValue(lineId, out var isLoop) && isLoop)
             {
-                var dirType = _data.Directions.TryGetValue(dirKey, out var dirInfo) ? dirInfo.DirectionType : "";
+                var dirType = _externalKeyToDirInfo.TryGetValue(dirKey, out var d) ? d.DirectionType : "";
                 if (dirType == "inner") return stations.Count > 1 ? stations[1] + "（内环）" : "";
                 if (dirType == "outer") return stations.Count > 1 ? stations[1] + "（外环）" : "";
-                return GetTerminalStation(lineId, dirKey);
+                return GetTerminalStation(lineId, dirKey); // 保底
             }
 
-            // 非环线：直接使用当前分段的实际终点
-            return GetTerminalStation(lineId, dirKey);
+            // ---- 非环线：根据分段实际行驶方向决定终点 ----
+            if (_dirStations.TryGetValue(dirKey, out var fullStations) && fullStations.Count > 0)
+            {
+                int idxFirst = fullStations.IndexOf(stations.First());
+                int idxLast = fullStations.IndexOf(stations.Last());
+                if (idxFirst >= 0 && idxLast >= 0)
+                {
+                    // 正向行驶 → 方向键终点；反向行驶 → 方向键起点
+                    return idxFirst < idxLast ? fullStations.Last() : fullStations.First();
+                }
+            }
+
+            // 保底：返回分段最后一个站
+            return stations.LastOrDefault() ?? "";
         }
 
         /// <summary>
@@ -989,7 +1005,7 @@ namespace MetroEditor.PathFinding
                 return null;
 
             // 尝试从Directions字典获取（支持内部ID）
-            if (data.Directions.TryGetValue(dirKey, out var dirInfo))
+            if (_externalKeyToDirInfo.TryGetValue(dirKey, out var dirInfo))
             {
                 return GetLastOperatingStation(data, lineId, dirInfo.Stations);
             }

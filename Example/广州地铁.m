@@ -116,22 +116,7 @@ LINE_DEFINE G10
     DISTANCE [1.520000, 2.020000, 1.980000, 0.960000, 0.580000, 1.310000, 0.760000, 1.650000, 1.350000, 2.310000, 0.670000, NIL]
   END_DEFINE
   DIRECTION_DEFINE G10_1 REV G10_0
-  %IF SHOW_FUTURE_LINES
-  DIRECTION_DEFINE G10_2
-    STATIONS ['杨箕东', '天河路', '石牌桥', '岗顶', '华师', '五山', '天河客运站']
-    DISTANCE AUTO
-  END_DEFINE
-  DIRECTION_DEFINE G10_2 
-  	MERGE G10_0 G10_2
-  END_DEFINE
-  %ENDIF
-  DIRECTION_DEFINE G10_3 REV G10_2
 END_DEFINE
-
-%IF SHOW_FUTURE_LINES
-DIRECTION_DELETE G10_0
-DIRECTION_DELETE G10_1
-%ENDIF
 
 LINE_DEFINE G3
   NAME '3号线'
@@ -485,10 +470,10 @@ TRANSFER CHANNEL "客村" G3 G8
 # 广州南站（2、7、22、F2）
 TRANSFER SAME "广州南站" G2 G7
 TRANSFER CHANNEL "广州南站" G2 G22
-TRANSFER CHANNEL_LONG "广州南站" G2 F2
+TRANSFER CHANNEL "广州南站" G2 F2
 TRANSFER CHANNEL "广州南站" G7 G22
-TRANSFER CHANNEL_LONG "广州南站" G7 F2
-TRANSFER CHANNEL_LONG_LONG "广州南站" G22 F2
+TRANSFER CHANNEL "广州南站" G7 F2
+TRANSFER CHANNEL_LONG "广州南站" G22 F2
 
 # 西塱（1、GF、10、22）
 TRANSFER CHANNEL "西塱" G1 GF
@@ -517,8 +502,8 @@ TRANSFER HALL "石壁" G2 G7
 TRANSFER CHANNEL "汉溪长隆" G3 G7
 
 # 番禺广场（3、18、22）
-TRANSFER CHANNEL_LONG "番禺广场" G3 G18
-TRANSFER CHANNEL_LONG "番禺广场" G3 G22
+TRANSFER CHANNEL "番禺广场" G3 G18
+TRANSFER CHANNEL "番禺广场" G3 G22
 TRANSFER SAME "番禺广场" G18 G22
 
 # 东湖（6、10）
@@ -532,16 +517,16 @@ TRANSFER HALL "广州火车站" G2 G5
 
 # 嘉禾望岗（2、3、14）
 TRANSFER SAME "嘉禾望岗" G2 G3
-TRANSFER CHANNEL_LONG "嘉禾望岗" G2 G14
-TRANSFER CHANNEL_LONG "嘉禾望岗" G3 G14
+TRANSFER CHANNEL "嘉禾望岗" G2 G14
+TRANSFER CHANNEL "嘉禾望岗" G3 G14
 
 # 天河客运站（3、6、10）
 TRANSFER STAIR "天河客运站" G3 G6
 
 # 广州东站（1、3、11）
 TRANSFER CHANNEL "广州东站" G1 G3
-TRANSFER CHANNEL_LONG_LONG "广州东站" G1 G11
-TRANSFER CHANNEL_LONG "广州东站" G3 G11
+TRANSFER CHANNEL "广州东站" G1 G11
+TRANSFER CHANNEL "广州东站" G3 G11
 
 # 黄村（4、21）
 TRANSFER CHANNEL "黄村" G4 G21
@@ -777,11 +762,11 @@ CROWD_PROFILE G9_1
 END_DEFINE
 
 # 10号线（新线，客流中等）
-CROWD_PROFILE G10_2
+CROWD_PROFILE G10_0
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.4 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.3 WORKDAY
 END_DEFINE
-CROWD_PROFILE G10_3
+CROWD_PROFILE G10_1
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.3 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.4 WORKDAY
 END_DEFINE
@@ -1253,3 +1238,180 @@ PRICE_DEFINE
   SEGMENT 96.00 104.00 16.00
   LINEAR_EXTENSION THRESHOLD 104.00 BASE_FARE 16.00 RATE_PER_KM 0.125000
 END_DEFINE
+
+
+
+%IF SHOW_FUTURE_LINES
+
+# ==================== 1. 10号线 & 3号线支线拆分 ====================
+# 先合并10号线（西塱→杨箕东 + 杨箕东→天河客运站）
+DIRECTION_DEFINE G10_2 G10
+	STATIONS ['杨箕东', '天河路', '石牌桥', '岗顶', '华师', '五山', '天河客运站']
+	DISTANCE AUTO
+END_DEFINE
+DIRECTION_DEFINE G10_2 G10
+	MERGE G10_0 G10_2
+END_DEFINE
+
+# 删除旧的10号线分段（G10_0, G10_1 被覆盖，但 G10_2 已无用，需删除）
+DIRECTION_DEFINE G10_3 REV G10_2
+DIRECTION_DELETE G10_0
+DIRECTION_DELETE G10_1
+# 删除旧的3号线支线方向（体育西路→天河客运站）
+DIRECTION_DELETE G3_1 G3_3
+
+# ==================== 2. 22号线拼接（番禺广场→机场北） ====================
+# G22_0 是番禺广场→芳村，G22_3 是芳村→机场北（规划），首尾相连
+DIRECTION_DEFINE G22_0 G22
+    MERGE G22_0 G22_4
+END_DEFINE
+# 生成反向方向
+DIRECTION_DEFINE G22_1 REV G22_0
+# 删除旧的分段方向
+DIRECTION_DELETE G22_3 G22_4
+
+# ==================== 3. 18号线拼接（中山→花都，三段贯通） ====================
+# 顺序：G18_3（中山→万顷沙） + G18_0（万顷沙→东站） + G18_5（东站→花都）
+# 先从最南端开始合并，逐步向北串
+DIRECTION_DEFINE G18_0 G18
+    MERGE G18_3 G18_0
+END_DEFINE
+# 此时 G18_0 已变为 中山→东站
+DIRECTION_DEFINE G18_0 G18
+    MERGE G18_0 G18_5
+END_DEFINE
+# 现在 G18_0 是 中山→花都 的完整方向
+DIRECTION_DEFINE G18_2 REV G18_0
+# 删除中间临时方向及原分段
+DIRECTION_DELETE G18_1 G18_3 G18_4 G18_5 G18_6
+
+# ==================== 4. 8号线拼接（江府→莲花，三段贯通） ====================
+# 顺序：G8_3（江府→滘心） + G8_0（滘心→万胜围） + G8_5（万胜围→莲花）
+DIRECTION_DEFINE G8_0 G8
+    MERGE G8_3 G8_0
+END_DEFINE
+DIRECTION_DEFINE G8_0 G8
+    MERGE G8_0 G8_5
+END_DEFINE
+DIRECTION_DEFINE G8_1 REV G8_0
+# 删除旧分段
+DIRECTION_DELETE G8_3 G8_4 G8_5 G8_6
+
+# ==================== 5. 13号线拼接（朝阳→新沙） ====================
+# 顺序：G13_2（朝阳→天河公园） + G13_0（天河公园→新沙）
+DIRECTION_DEFINE G13_0 G13
+    MERGE G13_2 G13_0
+END_DEFINE
+DIRECTION_DEFINE G13_1 REV G13_0
+# 删除旧分段
+DIRECTION_DELETE G13_2 G13_3
+
+# ==================== 6. 12号线拼接（浔峰岗→大学城南，三段贯通） ====================
+# 顺序：G12_1（浔峰岗→广州体育馆） + G12_4（广州体育馆→二沙岛） + G12_0（二沙岛→大学城南）
+DIRECTION_DEFINE G12_0 G12
+    MERGE G12_3 G12_5
+END_DEFINE
+# 此时 G12_0 变为 浔峰岗→二沙岛
+DIRECTION_DEFINE G12_0 G12
+    MERGE G12_0 G12_2
+END_DEFINE
+DIRECTION_DEFINE G12_1 REV G12_0
+
+# 删除所有旧分段和临时变量
+DIRECTION_DELETE G12_2 G12_3 G12_4 G12_5
+
+# ==================== 7. 24号线激活（改为已运营） ====================
+# 24号线目前只有 FUTURE 方向，直接把 FUTURE 属性移除即可
+LINE_MODIFY G24
+    SET OPEN_YEAR 2028
+END_DEFINE
+
+# 将 G24_0 和 G24_1 的 FUTURE 标记移除（如果有嵌套子命令，需重新定义）
+# 最简单方法：删除原方向，重新定义不带 FUTURE 的方向（覆盖）
+DIRECTION_DELETE G24_0 G24_1
+DIRECTION_DEFINE G24_0 G24
+    STATIONS ['广州北站', '秀全公园', '雅瑶', '雅源', '东镜', '神山东', '水沥', '江府', '桃源', '均禾', '白云大朗', '夏茅', '黄石', '广州白云站', '棠景', '远景', '梓元岗', '纪念堂']
+    DISTANCE AUTO
+END_DEFINE
+DIRECTION_DEFINE G24_1 REV G24_0
+
+# ==================== 佛山4号线 & 11号线 正式开通 ====================
+
+# 注意：LINE_MODIFY 只能改线路属性，改不了方向内的 FUTURE 标记，
+# 所以稳妥做法是删除旧方向并重新定义（不带 FUTURE）。
+DIRECTION_DELETE F4_0 F4_1
+DIRECTION_DEFINE F4_0 F4
+    STATIONS ['港口路', '三山新城南', '平顺东路', '平南工业区', '瓜步', '平胜', '季华东路', '石肯', '季华六路', '文华公园', '季华园', '佛山大道', '江湾路', '张槎', '智慧新城', '绿岛湖中', '绿岛湖北', '罗务路', '下柏', '佛山西站', '小坑尾', '科普中路', '科技西路', '博爱路', '狮山北', '大江社村', '新城医院', '莲子塘', '东交公园', '西南街道', '三水医院']
+    DISTANCE AUTO
+END_DEFINE
+DIRECTION_DEFINE F4_1 REV F4_0
+
+DIRECTION_DELETE F11_0 F11_1
+DIRECTION_DEFINE F11_0 F11
+    STATIONS ['鹤洞东', '花围', '三山新城', '创智园', '港口路', '林岳东', '陈村北', '陈村东', '碧江', '碧江南', '顺德站', '永丰市场', '云路公园', '东乐路', '南国路', '宝林寺', '德胜西路', '容奇渡口']
+    DISTANCE AUTO
+END_DEFINE
+DIRECTION_DEFINE F11_1 REV F11_0
+
+
+# ---- 新增换乘规则（基于真实站点交集） ----
+
+# （一）佛山4号线 ↔ 佛山3号线（共4个换乘站）
+TRANSFER HALL "佛山西站" F4 F3
+TRANSFER HALL "季华六路" F4 F3
+TRANSFER HALL "张槎" F4 F3
+TRANSFER HALL "智慧新城" F4 F3
+
+# （二）佛山4号线 ↔ 佛山11号线（港口路换乘）
+TRANSFER SAME "港口路" F4 F11
+
+# （三）佛山11号线 ↔ 佛山2号线（林岳东换乘）
+TRANSFER STAIR "林岳东" F11 F2
+
+# （四）佛山11号线 ↔ 广州7号线（陈村北换乘，跨城通道）
+TRANSFER CHANNEL "陈村北" F11 G7
+
+# （五）佛山11号线 ↔ 佛山3号线（东乐路换乘）
+TRANSFER STAIR "东乐路" F11 F3
+
+
+# ---- 4. 补充运营参数（发车间隔 & 拥挤度） ----
+# 参考佛山2/3号线的标准，给新线设定默认值
+
+# 佛山4号线拥挤度
+CROWD_PROFILE F4_0
+    PERIOD 07:30 09:00 1.2 WORKDAY
+    PERIOD 17:30 19:00 1.1 WORKDAY
+END_DEFINE
+CROWD_PROFILE F4_1
+    PERIOD 07:30 09:00 1.1 WORKDAY
+    PERIOD 17:30 19:00 1.2 WORKDAY
+END_DEFINE
+
+# 佛山11号线拥挤度
+CROWD_PROFILE F11_0
+    PERIOD 07:30 09:00 1.3 WORKDAY
+    PERIOD 17:30 19:00 1.2 WORKDAY
+END_DEFINE
+CROWD_PROFILE F11_1
+    PERIOD 07:30 09:00 1.2 WORKDAY
+    PERIOD 17:30 19:00 1.3 WORKDAY
+END_DEFINE
+
+# 佛山4号线发车间隔
+HEADWAY_PROFILE F4
+    PERIOD 07:00 09:00 180 WORKDAY
+    PERIOD 17:00 19:00 180 WORKDAY
+    PERIOD 09:00 17:00 300 WORKDAY
+    PERIOD 06:00 22:00 360 WEEKEND
+END_DEFINE
+
+# 佛山11号线发车间隔
+HEADWAY_PROFILE F11
+    PERIOD 07:00 09:00 180 WORKDAY
+    PERIOD 17:00 19:00 180 WORKDAY
+    PERIOD 09:00 17:00 300 WORKDAY
+    PERIOD 06:00 22:00 360 WEEKEND
+END_DEFINE
+
+%ENDIF

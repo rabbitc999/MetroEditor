@@ -82,11 +82,11 @@ namespace MetroEditor.PathFinding
                     return Suitable; // 配置项不存在，使用默认
 
                 // 读取各权重值，类型转换失败时使用默认值
-                double length = registryKey.GetValue("LengthWeight") as double? ?? 0.02;
-                double transfer = registryKey.GetValue("TransferWeight") as double? ?? 0.5;
-                double money = registryKey.GetValue("MoneyWeight") as double? ?? 1.0;
-                double time = registryKey.GetValue("TimeWeight") as double? ?? 0.01;
-                double station = registryKey.GetValue("StationWeight") as double? ?? 0.1;
+                double length = registryKey.GetValue("LengthWeight") as double? ?? 0.0;
+                double transfer = registryKey.GetValue("TransferWeight") as double? ?? 0.0;
+                double money = registryKey.GetValue("MoneyWeight") as double? ?? 100.0;
+                double time = registryKey.GetValue("TimeWeight") as double? ?? 1.0;
+                double station = registryKey.GetValue("StationWeight") as double? ?? 1.0;
 
                 return new SearchWeight(length, transfer, money, time, station);
             }
