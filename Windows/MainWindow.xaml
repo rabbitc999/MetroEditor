@@ -136,6 +136,7 @@
             <MenuItem Header="_工具">
                 <MenuItem Header="编译" Command="{StaticResource CompileCommand}"/>
                 <MenuItem Header="反编译" Command="{StaticResource DecompileCommand}"/>
+                <MenuItem Header="导出站点 CSV" Click="ExportStationsCsv_Click"/>
                 <Separator/>
                 <MenuItem Header="批量编译..." Click="BatchCompile_Click"/>
                 <MenuItem Header="批量反编译..." Click="BatchDecompile_Click"/>
@@ -236,6 +237,13 @@
                     <Path Fill="#333" Width="16" Height="16" Stretch="Uniform"
               Data="M16,5v14l-11-7L16,5z"/>
                     <TextBlock Text="反编译" Margin="4,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button Click="ExportStationsCsv_Click" ToolTip="导出当前站点列表为 CSV 文件">
+                <StackPanel Orientation="Horizontal">
+                    <Path Fill="#333" Width="16" Height="16" Stretch="Uniform"
+              Data="M14,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V8L14,2z M12,18l-4-4h2.5v-3h3v3H16L12,18z M13,9V3.5L18.5,9H13z"/>
+                    <TextBlock Text="导出站点CSV" Margin="4,0,0,0"/>
                 </StackPanel>
             </Button>
             <Separator/>

@@ -734,7 +734,7 @@ namespace MetroEditor.Windows
             return output.ToArray(); // 包含 GZip 标准头（0x1F 0x8B）
         }
 
-        private static string DecompressJson(byte[] compressed)
+        public static string DecompressJson(byte[] compressed)
         {
             using var input = new MemoryStream(compressed);
             using var gzip = new GZipStream(input, CompressionMode.Decompress);
@@ -1356,6 +1356,100 @@ namespace MetroEditor.Windows
             var editor = new MapEditorWindow();
             editor.LoadData(_currentRoot);
             editor.Show();
+        }
+
+        /// <summary>
+        /// 导出当前站点列表为 CSV 文件（UTF-8 with BOM，便于 Excel 打开）
+        /// </summary>
+        private void ExportStationsCsv_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. 检查数据是否存在
+            if (_currentParsedData == null || _currentParsedData.Stations.Count == 0)
+            {
+                MessageBox.Show("请先编译代码以获取站点数据。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // 2. 选择保存路径
+            var dialog = new SaveFileDialog
+            {
+                Filter = "CSV 文件 (*.csv)|*.csv",
+                Title = "导出站点列表",
+                FileName = $"站点列表_{_currentParsedData.MainCity}_{DateTime.Now:yyyyMMdd}.csv"
+            };
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                // 3. 构建 CSV 内容
+                var sb = new StringBuilder();
+                // 添加 BOM（UTF-8 with BOM）
+                byte[] bom = new byte[] { 0xEF, 0xBB, 0xBF };
+                using var fs = new FileStream(dialog.FileName, FileMode.Create, FileAccess.Write);
+                fs.Write(bom, 0, bom.Length);
+                using var writer = new StreamWriter(fs, Encoding.UTF8);
+
+                // 写入标题行
+                writer.WriteLine("站名,经度,纬度,城市,途经线路");
+
+                // 获取站点数据
+                var stations = _currentParsedData.Stations;
+                var stationCities = _currentParsedData.StationCities;
+                var mainCity = _currentParsedData.MainCity;
+
+                // 预构建线路名称映射
+                var lineNameMap = new Dictionary<string, string>();
+                foreach (var kv in _currentParsedData.Lines)
+                {
+                    string city = kv.Value.City ?? mainCity;
+                    string displayName = (city == mainCity) ? kv.Value.Name : $"{city}{kv.Value.Name}";
+                    lineNameMap[kv.Key] = displayName;
+                }
+
+                // 遍历站点
+                foreach (var kv in stations)
+                {
+                    string stationName = kv.Key;
+                    var coord = kv.Value;
+                    double lon = coord.Lon;
+                    double lat = coord.Lat;
+
+                    // 获取城市
+                    string city = stationCities.TryGetValue(stationName, out var c) ? c : mainCity;
+
+                    // 获取该站经过的线路（通过方向列表收集）
+                    var lineIds = _currentParsedData.Directions.Values
+                        .Where(d => d.Stations.Contains(stationName))
+                        .Select(d => d.LineId)
+                        .Distinct()
+                        .ToList();
+
+                    // 转换为显示名称
+                    var lineDisplayNames = lineIds
+                        .OrderBy(id => id)
+                        .Select(id => lineNameMap.TryGetValue(id, out var display) ? display : id)
+                        .ToList();
+                    string linesStr = string.Join("; ", lineDisplayNames); // 分号分隔
+
+                    // 写入一行（注意：站名或线路名可能包含逗号，需加引号处理）
+                    string escapedName = stationName.Contains(",") ? $"\"{stationName}\"" : stationName;
+                    string escapedLines = linesStr.Contains(",") ? $"\"{linesStr}\"" : linesStr;
+                    writer.WriteLine($"{escapedName},{lon:F6},{lat:F6},{city},{escapedLines}");
+                }
+
+                writer.Flush();
+                fs.Close();
+
+                MessageBox.Show($"站点数据已导出至：{dialog.FileName}", "导出成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                statusInfo.Text = "导出成功";
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("access")) return;
+                MessageBox.Show($"导出失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                statusInfo.Text = "导出失败";
+            }
         }
         #endregion
     }
