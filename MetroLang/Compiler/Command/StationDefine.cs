@@ -28,25 +28,9 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
                 string subCommand = parser.ParseId().ToUpperInvariant();
                 if (subCommand != "NODE")
-                {
-                    // 处理 OTHER_NAME（紧随 NODE 之后）
-                    if (subCommand == "OTHER_NAME" && !string.IsNullOrEmpty(_currentCompositeKey))
-                    {
-                        parser.ParseId(); // 消耗 OTHER_NAME
-                        List<string> nameList;
-                        if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == "[")
-                            nameList = parser.ParseStringList();
-                        else
-                            nameList = new List<string> { parser.ParseString() };
+                    throw new SyntaxException($"STATION_DEFINE 内只能使用 NODE，但遇到了 '{subCommand}'", parser.Peek());
 
-                        // 以当前复合键存储别名（后处理会跟随键迁移）
-                        context.StationOtherNames[_currentCompositeKey] = nameList;
-                        continue;
-                    }
-                    throw new SyntaxException($"STATION_DEFINE 内只能使用 NODE 或 OTHER_NAME，但遇到了 '{subCommand}'", parser.Peek());
-                }
-
-                // ----- 解析 NODE -----
+                // ----- 解析 NODE（必填部分） -----
                 string stationName = parser.ParseString();
                 parser.ParseId("COORD");
                 double longitude = parser.ParseDouble();
@@ -61,15 +45,29 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     city = parser.ParseString();
                 }
 
-                // 构建复合键
+                // 构建复合键（内部始终以 "城市::站名" 存储，后处理归一化）
                 string compositeKey = $"{city}::{stationName}";
-                _currentCompositeKey = compositeKey; // 供后续 OTHER_NAME 使用
 
-                // 存储（覆盖时警告）
+                // 存储坐标
                 if (context.Stations.ContainsKey(compositeKey))
                     parser.AddWarning($"站台 '{compositeKey}' 已存在，将覆盖");
                 context.Stations[compositeKey] = (longitude, latitude);
                 context.StationCity[compositeKey] = city;
+
+                // ----- 解析可选的 OTHER_NAME（紧随 NODE，可同行或换行） -----
+                parser.ParseNewlines(); // 跳过可能的空白行
+                if (parser.IsPeekId("OTHER_NAME"))
+                {
+                    parser.ParseId(); // 消耗 OTHER_NAME
+                    List<string> nameList;
+                    if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == "[")
+                        nameList = parser.ParseStringList();
+                    else
+                        nameList = new List<string> { parser.ParseString() };
+
+                    context.StationOtherNames[compositeKey] = nameList;
+                }
+                // 注意：OTHER_NAME 解析后，不继续循环，而是回到 while 开头读取下一个 NODE
             }
 
             // ----- 后处理归一化 -----

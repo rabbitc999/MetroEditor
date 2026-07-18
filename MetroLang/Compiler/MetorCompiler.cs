@@ -12,6 +12,7 @@ namespace MetroEditor.MetroLang.Compiler
     {
         // ---------- 编译中间数据存储（语义模型核心） ----------
         /// <summary>语法指令处理器映射：Key=指令名（忽略大小写），Value=对应的解析方法</summary>
+        private List<string> _defaultLanguageOrder = new List<string>();
         private Dictionary<string, ICommandHandler> _commandHandlers;
         private Context context = new Context();
         private Parser parser = null;
@@ -112,7 +113,13 @@ namespace MetroEditor.MetroLang.Compiler
                 }
             }
 
-            // 5. 后处理（与之前相同）
+            // 5. 在解析完成后，如果 context.LanguageOrder 仍为空，则应用默认值
+            if (context.LanguageOrder.Count == 0 && _defaultLanguageOrder.Count > 0)
+            {
+                context.LanguageOrder = new List<string>(_defaultLanguageOrder);
+            }
+
+            // 6. 后处理（与之前相同）
             if (parser.ErrorCount < 49)
             {
                 PostProcessor processor = new PostProcessor(parser, context);

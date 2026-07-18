@@ -30,7 +30,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     case "OPEN_YEAR": template.OpenYear = parser.ParseInt(); break;
                     case "FORMATION": template.Formation = parser.ParseString(); break;
                     case "MAXSPEED": template.Maxspeed = parser.ParseDouble(); break;
-                    case "POWER_KW": template.PowerKw = parser.ParseDouble(); break;
+                    case "POWER": template.PowerKw = parser.ParseDouble(); break;
                     case "BRAKE": template.Brake = parser.ParseDouble(); break;
                     case "DISABLED":
                         string val = parser.ParseId().ToUpperInvariant();

@@ -1,11 +1,4 @@
-﻿using MetroEditor.MetroLang.Compiler;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetroEditor.MetroLang.Compiler.Command
+﻿namespace MetroEditor.MetroLang.Compiler.Command
 {
     internal class ProgramDefine : ICommandHandler
     {
@@ -18,12 +11,13 @@ namespace MetroEditor.MetroLang.Compiler.Command
             context.UpdateDate = string.Empty;
             context.CreateDate = string.Empty;
             context.Author = string.Empty;
+            context.LanguageOrder.Clear();  // 清空语言顺序
 
             // 解析块内子命令
             while (true)
             {
                 parser.ParseNewlines();
-                if (parser.IsEndDefine()) { break; }
+                if (parser.IsEndDefine()) break;
 
                 string command = parser.ParseId().ToUpperInvariant();
                 switch (command)
@@ -35,7 +29,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         context.MainCity = parser.ParseString();
                         break;
                     case "OTHER_CITY":
-                        // 支持单城市或城市数组
                         var cities = ParseCityListOrSingle(parser);
                         foreach (var city in cities)
                             if (!context.Cities.ContainsKey(city))
@@ -49,6 +42,10 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         break;
                     case "UPDATE_DATE":
                         context.UpdateDate = parser.ParseString();
+                        break;
+                    case "LANGUAGE_ORDER":   // 新增：语言顺序定义
+                        // 支持数组格式：['en', 'zh-Hant', 'zh-Hans']
+                        context.LanguageOrder = parser.ParseStringList();
                         break;
                     default:
                         throw new SyntaxException($"PROGRAM_DEFINE 内未知子命令 '{command}'", parser.Peek());
@@ -65,16 +62,13 @@ namespace MetroEditor.MetroLang.Compiler.Command
             if (string.IsNullOrEmpty(context.CreateDate)) context.CreateDate = DateTime.Now.ToString("yyyy-MM-dd");
             if (string.IsNullOrEmpty(context.Author)) context.Author = "匿名";
 
-            // 将主城市纳入城市管理，便于统一处理
+            // 将主城市纳入城市管理
             if (!context.Cities.ContainsKey(context.MainCity))
                 context.Cities[context.MainCity] = new Dictionary<string, string>();
             context.Cities[context.MainCity]["version"] = context.Version;
             context.Cities[context.MainCity]["update_date"] = context.UpdateDate;
         }
 
-        /// <summary>
-        /// 解析城市列表（支持单值或数组格式）
-        /// </summary>
         private List<string> ParseCityListOrSingle(Parser parser)
         {
             if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == "[")

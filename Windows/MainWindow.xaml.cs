@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using Path = System.IO.Path;
@@ -229,7 +230,7 @@ namespace MetroEditor.Windows
         {
             if (!CheckSave()) return;
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
-            if (ext == ".metro")
+            if (ext == ".metro" || ext == ".m")
             {
                 try
                 {
@@ -273,7 +274,7 @@ namespace MetroEditor.Windows
         private void ConfigureEditor()
         {
             // 注册自定义高亮
-            HighlightingManager.Instance.RegisterHighlighting("Metro", new[] { ".metro" }, new MetroHighlighting());
+            HighlightingManager.Instance.RegisterHighlighting("Metro", new[] { ".metro",  ".m" }, new MetroHighlighting());
             textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("Metro");
 
             // 文本修改标记
@@ -616,7 +617,7 @@ namespace MetroEditor.Windows
         private void OpenFile_Click(object sender, EventArgs e)
         {
             if (!CheckSave()) return;
-            var dlg = new OpenFileDialog { Filter = "Metro文件 (*.metro)|*.metro|所有文件 (*.*)|*.*" };
+            var dlg = new OpenFileDialog { Filter = "Metro文件 (*.metro;*.m)|*.metro;*.m|所有文件 (*.*)|*.*" };
             if (dlg.ShowDialog() == true)
             {
                 try
@@ -655,7 +656,7 @@ namespace MetroEditor.Windows
 
         private void SaveAsFile_Click(object sender, EventArgs? e)
         {
-            var dlg = new SaveFileDialog { Filter = "Metro文件 (*.metro)|*.metro|所有文件 (*.*)|*.*" };
+            var dlg = new SaveFileDialog { Filter = "Metro文件 (*.metro;*.m)|*.metro;*.m|所有文件 (*.*)|*.*" };
             if (dlg.ShowDialog() == true)
             {
                 _currentFilePath = dlg.FileName;
@@ -1235,7 +1236,7 @@ namespace MetroEditor.Windows
 
         private void SaveAsFile_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new SaveFileDialog { Filter = "Metro文件 (*.metro)|*.metro|所有文件 (*.*)|*.*" };
+            var dlg = new SaveFileDialog { Filter = "Metro文件 (*.metro;*.m)|*.metro;*.m|所有文件 (*.*)|*.*" };
             if (dlg.ShowDialog() == true)
             {
                 _currentFilePath = dlg.FileName;

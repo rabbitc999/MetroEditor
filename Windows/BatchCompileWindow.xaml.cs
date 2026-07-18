@@ -40,7 +40,7 @@ namespace MetroEditor.Windows
         {
             var dlg = new OpenFileDialog
             {
-                Filter = "Metro文件 (*.metro)|*.metro|所有文件 (*.*)|*.*",
+                Filter = "Metro文件 (*.metro;*.m)|*.metro;*.m|所有文件 (*.*)|*.*",
                 Multiselect = true,
                 Title = "选择要编译的 Metro 文件"
             };

@@ -40,7 +40,7 @@ namespace MetroEditor.Windows
         {
             var dlg = new OpenFileDialog
             {
-                Filter = "编译后数据 (*.bmetro)|*.bmetro|JSON文件 (*.json)|*.json|所有文件 (*.*)|*.*",
+                Filter = "编译后数据 (*.bmetro;*.m)|*.bmetro;*.m|JSON文件 (*.json)|*.json|所有文件 (*.*)|*.*",
                 Multiselect = true,
                 Title = "选择要反编译的数据文件"
             };

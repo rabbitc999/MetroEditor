@@ -147,13 +147,26 @@ namespace MetroEditor.Windows
                 var color = GetLineColor(seg.LineId);
                 string title = seg.LineName;
                 string subtitle = $"开往 {seg.Direction} 方向，{seg.StationCount} 站";
-                items.Add(new SegmentDisplayItem
+                try
                 {
-                    Title = title,
-                    Subtitle = subtitle,
-                    Color = new SolidColorBrush(color),
-                    Stations = new List<string>()
-                });
+                    items.Add(new SegmentDisplayItem
+                    {
+                        Title = title,
+                        Subtitle = subtitle,
+                        Color = new SolidColorBrush(seg.NickColor != null ? (Color)ColorConverter.ConvertFromString(seg.NickColor) : color),
+                        Stations = new List<string>()
+                    });
+                }
+                catch (Exception)
+                {
+                    items.Add(new SegmentDisplayItem
+                    {
+                        Title = title,
+                        Subtitle = subtitle,
+                        Color = new SolidColorBrush(color),
+                        Stations = new List<string>()
+                    });
+                }
             }
             return items;
         }
@@ -189,15 +202,6 @@ namespace MetroEditor.Windows
         {
             if (_data.Lines.TryGetValue(lineId, out var line))
             {
-                // 优先使用方向定义的别名颜色
-                foreach (var dir in _data.Directions.Values)
-                {
-                    if (dir.LineId == lineId && !string.IsNullOrEmpty(dir.AliasColor))
-                    {
-                        try { return (Color)ColorConverter.ConvertFromString(dir.AliasColor); }
-                        catch { }
-                    }
-                }
                 // 其次使用线路主色
                 if (!string.IsNullOrEmpty(line.Color))
                 {

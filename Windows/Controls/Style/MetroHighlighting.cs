@@ -41,7 +41,7 @@ namespace MetroEditor.Windows.Controls.Style
             string[] primaryKeywords = [
                 // 程序元数据
                 "KEY_CITY", "PROGRAM_DEFINE", "OTHER_CITY", "VERSION", "UPDATE_DATE", "CITY",
-                "AUTHOR", "CREATE_DATE",
+                "AUTHOR", "CREATE_DATE", "OTHER_NAME", "OTHER_NAME",
                 
                 // 核心定义块
                 "LINE_DEFINE", "DIRECTION_DEFINE", "STATION_DEFINE", "PRICE_DEFINE",
@@ -105,7 +105,8 @@ namespace MetroEditor.Windows.Controls.Style
                 "COORD", "NODE", "LABEL_DEFINE",
                 
                 // 特殊命令
-                "REV", "DEPOT", "STATION_STATUS", "STATION_MODE",
+                "REV", "DEPOT", "STATION_STATUS", "STATION_MODE", "AS",
+                "IMPORT", "IMPORT", "INCLUDE", "DEFINE", "UNDEFINE", "IF", "ELSE",
                 
                 // 线路/方向操作（新增）
                 "LINE_MERGE", "LINE_SPLIT", "LINE_COPY", "LINE_RENAME", "LINE_DELETE",

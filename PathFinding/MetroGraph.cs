@@ -69,6 +69,11 @@ namespace MetroEditor.PathFinding
 
         /// <summary>车站到所属方向键集合的映射</summary>
         private readonly Dictionary<string, HashSet<string>> _stationLines = new();
+
+        /// <summary>
+        /// 内部方向Key
+        /// </summary>
+        private readonly Dictionary<string, DirectionInfo> _externalKeyToDirInfo = new();
         #endregion
 
         #region 主线/支线辅助字段（用于分段展示）
@@ -135,6 +140,10 @@ namespace MetroEditor.PathFinding
                 // 生成方向键（格式：线路ID|起点站|终点站）
                 var dirKey = GraphKeyUtils.MakeDirKey(lineId, dir.Stations.First(), dir.Stations.Last());
                 DebugLog($"  方向 ID: {dirId}, 方向键: {dirKey}, 站点数: {dir.Stations.Count}");
+
+                // 在生成 dirKey 之后，添加：
+                var externalKey = GraphKeyUtils.MakeDirKey(lineId, dir.Stations.First(), dir.Stations.Last());
+                _externalKeyToDirInfo[externalKey] = dir;  // dir 是 DirectionInfo
 
                 // 存储方向到车站序列的映射
                 _dirStations[dirKey] = dir.Stations.ToList();
@@ -900,12 +909,20 @@ namespace MetroEditor.PathFinding
 
                 // 获取线路信息
                 var lineId = GraphKeyUtils.GetLineIdFromDirKey(dirKey);
-                var lineName = _data.Lines.TryGetValue(lineId, out var li) ? li.Name : lineId;
+                string lineName;
+                if (_externalKeyToDirInfo.TryGetValue(dirKey, out var dirInfoA) && !string.IsNullOrEmpty(dirInfoA.Alias))
+                {
+                    lineName = dirInfoA.Alias; // 用方向别名作为线路名
+                }
+                else
+                {
+                    lineName = _data.Lines.TryGetValue(lineId, out var li) ? li.Name : lineId;
+                }
 
                 // 生成方向显示名称（环线特殊处理）
                 var directionDisplay = BuildDirectionDisplay(lineId, dirKey, stations);
                 bool isBranch = _dirIsBranchMap.TryGetValue(dirKey, out var br) && br;
-                string nickColor = _data.Directions.TryGetValue(dirKey, out var dirInfo) ? dirInfo.AliasColor : null;
+                string nickColor = _externalKeyToDirInfo.TryGetValue(dirKey, out var dirInfo) ? dirInfo.AliasColor : null;
 
                 // 创建行程分段对象
                 segments.Add(new RouteSegment(

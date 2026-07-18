@@ -7,7 +7,7 @@ MetroLang 是一种面向地铁网络描述的领域特定语言（DSL），设�
 
 ## 1. 基本约定
 
-- **关键字不区分大小写**：`PROGRAM_DEFINE` 与 `program_define` 等效。
+- **关键字不区分大小写**：`PROGRAM_DEFINE` 与 `program_DEFINE` 等效。
 - **字符串**：使用单引号 `'` 或双引号 `"` 包裹，内部支持转义（如 `\'`）。
 - **标识符**：线路ID、方向ID等由字母、数字、下划线组成，不能以数字开头。
 - **注释**：`#` 到行尾的内容被忽略。
@@ -27,24 +27,24 @@ MetroLang 是一种面向地铁网络描述的领域特定语言（DSL），设�
 
 | 指令 | 语法 | 说明 |
 |------|------|------|
-| `%define` | `%define 符号名` | 定义编译期符号（大小写不敏感） |
-| `%undefine` | `%undefine 符号名` | 移除符号定义 |
-| `%if` | `%if 符号名` | 条件编译开始，若符号已定义则保留后续代码 |
-| `%else` | `%else` | 与最近的 `%if` 配对，取反条件 |
-| `%endif` | `%endif` | 结束条件编译块 |
-| `%include` | `%include "文件路径"` | 嵌入外部 `.metro` 文件（支持相对/绝对路径，自动防循环） |
-| `%import` | `%import "文件路径" AS STATIONS` | 从 CSV 导入站点数据（自动生成 `STATION_DEFINE`） |
+| `%DEFINE` | `%DEFINE 符号名` | 定义编译期符号（大小写不敏感） |
+| `%UNDEFINE` | `%UNDEFINE 符号名` | 移除符号定义 |
+| `%IF` | `%IF 符号名` | 条件编译开始，若符号已定义则保留后续代码 |
+| `%ELSE` | `%ELSE` | 与最近的 `%IF` 配对，取反条件 |
+| `%ENDIF` | `%ENDIF` | 结束条件编译块 |
+| `%INCLUDE` | `%INCLUDE "文件路径"` | 嵌入外部 `.metro` 文件（支持相对/绝对路径，自动防循环） |
+| `%IMPORT` | `%IMPORT "文件路径" AS STATIONS` | 从 CSV 导入站点数据（自动生成 `STATION_DEFINE`） |
 
 **示例**：
 ```metro
-%define CITY_BJ
-%if CITY_BJ
-    %include "beijing_config.metro"
-%else
-    %include "shanghai_config.metro"
-%endif
+%DEFINE CITY_BJ
+%IF CITY_BJ
+    %INCLUDE "beijing_config.metro"
+%ELSE
+    %INCLUDE "shanghai_config.metro"
+%ENDIF
 
-%import "stations.csv" AS STATIONS
+%IMPORT "stations.csv" AS STATIONS
 ```
 
 ---
@@ -122,7 +122,7 @@ LINE_TEMPLATE 模板ID [INHERITS 父模板ID]
     OPEN_YEAR 年份
     FORMATION '编组'
     MAXSPEED 速度
-    POWER_KW 功率
+    POWER 功率
     BRAKE 减速度
     DISABLED TRUE|FALSE
     IMAGE '图片路径'
@@ -145,7 +145,7 @@ LINE_DEFINE 线路ID [INHERITS 模板ID]
     FORMATION '编组'                   # 如 '6B', '8A'
     MAXSPEED 80                        # 最高速度 (km/h)
     OPEN_YEAR 2000                     # 开通年份
-    POWER_KW 3680                      # 牵引功率 (kW)
+    POWER 3680                      # 牵引功率 (kW)
     BRAKE 0.85                         # 制动减速度 (m/s²)
     LINK 'URL'                         # 百科链接
     IMAGE '图片路径'                   # 线路示意图（转为 Base64 存储）
@@ -456,8 +456,8 @@ STATION_STATUS ['站名1', '站名2'] [线路ID] 状态
 
 ```metro
 FACILITY_DEFINE
-    TOILET '站名' POSITION paid_area [ACCESSIBLE] [GENDER male|female|mixed]
-    ACCESSIBLE_TOILET '站名' POSITION paid_area [ACCESSIBLE] [GENDER male|female|mixed]
+    TOILET '站名' POSITION PAID_AREA [ACCESSIBLE] [GENDER MALE|FEMALE|MIXED]
+    ACCESSIBLE_TOILET '站名' POSITION PAID_AREA [ACCESSIBLE] [GENDER MALE|FEMALE|MIXED]
     ELEVATOR '站名' LOCATION '具体位置描述' [ACCESSIBLE]
     WIDE_GATE '站名' QUANTITY 数量
     ESCALATOR '站名' QUANTITY 数量 [DIRECTION up|down|both]
@@ -466,9 +466,9 @@ END_DEFINE
 ```
 
 **参数说明**：
-- `POSITION`：`paid_area`（付费区内）或 `unpaid_area`（付费区外）。
+- `POSITION`：`PAID_AREA`（付费区内）或 `UNPAID_AREA`（付费区外）。
 - `ACCESSIBLE`：表示具备无障碍设施。
-- `GENDER`：卫生间性别，默认 `mixed`。
+- `GENDER`：卫生间性别，默认 `MIXED`。
 
 ---
 
@@ -479,7 +479,7 @@ PROMOTION_DEFINE
     POLICY 优惠ID
         NAME '优惠名称'
         DESCRIPTION '详细描述'
-        TYPE rate|fixed|fixed_discount
+        TYPE RATE|FIXED|FIXED_DISCOUNT
         VALUE 数值
         APPLICABLE_LINES [线路ID列表]   # 可选，空表示全线网
         TIME_RANGE HH:mm HH:mm          # 可选
@@ -490,7 +490,7 @@ END_DEFINE
 ```
 
 **子命令详解**：
-- `TYPE`：`rate`（折扣比例）、`fixed`（一口价）、`fixed_discount`（固定减免）。
+- `TYPE`：`RATE`（折扣比例）、`FIXED`（一口价）、`FIXED_DISCOUNT`（固定减免）。
 - `VALUE`：对应类型的数值。
 - `APPLICABLE_LINES`：限制适用线路，不指定或为空表示全线网。
 
@@ -556,8 +556,8 @@ ECHO "方向总数：{DIRECTION_COUNT}"
 ## 28. 完整示例
 
 ```metro
-%define CITY_BJ
-%include "base_stations.metro"
+%DEFINE CITY_BJ
+%INCLUDE "base_stations.metro"
 
 PROGRAM_DEFINE
     KEY_CITY '北京'
@@ -587,9 +587,9 @@ LINE_DEFINE LINE1 INHERITS URBAN
     END_DEFINE
 END_DEFINE
 
-%if CITY_BJ
+%IF CITY_BJ
     LINE_COPY LINE1 LINE1_BACKUP
-%endif
+%ENDIF
 
 DIRECTION_REVERSE LINE1_0 LINE1_1
 
