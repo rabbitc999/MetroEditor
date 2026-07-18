@@ -19,5 +19,17 @@
 
         /// <summary>适用星期集合</summary>
         public List<DayOfWeek> Days { get; set; } = new();
+
+        public CrowdRule Clone()
+        {
+            return new CrowdRule
+            {
+                DirectionKey = this.DirectionKey,
+                StartTime = this.StartTime,
+                EndTime = this.EndTime,
+                Factor = this.Factor,
+                Days = new List<DayOfWeek>(this.Days)
+            };
+        }
     }
 }

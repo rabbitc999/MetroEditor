@@ -16,5 +16,16 @@
 
         /// <summary>出库/入库发车时间</summary>
         public TimeSpan? DepartureTime { get; set; }
+
+        public DepotInfo Clone()
+        {
+            return new DepotInfo
+            {
+                LineId = this.LineId,
+                Station = this.Station,
+                DirectionKey = this.DirectionKey,
+                DepartureTime = this.DepartureTime
+            };
+        }
     }
 }

@@ -7,5 +7,13 @@
     {
         /// <summary>起步票价金额</summary>
         public double Price { get; set; }
+
+        public new MoneyStartRule Clone()
+        {
+            return new MoneyStartRule
+            {
+                Price = this.Price
+            };
+        }
     }
 }

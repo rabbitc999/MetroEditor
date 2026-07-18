@@ -357,14 +357,44 @@ namespace MetroEditor.Windows
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is not DataGrid grid || grid.SelectedItem == null) return;
-            string insertText = grid switch
+
+            string insertText = null;
+
+            if (grid == directionGrid && grid.SelectedItem is DirectionViewModel dir)
             {
-                _ when grid == directionGrid && grid.SelectedItem is DirectionViewModel dir => dir.DirId,
-                _ when grid == stationGrid && grid.SelectedItem is StationViewModel sta => $"'{sta.Name}'",
-                _ when grid == lineGrid && grid.SelectedItem is LineViewModel line => line.LineId,
-                _ => null
-            } ?? "";
-            if (insertText == null) return;
+                insertText = dir.DirId;
+            }
+            else if (grid == stationGrid && grid.SelectedItem is StationViewModel sta)
+            {
+                string name = sta.Name;
+                // 若显示名为 "站名 (城市)" 格式，则转换为 "城市::站名"
+                if (name.EndsWith(")") && name.Contains("("))
+                {
+                    int openParen = name.LastIndexOf('(');
+                    int closeParen = name.LastIndexOf(')');
+                    if (openParen > 0 && closeParen > openParen)
+                    {
+                        string stationName = name.Substring(0, openParen).Trim();
+                        string city = name.Substring(openParen + 1, closeParen - openParen - 1).Trim();
+                        if (!string.IsNullOrEmpty(city) && !string.IsNullOrEmpty(stationName))
+                        {
+                            insertText = $"'{city}::{stationName}'";
+                        }
+                    }
+                }
+                // 若不满足转换条件，则原样插入站名
+                if (string.IsNullOrEmpty(insertText))
+                {
+                    insertText = name;
+                }
+            }
+            else if (grid == lineGrid && grid.SelectedItem is LineViewModel line)
+            {
+                insertText = line.LineId;
+            }
+
+            if (string.IsNullOrEmpty(insertText))
+                return;
 
             textEditor.Focus();
             int offset = textEditor.TextArea.Caret.Offset;

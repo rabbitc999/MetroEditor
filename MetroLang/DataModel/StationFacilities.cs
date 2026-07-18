@@ -11,5 +11,18 @@
         public WideGateInfo? WideGate { get; set; }
         public List<EscalatorInfo>? Escalators { get; set; }
         public TactilePavingInfo? TactilePaving { get; set; }
+
+        public StationFacilities Clone()
+        {
+            return new StationFacilities
+            {
+                Toilet = this.Toilet?.Clone(),
+                AccessibleToilet = this.AccessibleToilet?.Clone(),
+                Elevators = this.Elevators?.Select(e => e.Clone()).ToList(),
+                WideGate = this.WideGate?.Clone(),
+                Escalators = this.Escalators?.Select(e => e.Clone()).ToList(),
+                TactilePaving = this.TactilePaving?.Clone()
+            };
+        }
     }
 }

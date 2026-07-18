@@ -31,5 +31,21 @@
 
         /// <summary>适用的星期集合（如 ["WORKDAY"]）</summary>
         public List<string> Days { get; set; } = new();
+
+        public PromotionPolicy Clone()
+        {
+            return new PromotionPolicy
+            {
+                Id = this.Id,
+                Name = this.Name,
+                Description = this.Description,
+                Type = this.Type,
+                Value = this.Value,
+                ApplicableLines = new List<string>(this.ApplicableLines),
+                StartTime = this.StartTime,
+                EndTime = this.EndTime,
+                Days = new List<string>(this.Days)
+            };
+        }
     }
 }

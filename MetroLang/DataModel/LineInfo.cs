@@ -34,5 +34,22 @@
 
         /// <summary>图片Base64编码</summary>
         public string ImageBase64 { get; set; }
+
+        public LineInfo Clone()
+        {
+            return new LineInfo
+            {
+                Name = this.Name,
+                Color = this.Color,
+                City = this.City,
+                OpenYear = this.OpenYear,
+                Formation = this.Formation,
+                Maxspeed = this.Maxspeed,
+                PowerKw = this.PowerKw,
+                Brake = this.Brake,
+                Disabled = this.Disabled,
+                ImageBase64 = this.ImageBase64
+            };
+        }
     }
 }

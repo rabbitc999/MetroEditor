@@ -13,5 +13,15 @@
 
         /// <summary>该区间内票价</summary>
         public double Price { get; set; }
+
+        public new MoneySegmentRule Clone()
+        {
+            return new MoneySegmentRule
+            {
+                Start = this.Start,
+                End = this.End,
+                Price = this.Price
+            };
+        }
     }
 }

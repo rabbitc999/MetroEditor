@@ -15,18 +15,32 @@ namespace MetroEditor.MetroLang.Compiler
         /// <summary>
         /// 核心分词正则表达式。
         /// 匹配顺序即优先级：空白 -> 注释 -> 数字 -> 字符串 -> 标识符 -> 符号 -> 非法字符。
-        /// 注：移除了 \n\r 捕获组，组索引已重新编号。
+        /// 符号组现已支持多字符比较运算符（<=, >=, ==, !=）以及单字符符号。
         /// 组索引说明:
         /// 1: 空白符
         /// 2: 注释 (#...)
         /// 3: 数字
         /// 4: 字符串 ("..." 或 '...')
         /// 5: 标识符
-        /// 6: 符号
+        /// 6: 符号（包含多字符运算符）
+        /// 7: 非法字符
+        /// </summary>
+        /// <summary>
+        /// 核心分词正则表达式。
+        /// 匹配顺序即优先级：空白 -> 注释 -> 数字 -> 字符串 -> 标识符 -> 符号 -> 非法字符。
+        /// 标识符现在允许包含 *（用于通配符模式）。
+        /// 符号组已移除 *，避免拆分通配符模式。
+        /// 组索引说明:
+        /// 1: 空白符
+        /// 2: 注释 (#...)
+        /// 3: 数字
+        /// 4: 字符串 ("..." 或 '...')
+        /// 5: 标识符（允许字母、数字、下划线、星号）
+        /// 6: 符号（多字符运算符和单字符符号，不含 *）
         /// 7: 非法字符
         /// </summary>
         private static readonly Regex _tokenRegex = new Regex(
-            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""[^""]*""|'[^']*')|([A-Za-z_][A-Za-z0-9_]*)|([\[\](){}:,=%])|(.)",
+            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""[^""]*""|'[^']*')|([A-Za-z_][A-Za-z0-9_*]*)|(<=|>=|==|!=|[\[\](){}:,=<%>!])|(.)",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         /// <summary>
@@ -85,9 +99,11 @@ namespace MetroEditor.MetroLang.Compiler
         /// 词法分析器
         /// </summary>
         /// <param name="sourceText">源代码</param>
-        /// <returns>词法分析后的代码</returns>
+        /// <param name="sourceDirectory">源文件所在目录（用于 Token 来源追踪）</param>
+        /// <returns>词法分析后的 Parser 对象</returns>
         public static Parser Tokenize(string sourceText, string sourceDirectory = "")
         {
+            sourceText = " " + sourceText;
             var generatedTokens = new List<Token>();
             string processedText = RemoveComments(sourceText);
 
@@ -126,7 +142,7 @@ namespace MetroEditor.MetroLang.Compiler
                     {
                         generatedTokens.Add(new Token(TokenType.Id, regexMatch.Groups[5].Value, currentLineNumber, sourceDirectory));
                     }
-                    // 组 6: 符号
+                    // 组 6: 符号（包含多字符运算符）
                     else if (regexMatch.Groups[6].Success)
                     {
                         generatedTokens.Add(new Token(TokenType.Symbol, regexMatch.Groups[6].Value, currentLineNumber, sourceDirectory));

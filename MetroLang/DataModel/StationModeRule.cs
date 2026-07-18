@@ -19,5 +19,17 @@
 
         /// <summary>适用星期集合</summary>
         public List<DayOfWeek> Days { get; set; } = new();
+
+        public StationModeRule Clone()
+        {
+            return new StationModeRule
+            {
+                Station = this.Station,
+                Mode = this.Mode,
+                StartTime = this.StartTime,
+                EndTime = this.EndTime,
+                Days = new List<DayOfWeek>(this.Days)
+            };
+        }
     }
 }

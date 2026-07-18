@@ -25,5 +25,19 @@
 
         /// <summary>该线路的线性续价配置</summary>
         public LinearExtension? LinearExtension { get; set; }
+
+        public SpecialLine Clone()
+        {
+            return new SpecialLine
+            {
+                LineId = this.LineId,
+                All = this.All,
+                Surcharge = this.Surcharge.Select(s => s.Clone()).ToList(),
+                UseLines = new List<string>(this.UseLines),
+                DefaultFare = this.DefaultFare,
+                Segments = this.Segments.Select(s => s.Clone()).ToList(),
+                LinearExtension = this.LinearExtension?.Clone()
+            };
+        }
     }
 }

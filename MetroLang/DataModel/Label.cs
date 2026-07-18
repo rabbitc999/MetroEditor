@@ -13,5 +13,15 @@
 
         /// <summary>纬度（WGS-84 坐标系）</summary>
         public double Lat { get; set; }
+
+        public Label Clone()
+        {
+            return new Label
+            {
+                Text = this.Text,
+                Lon = this.Lon,
+                Lat = this.Lat
+            };
+        }
     }
 }

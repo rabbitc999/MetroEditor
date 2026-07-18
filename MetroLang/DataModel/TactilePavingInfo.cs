@@ -6,5 +6,13 @@
     public class TactilePavingInfo
     {
         public string Status { get; set; } = "available";
+
+        public TactilePavingInfo Clone()
+        {
+            return new TactilePavingInfo
+            {
+                Status = this.Status
+            };
+        }
     }
 }

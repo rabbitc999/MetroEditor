@@ -16,5 +16,16 @@
 
         /// <summary>最高允许速度（km/h）</summary>
         public int SpeedKmh { get; set; }
+
+        public SpeedLimit Clone()
+        {
+            return new SpeedLimit
+            {
+                DirectionKey = this.DirectionKey,
+                FromStation = this.FromStation,
+                ToStation = this.ToStation,
+                SpeedKmh = this.SpeedKmh
+            };
+        }
     }
 }

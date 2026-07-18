@@ -13,5 +13,15 @@
 
         /// <summary>超过阈值后，每单位里程/分区的加价金额</summary>
         public double RatePerKm { get; set; }
+
+        public LinearExtension Clone()
+        {
+            return new LinearExtension
+            {
+                Threshold = this.Threshold,
+                BaseFare = this.BaseFare,
+                RatePerKm = this.RatePerKm
+            };
+        }
     }
 }

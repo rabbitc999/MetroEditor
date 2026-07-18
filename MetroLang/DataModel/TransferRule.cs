@@ -25,5 +25,19 @@
 
         /// <summary>换乘类型标识（用于模板匹配）</summary>
         public string TransferType { get; set; } = string.Empty;
+
+        public TransferRule Clone()
+        {
+            return new TransferRule
+            {
+                Station = this.Station,
+                L1 = this.L1,
+                L2 = this.L2,
+                Status = this.Status,
+                Time = this.Time,
+                SecurityCheck = this.SecurityCheck,
+                TransferType = this.TransferType
+            };
+        }
     }
 }

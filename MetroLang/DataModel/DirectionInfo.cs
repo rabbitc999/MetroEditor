@@ -31,5 +31,21 @@
 
         /// <summary>经由的其他方向 ID 列表（用于复杂交路）</summary>
         public List<string> ViaDirections { get; set; } = new();
+
+        public DirectionInfo Clone()
+        {
+            return new DirectionInfo
+            {
+                LineId = this.LineId,
+                Stations = new List<string>(this.Stations),
+                Attrs = new HashSet<string>(this.Attrs),
+                Alias = this.Alias,
+                AliasColor = this.AliasColor,
+                DirectionType = this.DirectionType,
+                IsFuture = this.IsFuture,
+                ConnectStation = this.ConnectStation,
+                ViaDirections = new List<string>(this.ViaDirections)
+            };
+        }
     }
 }

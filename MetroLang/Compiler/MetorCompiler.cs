@@ -44,7 +44,8 @@ namespace MetroEditor.MetroLang.Compiler
 
         public JsonRoot ExportJson()
         {
-            JsonExport jsonRoot = new JsonExport(context);
+            Context _context = context.DeepClone();
+            JsonExport jsonRoot = new JsonExport(_context);
             return jsonRoot.ExportJson();
         }
 

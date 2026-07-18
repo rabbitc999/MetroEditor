@@ -13,5 +13,15 @@
 
         /// <summary>该区间内的固定票价</summary>
         public double Fare { get; set; }
+
+        public Segment Clone()
+        {
+            return new Segment
+            {
+                RangeStart = this.RangeStart,
+                RangeEnd = this.RangeEnd,
+                Fare = this.Fare
+            };
+        }
     }
 }

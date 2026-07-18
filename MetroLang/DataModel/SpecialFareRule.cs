@@ -19,5 +19,17 @@
 
         /// <summary>区间终点站</summary>
         public string EndStation { get; set; } = string.Empty;
+
+        public SpecialFareRule Clone()
+        {
+            return new SpecialFareRule
+            {
+                LineId = this.LineId,
+                Type = this.Type,
+                Price = this.Price,
+                StartStation = this.StartStation,
+                EndStation = this.EndStation
+            };
+        }
     }
 }

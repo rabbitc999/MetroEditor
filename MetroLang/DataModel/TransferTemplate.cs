@@ -13,5 +13,15 @@
 
         /// <summary>应用此模板的线路 ID</summary>
         public string LineId { get; set; } = string.Empty;
+
+        public TransferTemplate Clone()
+        {
+            return new TransferTemplate
+            {
+                TypeId = this.TypeId,
+                Station = this.Station,
+                LineId = this.LineId
+            };
+        }
     }
 }

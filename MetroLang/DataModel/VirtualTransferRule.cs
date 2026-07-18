@@ -19,5 +19,17 @@
 
         /// <summary>换乘必经方向 ID 列表</summary>
         public List<string> ViaDirections { get; set; } = new();
+
+        public VirtualTransferRule Clone()
+        {
+            return new VirtualTransferRule
+            {
+                StationA = this.StationA,
+                StationB = this.StationB,
+                TimeMinutes = this.TimeMinutes,
+                SecurityCheck = this.SecurityCheck,
+                ViaDirections = new List<string>(this.ViaDirections)
+            };
+        }
     }
 }

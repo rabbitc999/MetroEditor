@@ -10,5 +10,14 @@
 
         /// <summary>每公里加价金额</summary>
         public double AddPrice { get; set; }
+
+        public new MoneyCalcRule Clone()
+        {
+            return new MoneyCalcRule
+            {
+                DistSegment = this.DistSegment,
+                AddPrice = this.AddPrice
+            };
+        }
     }
 }

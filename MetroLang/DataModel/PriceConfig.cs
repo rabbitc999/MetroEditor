@@ -33,5 +33,21 @@ namespace MetroEditor.MetroLang.DataModel
 
         /// <summary>特殊线路票价规则列表</summary>
         public List<SpecialLine> SpecialLines { get; set; } = new();
+
+        public PriceConfig Clone()
+        {
+            return new PriceConfig
+            {
+                City = this.City,
+                LineId = this.LineId,
+                Currency = this.Currency,
+                DefaultFare = this.DefaultFare,
+                Segments = this.Segments.Select(s => s.Clone()).ToList(),
+                LinearExtension = this.LinearExtension?.Clone(),
+                TransferDiscount = this.TransferDiscount?.Clone(),
+                FareCap = this.FareCap,
+                SpecialLines = this.SpecialLines.Select(sl => sl.Clone()).ToList()
+            };
+        }
     }
 }

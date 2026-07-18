@@ -6,5 +6,13 @@
     public class WideGateInfo
     {
         public int Quantity { get; set; }
+
+        public WideGateInfo Clone()
+        {
+            return new WideGateInfo
+            {
+                Quantity = this.Quantity
+            };
+        }
     }
 }

@@ -13,5 +13,15 @@
 
         /// <summary>附加费用金额</summary>
         public double Price { get; set; }
+
+        public SurchargeItem Clone()
+        {
+            return new SurchargeItem
+            {
+                NodeA = this.NodeA,
+                NodeB = this.NodeB,
+                Price = this.Price
+            };
+        }
     }
 }

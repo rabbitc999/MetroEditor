@@ -16,5 +16,16 @@
 
         /// <summary>适用星期集合</summary>
         public List<DayOfWeek> Days { get; set; } = new();
+
+        public OpenTimeRule Clone()
+        {
+            return new OpenTimeRule
+            {
+                LineId = this.LineId,
+                StartTime = this.StartTime,
+                EndTime = this.EndTime,
+                Days = new List<DayOfWeek>(this.Days)
+            };
+        }
     }
 }

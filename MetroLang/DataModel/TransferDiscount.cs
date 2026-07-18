@@ -13,5 +13,15 @@
 
         /// <summary>优惠有效时间窗口（单位：分钟）</summary>
         public int TimeLimitMinutes { get; set; }
+
+        public TransferDiscount Clone()
+        {
+            return new TransferDiscount
+            {
+                Enabled = this.Enabled,
+                DiscountAmount = this.DiscountAmount,
+                TimeLimitMinutes = this.TimeLimitMinutes
+            };
+        }
     }
 }

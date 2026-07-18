@@ -16,5 +16,16 @@
 
         /// <summary>是否需要安检</summary>
         public bool SecurityCheck { get; set; } = false;
+
+        public TransferTypeDefinition Clone()
+        {
+            return new TransferTypeDefinition
+            {
+                Name = this.Name,
+                Status = this.Status,
+                Time = this.Time,
+                SecurityCheck = this.SecurityCheck
+            };
+        }
     }
 }

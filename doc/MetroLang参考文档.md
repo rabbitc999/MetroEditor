@@ -272,7 +272,7 @@ DIRECTION_MODIFY 方向ID
     SET NICK_COLOR '#新颜色'
     SET CONNECT_STATION '站名'
     SET IS_FUTURE TRUE|FALSE
-    SET DIRECTION_TYPE inner|outer      # 仅环线有效
+    SET DIRECTION_TYPE INNER|OUTER      # 仅环线有效
 END_DEFINE
 ```
 
@@ -301,7 +301,7 @@ END_DEFINE
 ```metro
 TRANSFER_TYPE 类型ID '类型名称'
     TIME 秒数
-    STATUS operating | pending | out_station
+    STATUS OPERATING | PENDING | OUT_STATION
     SECURITY_CHECK                     # 可选
 END_DEFINE
 ```
@@ -317,7 +317,7 @@ TRANSFER 类型ID '站名' 线路A [线路B]
 ```metro
 TRANSFER_DEFINE '站名' 线路A 线路B
     TIME 秒数
-    STATUS operating | pending | out_station
+    STATUS OPERATING | PENDING | OUT_STATION
     SECURITY_CHECK
 END_DEFINE
 ```
@@ -446,7 +446,7 @@ END_DEFINE
 STATION_STATUS ['站名1', '站名2'] [线路ID] 状态
 ```
 - 为指定站点（单个或列表）在特定线路（可选）上设置状态。
-- 状态：`operating`、`pending`、`out_station`。
+- 状态：`OPERATING`、`PENDING`、`OUT_STATION`。
 
 ---
 

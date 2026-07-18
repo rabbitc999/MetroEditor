@@ -1,4 +1,5 @@
 ﻿using MetroEditor.MetroLang.DataModel;
+using System.Text.Json;
 
 namespace MetroEditor.MetroLang.Compiler
 {
@@ -156,12 +157,12 @@ namespace MetroEditor.MetroLang.Compiler
         /// <summary>
         /// 线路模板
         /// </summary>
-        public Dictionary<string, LineTemplate> LineTemplates { get; } = new();
+        public Dictionary<string, LineTemplate> LineTemplates { get; internal set; } = new();
 
         /// <summary>
         /// 方向模板
         /// </summary>
-        public Dictionary<string, DirectionTemplate> DirectionTemplates { get; } = new();
+        public Dictionary<string, DirectionTemplate> DirectionTemplates { get; internal set; } = new();
 
         // ====================================================================
         // 9. 辅助映射
@@ -173,7 +174,7 @@ namespace MetroEditor.MetroLang.Compiler
         public Dictionary<string, string> StationCity { get; internal set; } = new();
 
         /// <summary>编译期条件符号集合（不区分大小写）</summary>
-        public HashSet<string> DefinedSymbols { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public HashSet<string> DefinedSymbols { get; internal set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>编译期断言信息（不区分大小写）</summary>
         public List<Assertion> Assertions { get; internal set; } = new();
@@ -340,6 +341,89 @@ namespace MetroEditor.MetroLang.Compiler
             data.StationOtherNames = new Dictionary<string, List<string>>(StationOtherNames);
 
             return data;
+        }
+
+        /// <summary>
+        /// 返回当前上下文的深拷贝副本。
+        /// 使用 JSON 序列化实现，确保所有数据独立于原对象。
+        /// </summary>
+        /// <summary>
+        /// 返回当前上下文的深拷贝副本（递归复制所有数据，完全独立）
+        /// </summary>
+        public Context DeepClone()
+        {
+            var clone = new Context();
+
+            // ---- 1. 基础元数据 ----
+            clone.MainCity = this.MainCity;
+            clone.Version = this.Version;
+            clone.CreateDate = this.CreateDate;
+            clone.UpdateDate = this.UpdateDate;
+            clone.Author = this.Author;
+            clone.LanguageOrder = new List<string>(this.LanguageOrder);
+            clone.StationOtherNames = CloneDictionary(this.StationOtherNames, v => new List<string>(v));
+
+            // ---- 2. 核心路网数据 ----
+            clone.Cities = CloneDictionary(this.Cities, v => new Dictionary<string, string>(v));
+            clone.Stations = new Dictionary<string, (double Lon, double Lat)>(this.Stations);
+            clone.Lines = CloneDictionary(this.Lines, v => v.Clone()); // 需 LineInfo 实现 Clone 方法
+            clone.Directions = CloneDictionary(this.Directions, v => v.Clone());
+            clone.Distances = CloneDictionary(this.Distances, v => new List<double>(v));
+            clone.LineLinks = new Dictionary<string, string>(this.LineLinks);
+            clone.SpecialLineIds = new HashSet<string>(this.SpecialLineIds);
+
+            // ---- 3. 换乘与车站状态 ----
+            clone.Transfers = this.Transfers.Select(t => t.Clone()).ToList(); // TransferRule 需实现 Clone
+            clone.StationStatus = CloneDictionary(this.StationStatus, v => v);
+            clone.VirtualTransfers = this.VirtualTransfers.Select(vt => vt.Clone()).ToList();
+
+            // ---- 4. 时间与运营参数 ----
+            clone.DwellTimes = CloneDictionary(this.DwellTimes, v => v);
+            clone.DefaultTimes = new Dictionary<string, double>(this.DefaultTimes);
+
+            // ---- 5. 动态规则 ----
+            clone.HeadwayRules = this.HeadwayRules.Select(r => r.Clone()).ToList();
+            clone.StationModes = this.StationModes.Select(m => m.Clone()).ToList();
+            clone.CrowdRules = this.CrowdRules.Select(c => c.Clone()).ToList();
+            clone.OpenTimes = this.OpenTimes.Select(o => o.Clone()).ToList();
+            clone.SpeedLimits = this.SpeedLimits.Select(s => s.Clone()).ToList();
+            clone.Depots = this.Depots.Select(d => d.Clone()).ToList();
+
+            // ---- 6. 票价与优惠 ----
+            clone.PriceConfig = this.PriceConfig.Clone(); // PriceConfig 需实现 Clone
+            clone.Promotions = this.Promotions.Select(p => p.Clone()).ToList();
+
+            // ---- 7. 地图标注与设施 ----
+            clone.Labels = this.Labels.Select(l => l.Clone()).ToList();
+            clone.Facilities = CloneDictionary(this.Facilities, f => f.Clone());
+
+            // ---- 8. 换乘模板 ----
+            clone.TransferTypes = CloneDictionary(this.TransferTypes, t => t.Clone());
+            clone.TransferTemplates = this.TransferTemplates.Select(t => t.Clone()).ToList();
+
+            // ---- 9. 线路/方向模板 ----
+            //clone.LineTemplates = CloneDictionary(this.LineTemplates, t => t.Clone());
+            //clone.DirectionTemplates = CloneDictionary(this.DirectionTemplates, t => t.Clone());
+
+            // ---- 10. 辅助映射 ----
+            clone.StationCity = new Dictionary<string, string>(this.StationCity);
+            clone.DefinedSymbols = new HashSet<string>(this.DefinedSymbols);
+            //clone.Assertions = this.Assertions.Select(a => a.Clone()).ToList();
+            //clone.EchoMessages = new List<string>(this.EchoMessages);
+
+            // ---- 11. 警告 ----
+            clone.Warnings = new List<string>(this.Warnings);
+
+            return clone;
+        }
+
+        // ---------- 辅助克隆方法 ----------
+        private static Dictionary<TKey, TValue> CloneDictionary<TKey, TValue>(Dictionary<TKey, TValue> src, Func<TValue, TValue> cloneValue)
+        {
+            var dst = new Dictionary<TKey, TValue>();
+            foreach (var kv in src)
+                dst[kv.Key] = cloneValue(kv.Value);
+            return dst;
         }
     }
 }

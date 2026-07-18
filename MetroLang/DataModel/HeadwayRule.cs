@@ -19,5 +19,17 @@
 
         /// <summary>适用星期集合</summary>
         public List<DayOfWeek> Days { get; set; } = new();
+
+        public HeadwayRule Clone()
+        {
+            return new HeadwayRule
+            {
+                LineId = this.LineId,
+                StartTime = this.StartTime,
+                EndTime = this.EndTime,
+                IntervalSeconds = this.IntervalSeconds,
+                Days = new List<DayOfWeek>(this.Days)
+            };
+        }
     }
 }

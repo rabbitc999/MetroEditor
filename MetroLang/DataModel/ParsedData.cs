@@ -103,5 +103,49 @@ namespace MetroEditor.MetroLang.DataModel
         public List<string> LanguageOrder { get; set; } = new();
 
         public Dictionary<string, List<string>> StationOtherNames { get; set; } = new();
+
+        public ParsedData Clone()
+        {
+            return new ParsedData
+            {
+                MainCity = this.MainCity,
+                Cities = new Dictionary<string, Dictionary<string, string>>(this.Cities.Select(kv => new KeyValuePair<string, Dictionary<string, string>>(kv.Key, new Dictionary<string, string>(kv.Value)))),
+                Stations = new Dictionary<string, (double Lon, double Lat)>(this.Stations),
+                Lines = new Dictionary<string, LineInfo>(this.Lines.Select(kv => new KeyValuePair<string, LineInfo>(kv.Key, kv.Value.Clone()))),
+                Directions = new Dictionary<string, DirectionInfo>(this.Directions.Select(kv => new KeyValuePair<string, DirectionInfo>(kv.Key, kv.Value.Clone()))),
+                Transfers = this.Transfers.Select(t => t.Clone()).ToList(),
+                StationStatus = new Dictionary<(string Station, string? LineId), string>(this.StationStatus),
+                Distances = new Dictionary<string, List<double>>(this.Distances.Select(kv => new KeyValuePair<string, List<double>>(kv.Key, new List<double>(kv.Value)))),
+                DwellTimes = new Dictionary<(string Station, string LineId), double>(this.DwellTimes),
+                DefaultInStationTime = this.DefaultInStationTime,
+                DefaultOutStationTime = this.DefaultOutStationTime,
+                DefaultDwellTime = this.DefaultDwellTime,
+                Warnings = new List<string>(this.Warnings),
+                LineLinks = new Dictionary<string, string>(this.LineLinks),
+                MoneyRules = this.MoneyRules.Select(mr =>
+                {
+                    if (mr is MoneyStartRule ms) return (MoneyRule)ms.Clone();
+                    if (mr is MoneySegmentRule msr) return (MoneyRule)msr.Clone();
+                    if (mr is MoneyCalcRule mcr) return (MoneyRule)mcr.Clone();
+                    return null; // 不应发生
+                }).Where(m => m != null).Cast<MoneyRule>().ToList(),
+                SpecialFareRules = this.SpecialFareRules.Select(sf => sf.Clone()).ToList(),
+                DefaultEntryTime = this.DefaultEntryTime,
+                SpecialLineIds = new HashSet<string>(this.SpecialLineIds),
+                HeadwayRules = this.HeadwayRules.Select(h => h.Clone()).ToList(),
+                StationModes = this.StationModes.Select(sm => sm.Clone()).ToList(),
+                CrowdRules = this.CrowdRules.Select(c => c.Clone()).ToList(),
+                OpenTimes = this.OpenTimes.Select(o => o.Clone()).ToList(),
+                Depots = this.Depots.Select(d => d.Clone()).ToList(),
+                SpeedLimits = this.SpeedLimits.Select(s => s.Clone()).ToList(),
+                VirtualTransfers = this.VirtualTransfers.Select(vt => vt.Clone()).ToList(),
+                StationCities = new Dictionary<string, string>(this.StationCities),
+                Labels = this.Labels.Select(l => l.Clone()).ToList(),
+                SpecialLines = this.SpecialLines.Select(sl => sl.Clone()).ToList(),
+                DefaultBoardTime = this.DefaultBoardTime,
+                LanguageOrder = new List<string>(this.LanguageOrder),
+                StationOtherNames = new Dictionary<string, List<string>>(this.StationOtherNames.Select(kv => new KeyValuePair<string, List<string>>(kv.Key, new List<string>(kv.Value))))
+            };
+        }
     }
 }

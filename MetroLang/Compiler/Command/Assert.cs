@@ -9,7 +9,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
         public void Handle(Parser parser, Context context)
         {
             var assertion = ParseExpression(parser);
-            // 可选的 MESSAGE
             if (parser.IsPeekId("MESSAGE"))
             {
                 parser.ParseId();
@@ -18,11 +17,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
             context.Assertions.Add(assertion);
         }
 
-        private Assertion ParseExpression(Parser parser)
-        {
-            // 实现递归下降解析 AND/OR/NOT
-            return ParseOr(parser);
-        }
+        private Assertion ParseExpression(Parser parser) => ParseOr(parser);
 
         private Assertion ParseOr(Parser parser)
         {
@@ -69,75 +64,81 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 return expr;
             }
 
-            // 谓词解析
             string pred = parser.ParseId().ToUpperInvariant();
-            Assertion assertion = new Assertion();
+            var assertion = new Assertion();
 
+            // ----- 解析参数列表 -----
+            parser.ParseSymbol("(");
+            var args = new List<string>();
+            while (true)
+            {
+                if (parser.Peek().TokenType != TokenType.String)
+                    throw new SyntaxException($"期望字符串参数，但遇到了 '{parser.Peek().Value}'", parser.Peek());
+                args.Add(parser.ParseString());
+
+                if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == ",")
+                    parser.ParseSymbol(",");
+                else if (parser.Peek().TokenType == TokenType.Symbol && parser.Peek().Value == ")")
+                    break;
+                else
+                    throw new SyntaxException($"期望逗号或右括号，但遇到了 '{parser.Peek().Value}'", parser.Peek());
+            }
+            parser.ParseSymbol(")");
+
+            // ----- 根据谓词类型填充断言 -----
             switch (pred)
             {
                 case "DIRECTION_EXISTS":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.DirectionExists;
-                    assertion.Arguments.Add(parser.ParseString());
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
                     break;
                 case "LINE_EXISTS":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.LineExists;
-                    assertion.Arguments.Add(parser.ParseString());
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
                     break;
                 case "STATION_EXISTS":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.StationExists;
-                    assertion.Arguments.Add(parser.ParseString());
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
                     break;
                 case "STATION_COUNT":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.StationCount;
-                    assertion.Arguments.Add(parser.ParseString()); // 线路ID
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
                     break;
                 case "TRANSFER_EXISTS":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.TransferExists;
-                    assertion.Arguments.Add(parser.ParseString()); // 站名
-                    assertion.Arguments.Add(parser.ParseString()); // 线路A
-                    assertion.Arguments.Add(parser.ParseString()); // 线路B
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
+                    assertion.Arguments.Add(args[1]);
+                    assertion.Arguments.Add(args[2]);
                     break;
                 case "DISTANCE_BETWEEN":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.DistanceBetween;
-                    assertion.Arguments.Add(parser.ParseString()); // 站A
-                    assertion.Arguments.Add(parser.ParseString()); // 站B
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
+                    assertion.Arguments.Add(args[1]);
                     break;
                 case "DIRECTION_ATTR":
-                    parser.ParseSymbol("(");
                     assertion.Predicate = PredicateType.DirectionAttr;
-                    assertion.Arguments.Add(parser.ParseString()); // 方向ID
-                    assertion.Arguments.Add(parser.ParseString()); // 属性名（如 "BRANCH"）
-                    parser.ParseSymbol(")");
+                    assertion.Arguments.Add(args[0]);
+                    assertion.Arguments.Add(args[1]);
                     break;
                 default:
                     throw new SyntaxException($"未知谓词 '{pred}'", parser.Peek());
             }
 
-            // 检查是否有比较操作符
+            // ----- 检查比较操作符 -----
             if (parser.Peek().TokenType == TokenType.Symbol)
             {
                 string op = parser.Peek().Value;
                 CompareOp compareOp = CompareOp.None;
-                if (op == "<") compareOp = CompareOp.LessThan;
-                else if (op == ">") compareOp = CompareOp.GreaterThan;
-                else if (op == "<=") compareOp = CompareOp.LessOrEqual;
-                else if (op == ">=") compareOp = CompareOp.GreaterOrEqual;
-                else if (op == "==") compareOp = CompareOp.Equal;
-                else if (op == "!=") compareOp = CompareOp.NotEqual;
-                else return assertion;
-
+                switch (op)
+                {
+                    case "<": compareOp = CompareOp.LessThan; break;
+                    case ">": compareOp = CompareOp.GreaterThan; break;
+                    case "<=": compareOp = CompareOp.LessOrEqual; break;
+                    case ">=": compareOp = CompareOp.GreaterOrEqual; break;
+                    case "==": compareOp = CompareOp.Equal; break;
+                    case "!=": compareOp = CompareOp.NotEqual; break;
+                    default: return assertion;
+                }
                 parser.ParseSymbol(op);
                 double value = parser.ParseDouble();
                 assertion.Comparison = compareOp;
