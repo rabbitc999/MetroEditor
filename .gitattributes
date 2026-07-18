@@ -1,0 +1,63 @@
+# ============================================================
+# 语言统计修正：让 GitHub 正确识别 XAML 文件
+# ============================================================
+
+# XAML 文件 → 统计为 XAML 语言（若 GitHub 支持）
+*.xaml linguist-language=XAML
+
+# 如果 GitHub 不支持 XAML，则改为统计为 C#（二选一）
+# *.xaml linguist-language=C#
+
+# ============================================================
+# 排除自动生成的代码（不参与语言统计）
+# ============================================================
+
+# 自动生成的代码（如 .Designer.cs）
+*.Designer.cs linguist-generated=true
+*.g.cs linguist-generated=true
+*.i.cs linguist-generated=true
+
+# 临时/备份文件，不参与统计
+*.tmp linguist-vendored
+*.bak linguist-vendored
+
+# ============================================================
+# 标记 XML 文件为配置（避免被误统计）
+# ============================================================
+
+*.xml linguist-language=XML
+*.config linguist-language=XML
+*.props linguist-language=XML
+*.targets linguist-language=XML
+
+# ============================================================
+# 其他非代码文件，不参与统计
+# ============================================================
+
+# 文档
+*.md linguist-documentation
+*.txt linguist-documentation
+
+# 许可证
+LICENSE linguist-documentation
+NOTICE linguist-documentation
+
+# ============================================================
+# 压缩/二进制文件，排除统计
+# ============================================================
+
+*.png linguist-binary
+*.jpg linguist-binary
+*.jpeg linguist-binary
+*.gif linguist-binary
+*.ico linguist-binary
+*.bmetro linguist-binary
+*.zip linguist-binary
+
+# ============================================================
+# VS 项目/解决方案文件（不参与统计）
+# ============================================================
+
+*.sln linguist-vendored
+*.csproj linguist-vendored
+*.vcxproj linguist-vendored
