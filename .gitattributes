@@ -61,3 +61,9 @@ NOTICE linguist-documentation
 *.sln linguist-vendored
 *.csproj linguist-vendored
 *.vcxproj linguist-vendored
+
+# ============================================================
+# 将 HTML 文件标记为文档，不参与语言统计
+# ============================================================
+*.html linguist-documentation
+*.htm linguist-documentation
