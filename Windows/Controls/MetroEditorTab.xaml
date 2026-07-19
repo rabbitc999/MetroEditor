@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="MetroEditor.Windows.Controls.MetroEditorTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MetroEditor.Windows.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 编辑器 -->
+        <local:MetroEditorControl x:Name="editorControl" />
+
+        <!-- 错误列表（默认折叠，可通过外部控制显示） -->
+        <ListBox x:Name="errorListBox" Grid.Row="1" 
+                 Height="120" Visibility="Collapsed"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 Background="#FFF5F5F5" FontFamily="Consolas" FontSize="12">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Text}" Foreground="{Binding ColorBrush}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

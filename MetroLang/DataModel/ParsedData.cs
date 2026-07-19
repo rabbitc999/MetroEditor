@@ -16,6 +16,21 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>主城市标识</summary>
         public string MainCity { get; set; } = string.Empty;
 
+        /// <summary>主城市标识</summary>
+        public string Version { get; set; } = string.Empty;
+
+        /// <summary>主城市标识</summary>
+        public string CreateDate { get; set; } = string.Empty;
+
+        /// <summary>主城市标识</summary>
+        public List<string> OtherCities { get; set; } = new();
+
+        /// <summary>主城市标识</summary>
+        public string UpdateDate { get; set; } = string.Empty;
+
+        /// <summary>主城市标识</summary>
+        public string Author { get; set; } = string.Empty;
+
         /// <summary>城市信息字典（Key: 城市ID, Value: 城市属性字典）</summary>
         public Dictionary<string, Dictionary<string, string>> Cities { get; set; } = new();
 
@@ -103,6 +118,10 @@ namespace MetroEditor.MetroLang.DataModel
         public List<string> LanguageOrder { get; set; } = new();
 
         public Dictionary<string, List<string>> StationOtherNames { get; set; } = new();
+
+        public Dictionary<string, StationFacilities> Facilities { get; set; } = new();
+
+        public List<PromotionPolicy> Promotions { get; set; } = new();
 
         public ParsedData Clone()
         {

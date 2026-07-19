@@ -129,7 +129,7 @@ namespace MetroEditor
                 // 3. 读取源码并编译
                 string sourceCode = File.ReadAllText(inputFile);
 
-                MetorCompiler metorCompiler = new MetorCompiler();
+                MetroCompiler metorCompiler = new MetroCompiler();
                 metorCompiler.Parse(sourceCode, Path.GetDirectoryName(inputFile));
 
                 // 4. 输出文件（支持 .bmetro 或 .json）

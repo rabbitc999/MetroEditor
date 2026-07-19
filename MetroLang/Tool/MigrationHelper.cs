@@ -30,7 +30,7 @@ namespace MetroEditor.MetroLang.Tool
             try
             {
                 // 1. 使用旧编译器解析旧语法
-                var compiler = new MetorCompiler();
+                var compiler = new MetroCompiler();
                 compiler.Parse(legacySourceCode, filePath);
 
                 // 2. 导出为标准化 JSON（作为中间表示层）

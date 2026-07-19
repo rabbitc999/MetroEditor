@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:MetroEditor"
-        xmlns:controls="clr-namespace:MetroEditor.Controls"
+        xmlns:controls="clr-namespace:MetroEditor.Windows.Controls"
         Title="MetroLang 编辑器" Height="800" Width="1199"
         WindowStartupLocation="CenterScreen" Icon="/ic_launcher-playstore.png"
         AllowDrop="True"
@@ -26,7 +26,6 @@
         <RoutedUICommand x:Key="ZoomOutCommand" Text="减小字体"/>
         <RoutedUICommand x:Key="ToggleLineNumbersCommand" Text="显示行号"/>
         <RoutedUICommand x:Key="TogglePreviewCommand" Text="显示预览面板"/>
-        <RoutedUICommand x:Key="EditItemCommand" Text="编辑"/>
     </Window.Resources>
     <Window.CommandBindings>
         <!-- 标准 ApplicationCommands -->
@@ -56,10 +55,7 @@
         <!-- 视图命令（带参数或 toggle） -->
         <CommandBinding Command="{StaticResource ZoomInCommand}" Executed="ZoomIn_Click"/>
         <CommandBinding Command="{StaticResource ZoomOutCommand}" Executed="ZoomOut_Click"/>
-
-        <CommandBinding Command="{StaticResource EditItemCommand}" Executed="EditItem_Executed" CanExecute="CanEditItem"/>
     </Window.CommandBindings>
-
     <Window.InputBindings>
         <!-- 标准快捷键（ApplicationCommands 已自带，但可显式绑定） -->
         <KeyBinding Key="N" Modifiers="Control" Command="ApplicationCommands.New"/>
@@ -337,48 +333,12 @@
         </ToolBar>
 
         <!-- 编辑器区域 -->
-        <Grid Grid.Row="2" Grid.Column="0" Cursor="">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.7*" />
-                <RowDefinition Height="5" />
-                <RowDefinition Height="0.3*" />
-            </Grid.RowDefinitions>
-
-            <!-- 编辑器 -->
-            <avalon:TextEditor x:Name="textEditor" 
-                       Grid.Row="0"
-                       SyntaxHighlighting="Metro"
-                       FontSize="14"
-                       ShowLineNumbers="True"
-                       WordWrap="False"
-                       TextChanged="TextEditor_TextChanged"/>
-
-            <!-- 可拖动分割线 -->
-            <GridSplitter Grid.Row="1" Height="5" 
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  Background="LightGray"
-                  ResizeBehavior="BasedOnAlignment" Cursor="SizeNS" />
-
-            <ListBox x:Name="errorListBox" 
-                    Grid.Row="2"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    Background="#FFF5F5F5"
-                    FontFamily="Consolas"
-                    MouseDoubleClick="ErrorListBox_MouseDoubleClick"
-                    FontSize="12">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Text}" Foreground="{Binding ColorBrush}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Grid>
+        <controls:DocumentWorkspace x:Name="documentWorkspace" Grid.Row="2" Grid.Column="0" />
 
         <!-- 预览面板 (右列，行2) -->
         <Border Grid.Row="2" Grid.Column="2" Grid.RowSpan="2" Width="Auto" Background="#F0F0F0" BorderBrush="#CCC" BorderThickness="1,0,0,0" x:Name="previewPanel">
             <TabControl>
-                <TabItem Header="线路预览">
+                <TabItem Header="线网预览">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -393,377 +353,49 @@
                     </Grid>
                 </TabItem>
 
-                <TabItem Header="关键字栏">
-
-                    <!-- 关键字工具栏 -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <Border Grid.Row="0"
-                        Background="#F0F0F0"
-                        BorderBrush="#888"
-                        BorderThickness="0,0,0,1"
-                        Padding="4,2">
-                            <ItemsControl x:Name="keywordItemsControl">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Margin="2,1"
-                                        Padding="6,2"
-                                        FontFamily="Consolas"
-                                        FontSize="12"
-                                        Background="Transparent"
-                                        BorderBrush="#AAA"
-                                        BorderThickness="1"
-                                        Cursor="Hand"
-                                        Click="KeywordButton_Click"
-                                        Tag="{Binding Key}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Key}" FontWeight="Bold" TextDecorations="Underline" />
-                                                <TextBlock Text=" " />
-                                                <TextBlock Text="{Binding Value}" Foreground="Gray" FontSize="11" />
-                                            </StackPanel>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Border>
-                    </ScrollViewer>
-                </TabItem>
-
-                <!-- 语法参考 -->
-                <TabItem Header="语法参考">
-                    <ListView x:Name="SyntaxReferenceList" 
-                      ItemsSource="{Binding SyntaxReferences, RelativeSource={RelativeSource AncestorType=Window}}"
-                      MouseDoubleClick="SyntaxReferenceList_MouseDoubleClick"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="命令" Width="160" DisplayMemberBinding="{Binding Command}" />
-                                <GridViewColumn Header="格式" Width="450" DisplayMemberBinding="{Binding Format}" />
-                                <GridViewColumn Header="示例" Width="450" DisplayMemberBinding="{Binding Example}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                <TabItem Header="代码参考">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <GroupBox Grid.Row="0" Header="关键字栏" Margin="0,0,0,5" Padding="5">
+                            <controls:KeywordPanel x:Name="keywordPanel" KeywordClicked="KeywordPanel_KeywordClicked" />
+                        </GroupBox>
+                        <GroupBox Grid.Row="1" Header="语法参考" Margin="0,5,0,0" Padding="5">
+                            <controls:SyntaxReferencePanel x:Name="syntaxRefPanel" ItemDoubleClicked="SyntaxRefPanel_ItemDoubleClicked" />
+                        </GroupBox>
+                    </Grid>
                 </TabItem>
 
                 <TabItem Header="站台列表">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <!-- 筛选行 -->
-                            <RowDefinition Height="Auto" />
-                            <!-- 表格 -->
-                            <RowDefinition Height="*" />
-                            <!-- 分割线 -->
-                            <RowDefinition Height="5" />
-                            <!-- 详情 -->
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5" Background="#F0F0F0">
-                            <ComboBox x:Name="StationFilterColumn" Width="80" SelectedIndex="0" SelectionChanged="StationFilterColumn_SelectionChanged">
-                                <ComboBoxItem Content="站名" Tag="Name"/>
-                                <ComboBoxItem Content="途经线路" Tag="Lines"/>
-                                <ComboBoxItem Content="城市" Tag="City"/>
-                            </ComboBox>
-                            <TextBox x:Name="StationFilterTextBox" Width="150" Margin="5,0" TextChanged="StationFilterTextBox_TextChanged"/>
-                            <Button Content="清除" Click="StationClearFilter_Click" Width="50"/>
-                        </StackPanel>
-                        <DataGrid x:Name="stationGrid" Grid.Row="1"
-                              AutoGenerateColumns="False" 
-                              IsReadOnly="True"
-                              SelectionMode="Single"
-                              SelectionChanged="StationGrid_SelectionChanged"
-                              MouseDoubleClick="DataGrid_MouseDoubleClick"
-                              CanUserResizeColumns="True">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="编辑" Click="StationGrid_Edit_Click" />
-                                    <MenuItem Header="添加" Click="StationGrid_Add_Click" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="站名" Binding="{Binding Name}" Width="100"/>
-                                <DataGridTextColumn Header="经度" Binding="{Binding Lon}" Width="80"/>
-                                <DataGridTextColumn Header="纬度" Binding="{Binding Lat}" Width="80"/>
-                                <DataGridTextColumn Header="途经线路" Binding="{Binding Lines}" Width="*"/>
-                                <DataGridTextColumn Header="城市" Binding="{Binding City}" Width="80"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <GridSplitter Grid.Row="2"
-                              Height="5"
-                              HorizontalAlignment="Stretch"
-                              Background="#DDD"
-                              ResizeBehavior="BasedOnAlignment"
-                              ResizeDirection="Rows" />
-                        <ScrollViewer Grid.Row="3"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              Background="#F5F5F5" 
-                              BorderBrush="#DDD" 
-                              BorderThickness="0,1,0,0">
-                            <TextBlock x:Name="stationDetailText" 
-                               FontFamily="Consolas" 
-                               FontSize="12" 
-                               TextWrapping="Wrap" 
-                               Padding="5"
-                               Text="请选择一个站台查看详情" />
-                        </ScrollViewer>
-                    </Grid>
+                    <controls:StationListPanel x:Name="stationListPanel" 
+                               ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
                 </TabItem>
 
                 <TabItem Header="方向列表">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <!-- 筛选行 -->
-                            <RowDefinition Height="Auto" />
-                            <!-- 表格 -->
-                            <RowDefinition Height="*" />
-                            <!-- 分割线 -->
-                            <RowDefinition Height="5" />
-                            <!-- 详情 -->
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5" Background="#F0F0F0">
-                            <ComboBox x:Name="DirectionFilterColumn" Width="80" SelectedIndex="0" SelectionChanged="DirectionFilterColumn_SelectionChanged">
-                                <ComboBoxItem Content="方向ID" Tag="DirId"/>
-                                <ComboBoxItem Content="线路" Tag="DisplayLine"/>
-                                <ComboBoxItem Content="起点" Tag="Start"/>
-                                <ComboBoxItem Content="终点" Tag="End"/>
-                                <ComboBoxItem Content="属性" Tag="Attrs"/>
-                            </ComboBox>
-                            <TextBox x:Name="DirectionFilterTextBox" Width="150" Margin="5,0" TextChanged="DirectionFilterTextBox_TextChanged"/>
-                            <Button Content="清除" Click="DirectionClearFilter_Click" Width="50"/>
-                        </StackPanel>
-                        <DataGrid x:Name="directionGrid" Grid.Row="1"
-                          AutoGenerateColumns="False" 
-                          IsReadOnly="True"
-                          SelectionMode="Single"
-                          SelectionChanged="DirectionGrid_SelectionChanged"
-                          MouseDoubleClick="DataGrid_MouseDoubleClick"
-                          CanUserResizeColumns="True">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Command="{StaticResource EditItemCommand}" CommandParameter="{Binding}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="方向ID" Binding="{Binding DirId}" Width="80"/>
-                                <DataGridTextColumn Header="线路" Binding="{Binding DisplayLine}" Width="120"/>
-                                <DataGridTextColumn Header="起点" Binding="{Binding Start}" Width="80"/>
-                                <DataGridTextColumn Header="终点" Binding="{Binding End}" Width="80"/>
-                                <DataGridTextColumn Header="属性" Binding="{Binding Attrs}" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <GridSplitter Grid.Row="2"
-                              Height="5"
-                              HorizontalAlignment="Stretch"
-                              Background="#DDD"
-                              ResizeBehavior="BasedOnAlignment"
-                              ResizeDirection="Rows" />
-                        <ScrollViewer Grid.Row="3"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              Background="#F5F5F5" 
-                              BorderBrush="#DDD" 
-                              BorderThickness="0,1,0,0">
-                            <TextBlock x:Name="directionDetailText" 
-                               FontFamily="Consolas" 
-                               FontSize="12" 
-                               TextWrapping="Wrap" 
-                               Padding="5"
-                               Text="请选择一个方向查看详情" />
-                        </ScrollViewer>
-                    </Grid>
+                    <controls:DirectionListPanel x:Name="directionListPanel" 
+                                 ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
                 </TabItem>
 
                 <TabItem Header="线路预览">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <!-- 筛选行 -->
-                            <RowDefinition Height="Auto" />
-                            <!-- 表格 -->
-                            <RowDefinition Height="*" />
-                            <!-- 分割线 -->
-                            <RowDefinition Height="5" />
-                            <!-- 详情 -->
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5" Background="#F0F0F0">
-                            <ComboBox x:Name="LineFilterColumn" Width="80" SelectedIndex="0" SelectionChanged="LineFilterColumn_SelectionChanged">
-                                <ComboBoxItem Content="线路ID" Tag="LineId"/>
-                                <ComboBoxItem Content="名称" Tag="Name"/>
-                                <ComboBoxItem Content="城市" Tag="City"/>
-                            </ComboBox>
-                            <TextBox x:Name="LineFilterTextBox" Width="150" Margin="5,0" TextChanged="LineFilterTextBox_TextChanged"/>
-                            <Button Content="清除" Click="LineClearFilter_Click" Width="50"/>
-                        </StackPanel>
-                        <DataGrid x:Name="lineGrid" Grid.Row="1"
-                              AutoGenerateColumns="False" 
-                              IsReadOnly="True"
-                              SelectionMode="Single"
-                              SelectionChanged="LineGrid_SelectionChanged"
-                              MouseDoubleClick="DataGrid_MouseDoubleClick"
-                              CanUserResizeColumns="True">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Command="{StaticResource EditItemCommand}" CommandParameter="{Binding}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="线路ID" Binding="{Binding LineId}" Width="60"/>
-                                <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="100"/>
-                                <DataGridTextColumn Header="城市" Binding="{Binding City}" Width="60"/>
-                                <DataGridTextColumn Header="颜色" Binding="{Binding Color}" Width="60"/>
-                                <DataGridTextColumn Header="编组" Binding="{Binding Formation}" Width="60"/>
-                                <DataGridTextColumn Header="最高速度" Binding="{Binding Maxspeed}" Width="70"/>
-                                <DataGridTextColumn Header="开通" Binding="{Binding OpenYear}" Width="60"/>
-                                <DataGridTextColumn Header="功率" Binding="{Binding Accel}" Width="60"/>
-                                <DataGridTextColumn Header="刹车" Binding="{Binding Brake}" Width="60"/>
-                                <DataGridTextColumn Header="状态" Binding="{Binding Opened}" Width="60"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <GridSplitter Grid.Row="2"
-                              Height="5"
-                              HorizontalAlignment="Stretch"
-                              Background="#DDD"
-                              ResizeBehavior="BasedOnAlignment"
-                              ResizeDirection="Rows" />
-                        <ScrollViewer Grid.Row="3"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              Background="#F5F5F5" 
-                              BorderBrush="#DDD" 
-                              BorderThickness="0,1,0,0">
-                            <TextBlock x:Name="lineDetailText" 
-                               FontFamily="Consolas" 
-                               FontSize="12" 
-                               TextWrapping="Wrap" 
-                               Padding="5"
-                               Text="请选择一条线路查看详情" />
-                        </ScrollViewer>
-                    </Grid>
+                    <controls:LineListPanel x:Name="lineListPanel" 
+                            ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
                 </TabItem>
 
-                <!-- 票价参数（普通+特殊） -->
-                <TabItem Header="票价参数" x:Name="FareTab">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <!-- 普通票价 -->
-                        <GroupBox Header="普通票价" Grid.Row="0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Margin="4">
-                                    <TextBlock Text="票价规则" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <Button Content="编辑" Click="EditFare_Click" Margin="10,0,0,0" Padding="8,2"/>
-                                </StackPanel>
-                                <DataGrid x:Name="FareDataGrid" Grid.Row="1" AutoGenerateColumns="False"
-                                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
-                                          IsReadOnly="True">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="起始里程" Binding="{Binding Start, StringFormat={}{0:F2}}" Width="80"/>
-                                        <DataGridTextColumn Header="结束里程" Binding="{Binding End, StringFormat={}{0:F2}}" Width="80"/>
-                                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="80"/>
-                                        <DataGridTextColumn Header="说明" Binding="{Binding Note}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Grid>
-                        </GroupBox>
-
-                        <!-- 特殊票价 -->
-                        <GroupBox Header="特殊票价" Grid.Row="1">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Margin="4">
-                                    <TextBlock Text="特殊线路票价" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <Button Content="编辑" Click="EditSpecialFare_Click" Margin="10,0,0,0" Padding="8,2"/>
-                                </StackPanel>
-                                <DataGrid x:Name="SpecialFareDataGrid" Grid.Row="1" AutoGenerateColumns="False"
-                                  CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
-                                  IsReadOnly="True">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="线路/线路组" Binding="{Binding DisplayLine}" Width="120"/>
-                                        <DataGridTextColumn Header="线路组" Binding="{Binding UseLines}" Width="150"/>
-                                        <DataGridTextColumn Header="类型" Binding="{Binding TypeDisplay}" Width="80"/>
-                                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="80"/>
-                                        <DataGridTextColumn Header="起步价" Binding="{Binding DefaultFare, StringFormat={}{0:F2}}" Width="80"/>
-                                        <DataGridTextColumn Header="分段" Binding="{Binding SegmentsSummary}" Width="*"/>
-                                        <DataGridTextColumn Header="延伸费率" Binding="{Binding LinearExtensionRate, StringFormat={}{0:F3}}" Width="80"/>
-                                        <DataGridTextColumn Header="起点" Binding="{Binding StartStation}" Width="80"/>
-                                        <DataGridTextColumn Header="终点" Binding="{Binding EndStation}" Width="80"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Grid>
-                        </GroupBox>
-                    </Grid>
+                <TabItem Header="票价参数">
+                    <controls:FareParametersPanel x:Name="fareParametersPanel" 
+                                  ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
                 </TabItem>
 
-                <!-- 时间参数（换乘+停站） -->
-                <TabItem Header="时间参数" x:Name="TimeTab">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <!-- 换乘时间 -->
-                        <GroupBox Header="换乘时间" Grid.Row="0">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Margin="4">
-                                    <TextBlock Text="自定义换乘规则" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <Button Content="编辑" Click="EditTransfers_Click" Margin="10,0,0,0" Padding="8,2"/>
-                                </StackPanel>
-                                <DataGrid x:Name="TransferDataGrid" Grid.Row="1" AutoGenerateColumns="False"
-                                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
-                                          IsReadOnly="True">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="站名" Binding="{Binding Station}" Width="100"/>
-                                        <DataGridTextColumn Header="线路1" Binding="{Binding DisplayLine1}" Width="80"/>
-                                        <DataGridTextColumn Header="线路2" Binding="{Binding DisplayLine2}" Width="80"/>
-                                        <DataGridTextColumn Header="状态" Binding="{Binding StatusDisplay}" Width="80"/>
-                                        <DataGridTextColumn Header="时间(分钟)" Binding="{Binding TimeMin, StringFormat={}{0:F2}}" Width="80"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Grid>
-                        </GroupBox>
+                <TabItem Header="时间参数">
+                    <controls:TimeParametersPanel x:Name="timeParametersPanel" 
+                                  ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
+                </TabItem>
 
-                        <!-- 停站时间 -->
-                        <GroupBox Header="停站时间" Grid.Row="1">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Margin="4">
-                                    <TextBlock Text="自定义停站时间" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <Button Content="编辑" Click="EditDwellTimes_Click" Margin="10,0,0,0" Padding="8,2"/>
-                                </StackPanel>
-                                <DataGrid x:Name="DwellTimeDataGrid" Grid.Row="1" AutoGenerateColumns="False"
-                                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
-                                          IsReadOnly="True">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="站名" Binding="{Binding Station}" Width="120"/>
-                                        <DataGridTextColumn Header="线路" Binding="{Binding DisplayLine}" Width="80"/>
-                                        <DataGridTextColumn Header="停站时间(分钟)" Binding="{Binding TimeMin, StringFormat={}{0:F2}}" Width="100"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Grid>
-                        </GroupBox>
-                    </Grid>
+                <TabItem Header="系统信息">
+                    <controls:SystemInfoPanel x:Name="systemInfo"
+                                              ParsedData="{Binding ElementName=documentWorkspace, Path=CurrentTab.ParsedData}" />
                 </TabItem>
             </TabControl>
         </Border>

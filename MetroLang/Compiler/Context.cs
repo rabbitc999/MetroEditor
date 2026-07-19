@@ -339,6 +339,12 @@ namespace MetroEditor.MetroLang.Compiler
 
             data.LanguageOrder = new List<string>(LanguageOrder);
             data.StationOtherNames = new Dictionary<string, List<string>>(StationOtherNames);
+            data.Facilities = new Dictionary<string, StationFacilities>(Facilities);
+            data.Promotions = new List<PromotionPolicy>(Promotions);
+            data.Author = Author;
+            data.UpdateDate = UpdateDate;
+            data.CreateDate = CreateDate;
+            data.OtherCities = Cities.Where(k => k.Key != MainCity).Select(k => k.Key).ToList();
 
             return data;
         }

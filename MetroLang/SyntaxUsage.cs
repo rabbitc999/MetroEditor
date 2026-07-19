@@ -1,214 +1,14 @@
-﻿using ICSharpCode.AvalonEdit.Folding;
-using MetroEditor.MetroLang.DataModel;
-using MetroEditor.MetroLang.JsonModel;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Threading;
-using static MetroEditor.MetroLang.Compiler.Context;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MetroEditor.Windows
+namespace MetroEditor.MetroLang
 {
-    /// <summary>
-    /// 主窗口 — 整合编辑、编译、预览与数据管理
-    /// </summary>
-    public partial class MainWindow : Window
+    public static class SyntaxUsage
     {
-        #region 公开静态属性（用于 XAML 绑定）
-        public static List<KeyValuePair<string, string>> Keywords { get; } = new()
-        {
-            // ----- 全局与城市 -----
-            new("PROGRAM_DEFINE", "程序定义块"),
-            new("OTHER_CITY", "其他城市列表"),
-            new("VERSION", "版本号"),
-            new("UPDATE_DATE", "更新日期"),
-            new("CREATE_DATE", "创建日期"),
-            new("AUTHOR", "作者"),
-
-            // ----- 站点与状态 -----
-            new("STATION_STATUS", "车站状态"),
-            new("STATION_DEFINE", "站点定义块"),
-            new("STATION_MODE", "站点进出模式"),
-            new("STATION_COPY", "复制车站"),
-            new("STATION_RENAME", "重命名车站"),
-            new("STATION_DELETE", "删除车站"),
-            new("STATION_MODIFY", "修改车站"),
-
-            // ----- 线路定义 -----
-            new("LINE_DEFINE", "线路定义块"),
-            new("LINE_TEMPLATE", "线路模板"),
-            new("DIRECTION_TEMPLATE", "方向模板"),
-            new("END_TEMPLATE", "模板结束"),
-
-            // ----- 线路操作 -----
-            new("LINE_COPY", "复制线路"),
-            new("LINE_RENAME", "重命名线路"),
-            new("LINE_DELETE", "删除线路"),
-            new("LINE_MERGE", "合并线路"),
-            new("LINE_SPLIT", "拆分线路"),
-            new("LINE_MODIFY", "修改线路"),
-
-            // ----- 方向定义（含子命令） -----
-            new("DIRECTION_DEFINE", "方向定义块"),
-            new("STATIONS", "方向站点列表"),
-            new("NICK_NAME", "方向别名"),
-            new("NICK_COLOR", "方向别名颜色"),
-            new("LOOP", "环线"),
-            new("BRANCH", "支线"),
-            new("FAST", "快车"),
-            new("INNER", "内环"),
-            new("OUTER", "外环"),
-            new("FUTURE", "建设中/规划中"),
-            new("REV", "反向"),
-            new("MERGE", "方向合并"),
-            new("VIA", "经由/共线"),
-
-            // ----- 方向操作 -----
-            new("DIRECTION_COPY", "复制方向"),
-            new("DIRECTION_RENAME", "重命名方向"),
-            new("DIRECTION_DELETE", "删除方向"),
-            new("DIRECTION_SPLIT", "拆分方向"),
-            new("DIRECTION_REVERSE", "反转方向"),
-            new("DIRECTION_MODIFY", "修改方向"),
-
-            // ----- 换乘 -----
-            new("TRANSFER_TYPE", "换乘类型定义"),
-            new("TRANSFER", "换乘"),
-            new("TRANSFER_DEFINE", "换乘定义块"),
-            new("VIRTUAL_TRANSFER_DEFINE", "虚拟换乘定义块"),
-            new("VIA_DIRECTIONS", "经由方向列表"),
-            new("SECURITY_CHECK", "需重新安检"),
-
-            // ----- 票价 -----
-            new("PRICE_DEFINE", "票价定义块"),
-            new("SPECIAL_DEFINE", "特殊票价块（线路内）"),
-            new("CURRENCY", "货币"),
-            new("DEFAULT_FARE", "默认票价"),
-            new("SEGMENT", "分段票价"),
-            new("LINEAR_EXTENSION", "线性延伸"),
-            new("THRESHOLD", "线性延伸阈值"),
-            new("BASE_FARE", "线性延伸基础票价"),
-            new("RATE_PER_KM", "线性延伸费率"),
-            new("TRANSFER_DISCOUNT", "换乘优惠"),
-            new("ENABLED", "启用"),
-            new("DISCOUNT_AMOUNT", "优惠金额"),
-            new("TIME_LIMIT", "时间限制"),
-            new("FARE_CAP", "票价上限"),
-            new("SPECIAL_LINE", "特殊线路（票价块内）"),
-
-            // ----- 运营参数 -----
-            new("OPERATION_DEFINE", "运营参数定义块"),
-            new("TRANSFER_TIME", "平均换乘时间"),
-            new("OUT_STATION_TRANSFER_TIME", "出站换乘时间"),
-            new("DWELL_TIME", "平均停站时间"),
-            new("ENTRY_TIME", "平均进站时间"),
-            new("AVG_BOARD_TIME", "平均上车时间"),
-
-            // ----- 发车间隔与拥挤度 -----
-            new("HEADWAY_PROFILE", "发车间隔时段块"),
-            new("CROWD_PROFILE", "拥挤度时段块"),
-            new("PERIOD", "时段定义"),
-            new("TIME_RANGE", "时段关键字"),
-            new("VALUE", "值关键字"),
-
-            // ----- 停站与限速 -----
-            new("DWELL_TIME", "停站时间（单站）"),
-            new("DWELL_TIME_DEFINE", "停站时间批量块"),
-            new("SPEED_LIMIT_DEFINE", "限速批量块"),
-            new("SPEED_LIMIT", "区间限速（方向内）"),
-            new("NODE", "块内节点"),
-
-            // ----- 设施与卫生间 -----
-            new("FACILITY_DEFINE", "设施与卫生间定义块"),
-            new("TOILET", "普通卫生间"),
-            new("ACCESSIBLE_TOILET", "无障碍卫生间"),
-            new("ELEVATOR", "无障碍电梯"),
-            new("WIDE_GATE", "宽闸机"),
-            new("ESCALATOR", "自动扶梯"),
-            new("TACTILE_PAVING", "盲道"),
-            new("POSITION", "卫生间位置（付费区/非付费区）"),
-            new("LOCATION", "电梯位置描述"),
-            new("QUANTITY", "数量"),
-            new("GENDER", "卫生间性别（male/female/mixed）"),
-
-            // ----- 票价优惠策略 -----
-            new("PROMOTION_DEFINE", "票价优惠策略定义块"),
-            new("POLICY", "优惠策略定义"),
-            new("END_POLICY", "优惠策略结束"),
-            new("DESCRIPTION", "优惠描述"),
-            new("APPLICABLE_LINES", "适用线路列表"),
-            new("TYPE", "优惠类型（rate/fixed/fixed_discount）"),
-
-            // ----- 断言与输出 -----
-            new("ASSERT", "编译时断言"),
-            new("ECHO", "编译时输出"),
-            new("MESSAGE", "断言自定义消息"),
-
-            // ----- 模板与继承 -----
-            new("INHERITS", "模板继承"),
-            new("END_TEMPLATE", "模板结束"),
-
-            // ----- 修改操作子命令 -----
-            new("ADD", "添加属性"),
-            new("REMOVE", "移除属性"),
-            new("SET", "设置属性值"),
-            new("KEEP_ORIGINAL", "保留原始对象"),
-            new("INTO", "合并/拆分为"),
-            new("AT", "拆分位置"),
-
-            // ----- 其他 -----
-            new("DEPOT", "车辆段"),
-            new("OPEN_TIME", "运营时间"),
-            new("LABEL_DEFINE", "文字标签定义块"),
-            new("COORD", "坐标"),
-            new("AUTO", "自动计算"),
-            new("NIL", "空值"),
-            new("ALL", "全部"),
-            new("SURCHARGE", "附加费"),
-            new("TRANSFER_RESTRICT", "换乘限制"),
-            new("STATUS", "状态"),
-            new("MODE", "进出模式"),
-            new("ENTRY_ONLY", "仅进站"),
-            new("EXIT_ONLY", "仅出站"),
-            new("BOTH", "可进可出"),
-            new("NORMAL", "正常"),
-            new("CLOSED", "关闭"),
-            new("PENDING", "待开通"),
-            new("OUT_STATION", "出站"),
-
-            // ----- 星期与时段 -----
-            new("MONDAY", "星期一"),
-            new("TUESDAY", "星期二"),
-            new("WEDNESDAY", "星期三"),
-            new("THURSDAY", "星期四"),
-            new("FRIDAY", "星期五"),
-            new("SATURDAY", "星期六"),
-            new("SUNDAY", "星期日"),
-            new("WEEKEND", "周末"),
-            new("WORKDAY", "工作日"),
-            new("WEEKDAY", "工作日"),
-            new("GLOBAL", "全局（运营时间）"),
-
-            // ----- 线路属性 -----
-            new("NAME", "线路名称"),
-            new("COLOR", "线路颜色"),
-            new("FORMATION", "编组"),
-            new("MAXSPEED", "最高速度"),
-            new("OPEN_YEAR", "开通年份"),
-            new("POWER_KW", "牵引功率"),
-            new("BRAKE", "制动减速度"),
-            new("DISABLE", "停运"),
-            new("SPECIAL", "特殊线路"),
-            new("LINK", "线路链接"),
-            new("IMAGE", "线路示意图"),
-
-            // ----- 值关键字 -----
-            new("TIME_MINUTES", "时间(分钟)"),
-            new("TIME", "时间(秒)"),
-        };
-
-        public List<SyntaxReferenceItem> SyntaxReferences { get; } = new List<SyntaxReferenceItem>
+        public static List<SyntaxReferenceItem> SyntaxReferences = new List<SyntaxReferenceItem>
         {
             // ---------- 全局与城市 ----------
             new SyntaxReferenceItem
@@ -570,124 +370,199 @@ namespace MetroEditor.Windows
             }
         };
 
-        #endregion
-
-        #region 常量与静态资源
-        private const string DefaultStatus = "就绪";
-        private const string DefaultCity = "北京";
-        private const double DebounceIntervalMs = 1000;
-        private const double SizeChangedDebounceMs = 500;
-        private const double FontSizeMin = 8;
-        private const double FontSizeMax = 30;
-        private const string RegistryKeyPath = @"Software\MetroEditor";
-        private const string RecentFilesValueName = "RecentFiles";
-        private const int MaxRecentFiles = 10;
-        private List<string> _recentFiles = new List<string>();
-        #endregion
-
-        #region 字段
-        private string _currentFilePath = string.Empty;
-        private bool _isDirty;
-        private DispatcherTimer _debounceTimer;
-        private readonly object _compileLock = new();
-        private bool _isCompiling;
-        private List<DirectionViewModel> _lastDirList = new();
-        private List<StationViewModel> _lastStationList = new();
-        private List<LineViewModel> _lastLineList = new();
-        private ParsedData? _currentParsedData;
-        private readonly List<StationViewModel> _allStations = new();
-        private JsonRoot _currentRoot;
-
-        private ICollectionView? _stationView;
-        private ICollectionView? _directionView;
-        private ICollectionView? _lineView;
-
-        private Dictionary<string, string> _lineNameMap;
-        private string _startupFile;
-        private FoldingManager _foldingManager;
-
-        public ObservableCollection<TransferDisplayItem> TransferViewModels { get; set; } = new ObservableCollection<TransferDisplayItem>();
-        public ObservableCollection<DwellTimeDisplayItem> DwellTimeViewModels { get; set; } = new ObservableCollection<DwellTimeDisplayItem>();
-        public ObservableCollection<FareDisplayItem> FareViewModels { get; set; } = new ObservableCollection<FareDisplayItem>();
-        public ObservableCollection<SpecialFareDisplayItem> SpecialFareViewModels { get; set; } = new ObservableCollection<SpecialFareDisplayItem>();
-        #endregion
-
-        #region 嵌套视图模型类
-        public class DirectionViewModel
+        public static List<KeyValuePair<string, string>> KeyWords = new()
         {
-            public string DirId { get; set; } = string.Empty;
-            public string DisplayLine { get; set; } = string.Empty;
-            public string Start { get; set; } = string.Empty;
-            public string End { get; set; } = string.Empty;
-            public string Attrs { get; set; } = string.Empty;
-        }
+            // ----- 全局与城市 -----
+            new("PROGRAM_DEFINE", "程序定义块"),
+            new("OTHER_CITY", "其他城市列表"),
+            new("VERSION", "版本号"),
+            new("UPDATE_DATE", "更新日期"),
+            new("CREATE_DATE", "创建日期"),
+            new("AUTHOR", "作者"),
 
-        public class StationViewModel
-        {
-            public string Name { get; set; } = string.Empty;
-            public double Lon { get; set; }
-            public double Lat { get; set; }
-            public string Lines { get; set; } = string.Empty;
-            public string City { get; set; } = string.Empty;
-        }
+            // ----- 站点与状态 -----
+            new("STATION_STATUS", "车站状态"),
+            new("STATION_DEFINE", "站点定义块"),
+            new("STATION_MODE", "站点进出模式"),
+            new("STATION_COPY", "复制车站"),
+            new("STATION_RENAME", "重命名车站"),
+            new("STATION_DELETE", "删除车站"),
+            new("STATION_MODIFY", "修改车站"),
 
-        public class LineViewModel
-        {
-            public string LineId { get; set; } = string.Empty;
-            public string Name { get; set; } = string.Empty;
-            public string Color { get; set; } = string.Empty;
-            public string City { get; set; } = string.Empty;
-            public string Formation { get; set; } = string.Empty;
-            public double? Maxspeed { get; set; }
-            public int OpenYear { get; set; }
-            public double? PowerKw { get; set; }
-            public double? Brake { get; set; }
-            public bool Opened { get; set; } = true;
-        }
+            // ----- 线路定义 -----
+            new("LINE_DEFINE", "线路定义块"),
+            new("LINE_TEMPLATE", "线路模板"),
+            new("DIRECTION_TEMPLATE", "方向模板"),
+            new("END_TEMPLATE", "模板结束"),
 
-        public class CompileMessage
-        {
-            public string Text { get; set; } = string.Empty;
-            public Brush ColorBrush { get; set; } = Brushes.Black;
-        }
+            // ----- 线路操作 -----
+            new("LINE_COPY", "复制线路"),
+            new("LINE_RENAME", "重命名线路"),
+            new("LINE_DELETE", "删除线路"),
+            new("LINE_MERGE", "合并线路"),
+            new("LINE_SPLIT", "拆分线路"),
+            new("LINE_MODIFY", "修改线路"),
 
-        public class TransferDisplayItem
-        {
-            public string Station { get; set; }
-            public string DisplayLine1 { get; set; }
-            public string DisplayLine2 { get; set; }
-            public string StatusDisplay { get; set; }
-            public double TimeMin { get; set; }
-        }
+            // ----- 方向定义（含子命令） -----
+            new("DIRECTION_DEFINE", "方向定义块"),
+            new("STATIONS", "方向站点列表"),
+            new("NICK_NAME", "方向别名"),
+            new("NICK_COLOR", "方向别名颜色"),
+            new("LOOP", "环线"),
+            new("BRANCH", "支线"),
+            new("FAST", "快车"),
+            new("INNER", "内环"),
+            new("OUTER", "外环"),
+            new("FUTURE", "建设中/规划中"),
+            new("REV", "反向"),
+            new("MERGE", "方向合并"),
+            new("VIA", "经由/共线"),
 
-        public class DwellTimeDisplayItem
-        {
-            public string Station { get; set; }
-            public string DisplayLine { get; set; }
-            public double TimeMin { get; set; }
-        }
+            // ----- 方向操作 -----
+            new("DIRECTION_COPY", "复制方向"),
+            new("DIRECTION_RENAME", "重命名方向"),
+            new("DIRECTION_DELETE", "删除方向"),
+            new("DIRECTION_SPLIT", "拆分方向"),
+            new("DIRECTION_REVERSE", "反转方向"),
+            new("DIRECTION_MODIFY", "修改方向"),
 
-        public class FareDisplayItem
-        {
-            public string Type { get; set; }
-            public double Start { get; set; }
-            public double End { get; set; }
-            public double Price { get; set; }
-            public string Note { get; set; }
-        }
+            // ----- 换乘 -----
+            new("TRANSFER_TYPE", "换乘类型定义"),
+            new("TRANSFER", "换乘"),
+            new("TRANSFER_DEFINE", "换乘定义块"),
+            new("VIRTUAL_TRANSFER_DEFINE", "虚拟换乘定义块"),
+            new("VIA_DIRECTIONS", "经由方向列表"),
+            new("SECURITY_CHECK", "需重新安检"),
 
-        public class SpecialFareDisplayItem
-        {
-            public string DisplayLine { get; set; }
-            public string UseLines { get; set; }
-            public string TypeDisplay { get; set; }
-            public double Price { get; set; }
-            public string StartStation { get; set; }
-            public string EndStation { get; set; }
-            public double? DefaultFare { get; set; }
-            public string SegmentsSummary { get; set; }
-            public double? LinearExtensionRate { get; set; }
-        }
+            // ----- 票价 -----
+            new("PRICE_DEFINE", "票价定义块"),
+            new("SPECIAL_DEFINE", "特殊票价块（线路内）"),
+            new("CURRENCY", "货币"),
+            new("DEFAULT_FARE", "默认票价"),
+            new("SEGMENT", "分段票价"),
+            new("LINEAR_EXTENSION", "线性延伸"),
+            new("THRESHOLD", "线性延伸阈值"),
+            new("BASE_FARE", "线性延伸基础票价"),
+            new("RATE_PER_KM", "线性延伸费率"),
+            new("TRANSFER_DISCOUNT", "换乘优惠"),
+            new("ENABLED", "启用"),
+            new("DISCOUNT_AMOUNT", "优惠金额"),
+            new("TIME_LIMIT", "时间限制"),
+            new("FARE_CAP", "票价上限"),
+            new("SPECIAL_LINE", "特殊线路（票价块内）"),
+
+            // ----- 运营参数 -----
+            new("OPERATION_DEFINE", "运营参数定义块"),
+            new("TRANSFER_TIME", "平均换乘时间"),
+            new("OUT_STATION_TRANSFER_TIME", "出站换乘时间"),
+            new("DWELL_TIME", "平均停站时间"),
+            new("ENTRY_TIME", "平均进站时间"),
+            new("AVG_BOARD_TIME", "平均上车时间"),
+
+            // ----- 发车间隔与拥挤度 -----
+            new("HEADWAY_PROFILE", "发车间隔时段块"),
+            new("CROWD_PROFILE", "拥挤度时段块"),
+            new("PERIOD", "时段定义"),
+            new("TIME_RANGE", "时段关键字"),
+            new("VALUE", "值关键字"),
+
+            // ----- 停站与限速 -----
+            new("DWELL_TIME", "停站时间（单站）"),
+            new("DWELL_TIME_DEFINE", "停站时间批量块"),
+            new("SPEED_LIMIT_DEFINE", "限速批量块"),
+            new("SPEED_LIMIT", "区间限速（方向内）"),
+            new("NODE", "块内节点"),
+
+            // ----- 设施与卫生间 -----
+            new("FACILITY_DEFINE", "设施与卫生间定义块"),
+            new("TOILET", "普通卫生间"),
+            new("ACCESSIBLE_TOILET", "无障碍卫生间"),
+            new("ELEVATOR", "无障碍电梯"),
+            new("WIDE_GATE", "宽闸机"),
+            new("ESCALATOR", "自动扶梯"),
+            new("TACTILE_PAVING", "盲道"),
+            new("POSITION", "卫生间位置（付费区/非付费区）"),
+            new("LOCATION", "电梯位置描述"),
+            new("QUANTITY", "数量"),
+            new("GENDER", "卫生间性别（male/female/mixed）"),
+
+            // ----- 票价优惠策略 -----
+            new("PROMOTION_DEFINE", "票价优惠策略定义块"),
+            new("POLICY", "优惠策略定义"),
+            new("END_POLICY", "优惠策略结束"),
+            new("DESCRIPTION", "优惠描述"),
+            new("APPLICABLE_LINES", "适用线路列表"),
+            new("TYPE", "优惠类型（rate/fixed/fixed_discount）"),
+
+            // ----- 断言与输出 -----
+            new("ASSERT", "编译时断言"),
+            new("ECHO", "编译时输出"),
+            new("MESSAGE", "断言自定义消息"),
+
+            // ----- 模板与继承 -----
+            new("INHERITS", "模板继承"),
+            new("END_TEMPLATE", "模板结束"),
+
+            // ----- 修改操作子命令 -----
+            new("ADD", "添加属性"),
+            new("REMOVE", "移除属性"),
+            new("SET", "设置属性值"),
+            new("KEEP_ORIGINAL", "保留原始对象"),
+            new("INTO", "合并/拆分为"),
+            new("AT", "拆分位置"),
+
+            // ----- 其他 -----
+            new("DEPOT", "车辆段"),
+            new("OPEN_TIME", "运营时间"),
+            new("LABEL_DEFINE", "文字标签定义块"),
+            new("COORD", "坐标"),
+            new("AUTO", "自动计算"),
+            new("NIL", "空值"),
+            new("ALL", "全部"),
+            new("SURCHARGE", "附加费"),
+            new("TRANSFER_RESTRICT", "换乘限制"),
+            new("STATUS", "状态"),
+            new("MODE", "进出模式"),
+            new("ENTRY_ONLY", "仅进站"),
+            new("EXIT_ONLY", "仅出站"),
+            new("BOTH", "可进可出"),
+            new("NORMAL", "正常"),
+            new("CLOSED", "关闭"),
+            new("PENDING", "待开通"),
+            new("OUT_STATION", "出站"),
+
+            // ----- 星期与时段 -----
+            new("MONDAY", "星期一"),
+            new("TUESDAY", "星期二"),
+            new("WEDNESDAY", "星期三"),
+            new("THURSDAY", "星期四"),
+            new("FRIDAY", "星期五"),
+            new("SATURDAY", "星期六"),
+            new("SUNDAY", "星期日"),
+            new("WEEKEND", "周末"),
+            new("WORKDAY", "工作日"),
+            new("WEEKDAY", "工作日"),
+            new("GLOBAL", "全局（运营时间）"),
+
+            // ----- 线路属性 -----
+            new("NAME", "线路名称"),
+            new("COLOR", "线路颜色"),
+            new("FORMATION", "编组"),
+            new("MAXSPEED", "最高速度"),
+            new("OPEN_YEAR", "开通年份"),
+            new("POWER_KW", "牵引功率"),
+            new("BRAKE", "制动减速度"),
+            new("DISABLE", "停运"),
+            new("SPECIAL", "特殊线路"),
+            new("LINK", "线路链接"),
+            new("IMAGE", "线路示意图"),
+
+            // ----- 值关键字 -----
+            new("TIME_MINUTES", "时间(分钟)"),
+            new("TIME", "时间(秒)"),
+        };
+
+
 
         public class SyntaxReferenceItem
         {
@@ -696,6 +571,5 @@ namespace MetroEditor.Windows
             public string Example { get; set; }
             public string InsertTemplate { get; set; }
         }
-        #endregion
     }
 }

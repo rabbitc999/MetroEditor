@@ -145,7 +145,7 @@ namespace MetroEditor.Windows
                             string content = File.ReadAllText(fileItem.FullPath, Encoding.UTF8);
 
                             // 使用MetroCompiler进行编译
-                            var parser = new MetorCompiler();
+                            var parser = new MetroCompiler();
                             parser.Parse(content, Path.GetDirectoryName(fileItem.FullPath));
                             var root = parser.ExportJson();
 

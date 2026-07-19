@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="MetroEditor.Windows.Controls.KeywordPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MetroEditor.Windows.Controls"
+             mc:Ignorable="d" 
+             xmlns:metrolang="clr-namespace:MetroEditor.MetroLang">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Border BorderBrush="#888" BorderThickness="0,0,0,1" Padding="4,2">
+            <ItemsControl ItemsSource="{x:Static metrolang:SyntaxUsage.KeyWords}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Margin="2,1" Padding="6,2" FontFamily="Consolas" FontSize="12"
+                                Background="Transparent" BorderBrush="#AAA" BorderThickness="1"
+                                Cursor="Hand" Click="KeywordButton_Click" Tag="{Binding Key}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Key}" FontWeight="Bold" TextDecorations="Underline" />
+                                <TextBlock Text=" " />
+                                <TextBlock Text="{Binding Value}" Foreground="Gray" FontSize="11" />
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+    </ScrollViewer>
+</UserControl>

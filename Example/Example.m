@@ -1,7 +1,7 @@
 ﻿# 分手线路图 —— 从合肥出发，到广州落幕
 PROGRAM_DEFINE
-    KEY_CITY '广州'
-    OTHER_CITY '合肥'
+    KEY_CITY '跨越半个中国的旅行'
+    OTHER_CITY ['合肥', '广州']
     VERSION 'V1.0'
     AUTHOR '赶路赴约的人'
     CREATE_DATE '2026-07-18'

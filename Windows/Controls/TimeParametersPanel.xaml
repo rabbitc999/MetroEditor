@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="MetroEditor.Windows.Controls.TimeParametersPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 换乘时间 -->
+        <GroupBox Header="换乘时间" Grid.Row="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Text="自定义换乘规则" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Button Content="编辑" Click="EditTransfers_Click" Margin="10,0,0,0" Padding="8,2"/>
+                </StackPanel>
+                <DataGrid x:Name="TransferDataGrid" Grid.Row="1" AutoGenerateColumns="False"
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="站名" Binding="{Binding Station}" Width="100"/>
+                        <DataGridTextColumn Header="线路1" Binding="{Binding DisplayLine1}" Width="80"/>
+                        <DataGridTextColumn Header="线路2" Binding="{Binding DisplayLine2}" Width="80"/>
+                        <DataGridTextColumn Header="状态" Binding="{Binding StatusDisplay}" Width="80"/>
+                        <DataGridTextColumn Header="时间(分钟)" Binding="{Binding TimeMin, StringFormat={}{0:F2}}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <!-- 停站时间 -->
+        <GroupBox Header="停站时间" Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Text="自定义停站时间" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Button Content="编辑" Click="EditDwellTimes_Click" Margin="10,0,0,0" Padding="8,2"/>
+                </StackPanel>
+                <DataGrid x:Name="DwellTimeDataGrid" Grid.Row="1" AutoGenerateColumns="False"
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="站名" Binding="{Binding Station}" Width="120"/>
+                        <DataGridTextColumn Header="线路" Binding="{Binding DisplayLine}" Width="80"/>
+                        <DataGridTextColumn Header="停站时间(分钟)" Binding="{Binding TimeMin, StringFormat={}{0:F2}}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

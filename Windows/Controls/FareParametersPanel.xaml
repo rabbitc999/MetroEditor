@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="MetroEditor.Windows.Controls.FareParametersPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 普通票价 -->
+        <GroupBox Header="普通票价" Grid.Row="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Text="票价规则" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Button Content="编辑" Click="EditFare_Click" Margin="10,0,0,0" Padding="8,2"/>
+                </StackPanel>
+                <DataGrid x:Name="FareDataGrid" Grid.Row="1" AutoGenerateColumns="False"
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="起始里程" Binding="{Binding Start, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="结束里程" Binding="{Binding End, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="说明" Binding="{Binding Note}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+
+        <!-- 特殊票价 -->
+        <GroupBox Header="特殊票价" Grid.Row="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Text="特殊线路票价" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <Button Content="编辑" Click="EditSpecialFare_Click" Margin="10,0,0,0" Padding="8,2"/>
+                </StackPanel>
+                <DataGrid x:Name="SpecialFareDataGrid" Grid.Row="1" AutoGenerateColumns="False"
+                          CanUserAddRows="False" CanUserDeleteRows="False" Margin="4"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="线路/线路组" Binding="{Binding DisplayLine}" Width="120"/>
+                        <DataGridTextColumn Header="线路组" Binding="{Binding UseLines}" Width="150"/>
+                        <DataGridTextColumn Header="类型" Binding="{Binding TypeDisplay}" Width="80"/>
+                        <DataGridTextColumn Header="票价(元)" Binding="{Binding Price, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="起步价" Binding="{Binding DefaultFare, StringFormat={}{0:F2}}" Width="80"/>
+                        <DataGridTextColumn Header="分段" Binding="{Binding SegmentsSummary}" Width="*"/>
+                        <DataGridTextColumn Header="延伸费率" Binding="{Binding LinearExtensionRate, StringFormat={}{0:F3}}" Width="80"/>
+                        <DataGridTextColumn Header="起点" Binding="{Binding StartStation}" Width="80"/>
+                        <DataGridTextColumn Header="终点" Binding="{Binding EndStation}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

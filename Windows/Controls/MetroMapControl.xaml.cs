@@ -7,7 +7,7 @@ using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using MetroEditor.MetroLang.JsonModel;
 
-namespace MetroEditor.Controls
+namespace MetroEditor.Windows.Controls
 {
     /// <summary>
     /// 地铁地图控件 - 封装 WebView2 地图渲染与交互

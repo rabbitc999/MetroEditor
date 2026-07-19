@@ -8,7 +8,7 @@ namespace MetroEditor.MetroLang.Compiler
     /// <summary>
     /// 将.metro 源文件编译为标准 JSON 路网数据。
     /// </summary>
-    public partial class MetorCompiler
+    public partial class MetroCompiler
     {
         // ---------- 编译中间数据存储（语义模型核心） ----------
         /// <summary>语法指令处理器映射：Key=指令名（忽略大小写），Value=对应的解析方法</summary>
@@ -31,7 +31,7 @@ namespace MetroEditor.MetroLang.Compiler
             get { return parser.ErrorList; }
         }
 
-        public MetorCompiler()
+        public MetroCompiler()
         {
             _commandHandlers = CommandUtils.GetCommandList();
         }
