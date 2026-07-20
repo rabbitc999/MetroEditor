@@ -9,13 +9,16 @@ namespace MetroEditor.MetroLang.Exporter
     /// <summary>
     /// 嵌入式 C 代码生成器
     /// 生成三个文件：metro_parser.h, metro_parser.c, metro_data.h
+    /// 所有宏和标识符均为通用命名，不包含城市拼音
     /// </summary>
     public static class CCodeExporter
     {
         /// <summary>
         /// 生成完整的嵌入式 C 代码文件（三个文件）
         /// </summary>
-        public static void ExportAll(byte[] data, string outputDir, string city = "")
+        /// <param name="data">MBIN 二进制数据</param>
+        /// <param name="outputDir">输出目录</param>
+        public static void ExportAll(byte[] data, string outputDir)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("数据为空", nameof(data));
@@ -25,25 +28,22 @@ namespace MetroEditor.MetroLang.Exporter
 
             Directory.CreateDirectory(outputDir);
 
-            string cityUpper = (city ?? "DEFAULT").ToUpperInvariant();
-            string cityName = string.IsNullOrEmpty(city) ? "DEFAULT" : city;
-
             // 生成三个文件
             File.WriteAllText(
                 Path.Combine(outputDir, "metro_parser.h"),
-                GenerateParserHeader(cityUpper, cityName),
+                GenerateParserHeader(),
                 Encoding.UTF8
             );
 
             File.WriteAllText(
                 Path.Combine(outputDir, "metro_parser.c"),
-                GenerateParserSource(cityUpper, cityName),
+                GenerateParserSource(),
                 Encoding.UTF8
             );
 
             File.WriteAllText(
                 Path.Combine(outputDir, "metro_data.h"),
-                GenerateDataHeader(data, cityUpper, cityName),
+                GenerateDataHeader(data),
                 Encoding.UTF8
             );
         }
@@ -51,31 +51,26 @@ namespace MetroEditor.MetroLang.Exporter
         /// <summary>
         /// 生成 metro_parser.h
         /// </summary>
-        private static string GenerateParserHeader(string cityUpper, string cityName)
+        private static string GenerateParserHeader()
         {
             var sb = new StringBuilder();
 
-            // ---------- 文件头 ----------
             sb.AppendLine("/*");
             sb.AppendLine(" * metro_parser.h - Metro 路网数据解析器");
             sb.AppendLine(" * 通用解析器头文件，可与不同的 metro_data.h 配合使用");
-            if (!string.IsNullOrEmpty(cityName))
-                sb.AppendLine($" * 城市: {cityName}");
             sb.AppendLine($" * 生成时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine(" */");
             sb.AppendLine();
 
-            string guardName = $"_METRO_PARSER_H_";
-            sb.AppendLine($"#ifndef {guardName}");
-            sb.AppendLine($"#define {guardName}");
+            sb.AppendLine("#ifndef _METRO_PARSER_H_");
+            sb.AppendLine("#define _METRO_PARSER_H_");
             sb.AppendLine();
 
-            // ---------- 包含 ----------
             sb.AppendLine("#include <stdint.h>");
             sb.AppendLine("#include <stdbool.h>");
             sb.AppendLine();
 
-            // ---------- 大端读取宏 ----------
+            // 大端读取宏
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 大端读取宏（所有多字节整数按大端存储）");
             sb.AppendLine("// ============================================================");
@@ -85,14 +80,14 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("#define MBIN_READ_S32(p) ((int32_t)MBIN_READ_U32(p))");
             sb.AppendLine();
 
-            // ---------- 结构体定义 ----------
+            // 结构体定义
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 结构体定义（与 MBIN 二进制格式严格对齐）");
             sb.AppendLine("// ============================================================");
             sb.AppendLine("#pragma pack(push, 1)");
             sb.AppendLine();
 
-            // 文件头（64字节）
+            // 文件头
             sb.AppendLine("/* 文件头（64 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint32_t magic;               // 'MBIN'");
@@ -119,7 +114,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} MetroHeader;");
             sb.AppendLine();
 
-            // 线路表（32字节）
+            // 线路表
             sb.AppendLine("/* 线路条目（32 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint32_t name_idx;            // 字符串池偏移");
@@ -130,7 +125,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} LineEntry;");
             sb.AppendLine();
 
-            // 站点元数据（24字节）
+            // 站点元数据
             sb.AppendLine("/* 站点元数据（24 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint16_t name_idx;            // 字符串池偏移");
@@ -141,7 +136,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} StationMeta;");
             sb.AppendLine();
 
-            // 节点表（4字节）
+            // 节点表
             sb.AppendLine("/* 节点条目（4 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint16_t display_line_idx;    // 显示线路索引");
@@ -149,7 +144,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} NodeEntry;");
             sb.AppendLine();
 
-            // 运行边（12字节）
+            // 运行边
             sb.AppendLine("/* 运行边（12 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint16_t from;                // 起点节点 ID");
@@ -159,7 +154,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} RailEdge;");
             sb.AppendLine();
 
-            // 换乘边（8字节）
+            // 换乘边
             sb.AppendLine("/* 换乘边（8 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint16_t from;                // 起点节点 ID");
@@ -168,7 +163,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} TransferEdge;");
             sb.AppendLine();
 
-            // 票价分段（12字节）
+            // 票价分段
             sb.AppendLine("/* 票价分段（12 字节） */");
             sb.AppendLine("typedef struct {");
             sb.AppendLine("    uint32_t start_cm;            // 起始里程（厘米）");
@@ -180,7 +175,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("#pragma pack(pop)");
             sb.AppendLine();
 
-            // ---------- 上下文结构 ----------
+            // 上下文结构
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 解析器上下文");
             sb.AppendLine("// ============================================================");
@@ -197,7 +192,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("} MetroContext;");
             sb.AppendLine();
 
-            // ---------- 函数声明 ----------
+            // 函数声明
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 初始化函数");
             sb.AppendLine("// ============================================================");
@@ -230,7 +225,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("uint32_t metro_calc_fare(const MetroContext* ctx, uint32_t dist_cm);");
             sb.AppendLine();
 
-            // ---------- 路径规划函数 ----------
+            // 路径规划
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 路径规划（Dijkstra）");
             sb.AppendLine("// ============================================================");
@@ -252,22 +247,20 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("                                  uint16_t path_len);");
             sb.AppendLine();
 
-            sb.AppendLine("#endif /* METRO_PARSER_H_ */");
+            sb.AppendLine("#endif /* _METRO_PARSER_H_ */");
             return sb.ToString();
         }
 
         /// <summary>
         /// 生成 metro_parser.c
         /// </summary>
-        private static string GenerateParserSource(string cityUpper, string cityName)
+        private static string GenerateParserSource()
         {
             var sb = new StringBuilder();
 
             sb.AppendLine("/*");
             sb.AppendLine(" * metro_parser.c - Metro 路网数据解析器实现");
             sb.AppendLine(" * 通用解析器实现，可与不同的 metro_data.h 配合使用");
-            if (!string.IsNullOrEmpty(cityName))
-                sb.AppendLine($" * 城市: {cityName}");
             sb.AppendLine($" * 生成时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine(" */");
             sb.AppendLine();
@@ -276,7 +269,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("#include <string.h>");
             sb.AppendLine();
 
-            // ---------- 初始化函数 ----------
+            // 初始化
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 初始化");
             sb.AppendLine("// ============================================================");
@@ -295,7 +288,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 线路查询 ----------
+            // 线路查询
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 线路查询");
             sb.AppendLine("// ============================================================");
@@ -327,7 +320,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 站点查询 ----------
+            // 站点查询
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 站点查询");
             sb.AppendLine("// ============================================================");
@@ -358,7 +351,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 节点查询 ----------
+            // 节点查询
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 节点查询");
             sb.AppendLine("// ============================================================");
@@ -382,7 +375,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 边查询 ----------
+            // 边查询
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 边查询");
             sb.AppendLine("// ============================================================");
@@ -412,7 +405,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 查找表 ----------
+            // 查找表
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 站名 -> 节点列表查找");
             sb.AppendLine("// ============================================================");
@@ -437,7 +430,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 票价计算 ----------
+            // 票价
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 票价计算");
             sb.AppendLine("// ============================================================");
@@ -456,7 +449,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- Dijkstra 路径规划 ----------
+            // Dijkstra
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 路径规划 (Dijkstra)");
             sb.AppendLine("// ============================================================");
@@ -543,7 +536,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("}");
             sb.AppendLine();
 
-            // ---------- 路径统计 ----------
+            // 路径统计
             sb.AppendLine("// ============================================================");
             sb.AppendLine("// 路径统计");
             sb.AppendLine("// ============================================================");
@@ -609,40 +602,26 @@ namespace MetroEditor.MetroLang.Exporter
         /// <summary>
         /// 生成 metro_data.h（只含数据数组）
         /// </summary>
-        private static string GenerateDataHeader(byte[] data, string cityUpper, string cityName)
+        private static string GenerateDataHeader(byte[] data)
         {
             var sb = new StringBuilder();
 
             sb.AppendLine("/*");
-            sb.AppendLine(" * metro_data.h - 具体城市的路网数据");
-            if (!string.IsNullOrEmpty(cityName))
-                sb.AppendLine($" * 城市: {cityName}");
+            sb.AppendLine(" * metro_data.h - 路网数据");
             sb.AppendLine($" * 数据大小: {data.Length} 字节");
             sb.AppendLine($" * 生成时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine(" */");
             sb.AppendLine();
 
-            string guardName = $"_METRO_DATA_H_";
-            sb.AppendLine($"#ifndef {guardName}");
-            sb.AppendLine($"#define {guardName}");
+            sb.AppendLine("#ifndef _METRO_DATA_H_");
+            sb.AppendLine("#define _METRO_DATA_H_");
             sb.AppendLine();
 
             sb.AppendLine("#include <stdint.h>");
             sb.AppendLine();
 
-            string macroName = string.IsNullOrEmpty(cityName)
-                ? "METRO_DATA_SIZE"
-                : $"METRO_DATA_SIZE";
-
-            sb.AppendLine($"#define {macroName} ({data.Length})");
+            sb.AppendLine($"#define METRO_DATA_SIZE ({data.Length})");
             sb.AppendLine();
-
-            // 如果城市名不为空，也导出一个通用宏指向具体宏
-            if (!string.IsNullOrEmpty(cityName))
-            {
-                sb.AppendLine($"#define METRO_DATA_SIZE {macroName}");
-                sb.AppendLine();
-            }
 
             sb.AppendLine($"static const uint8_t metro_data[{data.Length}] = {{");
 
@@ -663,7 +642,7 @@ namespace MetroEditor.MetroLang.Exporter
             sb.AppendLine("};");
             sb.AppendLine();
 
-            sb.AppendLine("#endif /* METRO_DATA_H_ */");
+            sb.AppendLine("#endif /* _METRO_DATA_H_ */");
             return sb.ToString();
         }
     }
