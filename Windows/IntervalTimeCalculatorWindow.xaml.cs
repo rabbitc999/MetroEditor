@@ -1,4 +1,5 @@
-﻿using MetroEditor.PathFinding;
+﻿using MetroEditor.Simulator;
+using MetroEditor.Simulator.Utils;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
@@ -12,7 +13,7 @@ namespace MetroEditor.Windows
 {
     /// <summary>
     /// 区间运行时间计算器窗口
-    /// 功能：基于 TrainTimeCalculator 的物理模型，可视化分析区间长度、限速、功率对运行时间的影响
+    /// 功能：基于 SimTrainTimeCalculator 的物理模型，可视化分析区间长度、限速、功率对运行时间的影响
     /// 核心图表：
     /// 1. 区间长度 vs 运行时间（验证线性模型 T = S/V + ΔT）
     /// 2. 限速 vs 运行时间（分析不同区间长度下的速度敏感性）
@@ -62,7 +63,7 @@ namespace MetroEditor.Windows
                 return;
 
             // 2. 计算关键参数
-            double deltaT = TrainTimeCalculator.GetDeltaT(consist, powerKw, vMaxKmh, brakeDecel);
+            double deltaT = SimTrainTimeUtils.GetDeltaT(consist, powerKw, vMaxKmh, brakeDecel);
             double accTime = CalculateAccelerationTime(consist, powerKw, vMaxKmh, brakeDecel);
             double accDist = CalculateAccelerationDistance(consist, powerKw, vMaxKmh, brakeDecel);
 
@@ -109,7 +110,7 @@ namespace MetroEditor.Windows
         private double CalculateAccelerationTime(string consist, double powerKw, double vMaxKmh, double brakeDecel)
         {
             const double tinyDistKm = 0.001; // 1米，足够短以近似纯加速过程
-            return TrainTimeCalculator.ComputeSegmentTime(tinyDistKm, consist, vMaxKmh, powerKw, brakeDecel);
+            return SimTrainTimeUtils.ComputeSegmentTime(tinyDistKm, consist, vMaxKmh, powerKw, brakeDecel);
         }
 
         /// <summary>
@@ -152,7 +153,7 @@ namespace MetroEditor.Windows
             plot.Series.Add(series);
 
             // 添加ΔT标注
-            double deltaT = TrainTimeCalculator.GetDeltaT(consist, powerKw, vMaxKmh, brakeDecel);
+            double deltaT = SimTrainTimeUtils.GetDeltaT(consist, powerKw, vMaxKmh, brakeDecel);
             plot.Annotations.Add(new OxyPlot.Annotations.TextAnnotation
             {
                 Text = $"ΔT = {deltaT:F2}s",
@@ -173,7 +174,7 @@ namespace MetroEditor.Windows
             for (int i = 0; i < 80; i++) // 80次迭代，精度足够
             {
                 double mid = (lo + hi) / 2;
-                double t = TrainTimeCalculator.ComputeSegmentTime(mid, consist, vMaxKmh, powerKw, brakeDecel);
+                double t = SimTrainTimeUtils.ComputeSegmentTime(mid, consist, vMaxKmh, powerKw, brakeDecel);
                 if (t < targetTime)
                     lo = mid;
                 else
@@ -199,7 +200,7 @@ namespace MetroEditor.Windows
                 var points = new List<DataPoint>();
                 for (double v = 10; v <= 220; v += 5) // 覆盖地铁到城际速度范围
                 {
-                    double t = TrainTimeCalculator.ComputeSegmentTime(dist, consist, powerKw, v, brakeDecel);
+                    double t = SimTrainTimeUtils.ComputeSegmentTime(dist, consist, powerKw, v, brakeDecel);
                     points.Add(new DataPoint(v, t));
                 }
                 var series = new LineSeries
@@ -234,12 +235,12 @@ namespace MetroEditor.Windows
             var accPoints = new List<DataPoint>();
             for (double p = 100; p <= 10000; p += 100)
             {
-                double delta = TrainTimeCalculator.GetDeltaT(consist, p, vMaxKmh, brakeDecel);
+                double delta = SimTrainTimeUtils.GetDeltaT(consist, p, vMaxKmh, brakeDecel);
                 deltaPoints.Add(new DataPoint(p, delta));
 
                 // 加速时间估算（使用1米距离近似）
                 double tinyDist = 0.001;
-                double tAcc = TrainTimeCalculator.ComputeSegmentTime(tinyDist, consist, vMaxKmh, p, brakeDecel);
+                double tAcc = SimTrainTimeUtils.ComputeSegmentTime(tinyDist, consist, vMaxKmh, p, brakeDecel);
                 accPoints.Add(new DataPoint(p, tAcc));
             }
 

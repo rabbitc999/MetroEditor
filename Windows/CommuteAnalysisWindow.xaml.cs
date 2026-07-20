@@ -11,7 +11,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MetroEditor.MetroLang.DataModel;
-using MetroEditor.PathFinding;
+using MetroEditor.MetroLang.JsonModel;
+using MetroEditor.Simulator.Algorithms;
+using MetroEditor.Simulator.Data;
+using MetroEditor.Simulator.Models;
+using MetroEditor.Simulator.Utils;
 using Microsoft.Win32;
 using static MetroEditor.MetroLang.Compiler.Context;
 
@@ -28,16 +32,17 @@ namespace MetroEditor.Windows
     public partial class CommuteAnalysisWindow : Window
     {
         private readonly ParsedData _data;
-        private readonly MetroGraph _graph;              // 路网图（用于路径计算）
+        private readonly SimMetroGraph _graph;              // 路网图（用于路径计算）
+        private readonly SimDataCache _cache;
         private readonly List<string> _allStations;      // 所有站点列表
         private ObservableCollection<CommuteResult> _results = new(); // 分析结果（绑定到DataGrid）
 
-        public CommuteAnalysisWindow(ParsedData data)
+        public CommuteAnalysisWindow(JsonRoot data)
         {
             InitializeComponent();
-            _data = data;
-            _graph = new MetroGraph(data);
-            _allStations = data.Stations.Keys.OrderBy(x => x).ToList();
+            _cache = SimDataParser.Parse(data);
+            _graph = new SimMetroGraph(_cache);
+            _allStations = SimStationUtils.GetActiveStationList(_cache);
 
             // 绑定数据源
             StartStationCombo.ItemsSource = _allStations;
@@ -79,7 +84,7 @@ namespace MetroEditor.Windows
             _results.Clear();
 
             // 从注册表加载用户偏好的搜索权重
-            var weight = SearchWeight.LoadFromRegistry();
+            var weight = new SimSearchWeight(0, 0, 0, 1, 0, 0);
 
             // 在后台线程执行计算密集型任务
             var rows = await Task.Run(() =>
@@ -93,13 +98,13 @@ namespace MetroEditor.Windows
                     if (station == start) continue;
 
                     // 执行路径搜索
-                    var result = _graph.FindPath(start, station, weight);
+                    var result = _graph.FindTransferPath(start, station, weight);
                     if (result.Transfers == -1) continue; // 不可达则跳过
 
                     var path = result.Path;
                     double distance = _graph.ComputePathDistance(path);
-                    double timeSec = TimeCalculator.ComputeTotalTime(path, _graph, _data);
-                    int stationCount = path.Select(n => GraphKeyUtils.ParseNode(n)[1]).Distinct().Count() - 1;
+                    double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, DateTime.Now.Ticks);
+                    int stationCount = path.Select(n => SimGraphKeyUtils.ParseNode(n)[1]).Distinct().Count() - 1;
                     var segments = _graph.GetRouteSegments(path);
                     string routeDesc = BuildRouteDescription(segments);
 
@@ -141,7 +146,7 @@ namespace MetroEditor.Windows
         /// </summary>
         /// <param name="segments">路径分段</param>
         /// <returns>人类可读的乘车指引</returns>
-        private string BuildRouteDescription(List<RouteSegment> segments)
+        private string BuildRouteDescription(List<SimRouteSegment> segments)
         {
             if (segments == null || segments.Count == 0) return "";
             var parts = new List<string>();

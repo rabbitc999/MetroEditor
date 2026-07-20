@@ -1,7 +1,8 @@
 ﻿using MetroEditor.MetroLang;
 using MetroEditor.MetroLang.Compiler;
 using MetroEditor.MetroLang.Exporter;
-using MetroEditor.PathFinding;
+using MetroEditor.Simulator.Algorithms;
+using MetroEditor.Simulator.Data;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -159,7 +160,8 @@ namespace MetroEditor.Windows
                             {
                                 case "mbin":
                                     // -------- MBIN 导出 --------
-                                    var graph = new MetroGraph(parsedData);
+                                    SimDataCache cache = SimDataParser.Parse(root);
+                                    var graph = new SimMetroGraph(cache);
                                     byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
                                     outputPath = Path.Combine(outputDir, baseName + ".mbin");
                                     File.WriteAllBytes(outputPath, mbinBytes);

@@ -4,7 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using MetroEditor.MetroLang.DataModel;
-using MetroEditor.PathFinding;
+using MetroEditor.MetroLang.JsonModel;
+using MetroEditor.Simulator.Algorithms;
+using MetroEditor.Simulator.Data;
+using MetroEditor.Simulator.Models;
+using MetroEditor.Simulator.Utils;
 using static MetroEditor.MetroLang.Compiler.Context;
 
 namespace MetroEditor.Windows
@@ -30,16 +34,16 @@ namespace MetroEditor.Windows
     /// </remarks>
     public partial class RouteDetailWindow : Window
     {
-        private readonly ParsedData _data;                  // 路网数据
-        private readonly MetroGraph _graph;                 // 路网图（用于路径搜索）
+        private readonly SimDataCache _cache;
+        private readonly SimMetroGraph _graph;              // 路网图（用于路径搜索）
         private readonly List<string> _allStations;         // 所有站点列表
 
-        public RouteDetailWindow(ParsedData data)
+        public RouteDetailWindow(JsonRoot data)
         {
             InitializeComponent();
-            _data = data;
-            _graph = new MetroGraph(data);
-            _allStations = data.Stations.Keys.OrderBy(x => x).ToList();
+            _cache = SimDataParser.Parse(data);
+            _graph = new SimMetroGraph(_cache);
+            _allStations = SimStationUtils.GetActiveStationList(_cache);
 
             // 填充下拉框
             StartCombo.ItemsSource = _allStations;
@@ -75,8 +79,8 @@ namespace MetroEditor.Windows
             EndCombo.Text = matchedEnd;
 
             // 执行路径搜索（使用注册表中的权重配置）
-            var weight = SearchWeight.LoadFromRegistry();
-            var result = _graph.FindPath(matchedStart, matchedEnd, weight);
+            var weight = new SimSearchWeight(0, 0, 0, 1, 0, 0);
+            var result = _graph.FindTransferPath(matchedStart, matchedEnd, weight);
 
             if (result.Transfers == -1)
             {
@@ -89,7 +93,7 @@ namespace MetroEditor.Windows
             // 计算各项指标
             var path = result.Path;
             double distance = _graph.ComputePathDistance(path);
-            double timeSec = TimeCalculator.ComputeTotalTime(path, _graph, _data);
+            double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             double timeMin = timeSec / 60.0;
             double fare = result.TotalMoney;
 
@@ -139,7 +143,7 @@ namespace MetroEditor.Windows
         /// <summary>
         /// 构建分段显示项集合
         /// </summary>
-        private List<SegmentDisplayItem> BuildSegmentDisplayItems(List<RouteSegment> segments)
+        private List<SegmentDisplayItem> BuildSegmentDisplayItems(List<SimRouteSegment> segments)
         {
             var items = new List<SegmentDisplayItem>();
             foreach (var seg in segments)
@@ -174,7 +178,7 @@ namespace MetroEditor.Windows
         /// <summary>
         /// 提取每段包含的站点列表
         /// </summary>
-        private List<List<string>> ExtractSegmentStations(List<string> path, List<RouteSegment> segments)
+        private List<List<string>> ExtractSegmentStations(List<string> path, List<SimRouteSegment> segments)
         {
             var result = new List<List<string>>();
             int pathIndex = 0;
@@ -184,7 +188,7 @@ namespace MetroEditor.Windows
                 while (pathIndex < path.Count)
                 {
                     var node = path[pathIndex];
-                    var station = GraphKeyUtils.ParseNode(node)[1];
+                    var station = SimGraphKeyUtils.ParseNode(node)[1];
                     stations.Add(station);
                     pathIndex++;
                     if (station == seg.EndStation)
@@ -200,12 +204,12 @@ namespace MetroEditor.Windows
         /// </summary>
         private Color GetLineColor(string lineId)
         {
-            if (_data.Lines.TryGetValue(lineId, out var line))
+            if (_cache.LineColorMap.TryGetValue(lineId, out var color))
             {
                 // 其次使用线路主色
-                if (!string.IsNullOrEmpty(line.Color))
+                if (!string.IsNullOrEmpty(color))
                 {
-                    try { return (Color)ColorConverter.ConvertFromString(line.Color); }
+                    try { return (Color)ColorConverter.ConvertFromString(color); }
                     catch { }
                 }
             }

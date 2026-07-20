@@ -7,7 +7,8 @@ using MetroEditor.MetroLang.Decompiler;
 using MetroEditor.MetroLang.Exporter;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.MetroLang.Tool;
-using MetroEditor.PathFinding;
+using MetroEditor.Simulator.Algorithms;
+using MetroEditor.Simulator.Data;
 using MetroEditor.Windows.Controls;
 using MetroEditor.Windows.Controls.Style;
 using Microsoft.Win32;
@@ -422,7 +423,7 @@ namespace MetroEditor.Windows
         private void SaveFile_Click(object sender, EventArgs e)
         {
             if (documentWorkspace.CurrentTab != null)
-                documentWorkspace.CurrentTab.Save();
+                documentWorkspace.CurrentTab?.Save();
         }
 
         private void OnTabCompilationCompleted(object? sender, CompilationEventArgs e)
@@ -573,6 +574,8 @@ namespace MetroEditor.Windows
                 compiler.Parse(sourceText, tab.BaseDirectory);
                 var root = compiler.ExportJson();
                 var parsedData = compiler.GetParsedData();
+                SimDataCache cache = SimDataParser.Parse(root);
+                var graph = new SimMetroGraph(cache);
 
                 // ---------- 保存对话框：支持四种格式 ----------
                 var saveDlg = new SaveFileDialog
@@ -596,7 +599,6 @@ namespace MetroEditor.Windows
                     {
                         case ".mbin":
                             // -------- 导出 MBIN 二进制 --------
-                            var graph = new MetroGraph(parsedData);
                             byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
                             File.WriteAllBytes(fullPath, mbinBytes);
                             statusInfo.Text = $"MBIN 导出完成: {Path.GetFileName(fullPath)}";
@@ -605,12 +607,11 @@ namespace MetroEditor.Windows
                         case ".c":
                         case ".h":
                             // -------- 导出 C 代码（三个文件） --------
-                            var graph2 = new MetroGraph(parsedData);
-                            byte[] cBytes = MBINExporter.Export(parsedData, graph2);
+                            byte[] cBytes = MBINExporter.Export(parsedData, graph);
                             string outputDir = Path.GetDirectoryName(fullPath);
                             if (string.IsNullOrEmpty(outputDir))
                                 outputDir = Environment.CurrentDirectory;
-                            CCodeExporter.ExportAll(cBytes, outputDir, parsedData.MainCity);
+                            CCodeExporter.ExportAll(cBytes, outputDir);
                             statusInfo.Text = $"C 代码导出完成: {outputDir}";
                             break;
 
@@ -724,20 +725,20 @@ namespace MetroEditor.Windows
 
         private void RefreshGrids()
         {
-            if (documentWorkspace.CurrentTab.ParsedData != null)
-                UpdateUI(documentWorkspace.CurrentTab.ParsedData);
+            if (documentWorkspace.CurrentTab?.ParsedData != null)
+                UpdateUI(documentWorkspace.CurrentTab?.ParsedData);
         }
 
         private void OpenStationManager()
         {
-            var dialog = new ManagerStationWindow { DefaultCity = documentWorkspace.CurrentTab.ParsedData?.MainCity ?? DefaultCity };
-            if (documentWorkspace.CurrentTab.ParsedData != null)
+            var dialog = new ManagerStationWindow { DefaultCity = documentWorkspace.CurrentTab?.ParsedData?.MainCity ?? DefaultCity };
+            if (documentWorkspace.CurrentTab?.ParsedData != null)
             {
-                foreach (var item in documentWorkspace.CurrentTab.ParsedData.Stations)
+                foreach (var item in documentWorkspace.CurrentTab?.ParsedData.Stations)
                 {
                     dialog.AddStation(new ManagerStationWindow.StationItem
                     {
-                        City = documentWorkspace.CurrentTab.ParsedData.StationCities.GetValueOrDefault(item.Key, documentWorkspace.CurrentTab.ParsedData?.MainCity ?? DefaultCity),
+                        City = documentWorkspace.CurrentTab?.ParsedData.StationCities.GetValueOrDefault(item.Key, documentWorkspace.CurrentTab?.ParsedData?.MainCity ?? DefaultCity),
                         Name = item.Key,
                         Lat = item.Value.Lat,
                         Lon = item.Value.Lon
@@ -777,51 +778,51 @@ namespace MetroEditor.Windows
 
         private void FareSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab.ParsedData);
+            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void BatchPending_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var dialog = new BatchPendingWindow(documentWorkspace.CurrentTab.ParsedData);
+            var dialog = new BatchPendingWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void EditTransfers_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null) return;
-            var dialog = new TimeParameterEditorWindow(documentWorkspace.CurrentTab.ParsedData);
+            if (documentWorkspace.CurrentTab?.ParsedData == null) return;
+            var dialog = new TimeParameterEditorWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void EditDwellTimes_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null) return;
-            var dialog = new TimeParameterEditorWindow(documentWorkspace.CurrentTab.ParsedData);
+            if (documentWorkspace.CurrentTab?.ParsedData == null) return;
+            var dialog = new TimeParameterEditorWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void EditFare_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null) return;
-            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab.ParsedData);
+            if (documentWorkspace.CurrentTab?.ParsedData == null) return;
+            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void EditSpecialFare_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null) return;
-            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab.ParsedData);
+            if (documentWorkspace.CurrentTab?.ParsedData == null) return;
+            var dialog = new FareEditorWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
@@ -839,35 +840,35 @@ namespace MetroEditor.Windows
 
         private void CityInfo_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var dialog = new CityInfoWindow(documentWorkspace.CurrentTab.ParsedData);
+            var dialog = new CityInfoWindow(documentWorkspace.CurrentTab?.ParsedData);
             dialog.Show();
         }
 
         private void CommuteAnalysis_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var dialog = new CommuteAnalysisWindow(documentWorkspace.CurrentTab.ParsedData);
+            var dialog = new CommuteAnalysisWindow(documentWorkspace.CurrentTab?.Root);
             dialog.Show();
         }
 
         private void LineDetail_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            var lineIds = documentWorkspace.CurrentTab.ParsedData.Lines.Keys.ToList();
+            var lineIds = documentWorkspace.CurrentTab?.ParsedData.Lines.Keys.ToList();
             var selector = new LineSelectorWindow(lineIds, _lineNameMap);
             selector.Owner = this;
             if (selector.ShowDialog() == true)
@@ -875,7 +876,7 @@ namespace MetroEditor.Windows
                 string lineId = selector.SelectedLineId;
                 if (!string.IsNullOrEmpty(lineId) && documentWorkspace.CurrentTab.ParsedData.Lines.ContainsKey(lineId))
                 {
-                    var detailWindow = new LineDetailWindow(documentWorkspace.CurrentTab.ParsedData, lineId);
+                    var detailWindow = new LineDetailWindow(documentWorkspace.CurrentTab?.ParsedData, lineId);
                     detailWindow.Show();
                 }
                 else
@@ -887,19 +888,19 @@ namespace MetroEditor.Windows
 
         private void OpenRouteDetailWindow_Click(object sender, RoutedEventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null)
+            if (documentWorkspace.CurrentTab == null || documentWorkspace.CurrentTab?.ParsedData == null)
             {
                 MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var window = new RouteDetailWindow(documentWorkspace.CurrentTab.ParsedData);
+            var window = new RouteDetailWindow(documentWorkspace.CurrentTab?.Root);
             window.Show();
         }
 
         private void MigrateCurrentFile_Click(object sender, RoutedEventArgs e)
         {
             if (documentWorkspace.CurrentTab == null) return;
-            if (string.IsNullOrEmpty(documentWorkspace.CurrentTab.Text))
+            if (string.IsNullOrEmpty(documentWorkspace.CurrentTab?.Text))
             {
                 MessageBox.Show("编辑器为空，没有可迁移的内容", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -907,7 +908,7 @@ namespace MetroEditor.Windows
 
             try
             {
-                string newCode = MigrationHelper.Migrate(documentWorkspace.CurrentTab.Text, documentWorkspace.CurrentTab.FilePath, out var _, true);
+                string newCode = MigrationHelper.Migrate(documentWorkspace.CurrentTab?.Text, documentWorkspace.CurrentTab?.FilePath, out var _, true);
                 documentWorkspace.CurrentTab.Text = newCode; // 触发 Tab 内部脏标记
                 statusInfo.Text = "迁移成功，编辑器已更新为新语法";
             }
@@ -1061,7 +1062,7 @@ namespace MetroEditor.Windows
 
         private void MapEditor_Click(object sender, EventArgs e)
         {
-            if (documentWorkspace.CurrentTab.ParsedData == null || documentWorkspace.CurrentTab.ParsedData.Stations.Count == 0 || _currentRoot == null)
+            if (documentWorkspace.CurrentTab?.ParsedData == null || documentWorkspace.CurrentTab?.ParsedData.Stations.Count == 0 || _currentRoot == null)
             {
                 MessageBox.Show("请先正确编辑文件以获取站点数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -1077,7 +1078,7 @@ namespace MetroEditor.Windows
         private void ExportStationsCsv_Click(object sender, RoutedEventArgs e)
         {
             // 1. 检查数据是否存在
-            if (documentWorkspace.CurrentTab.ParsedData == null || documentWorkspace.CurrentTab.ParsedData.Stations.Count == 0)
+            if (documentWorkspace.CurrentTab?.ParsedData == null || documentWorkspace.CurrentTab?.ParsedData.Stations.Count == 0)
             {
                 MessageBox.Show("请先编译代码以获取站点数据。", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -1088,7 +1089,7 @@ namespace MetroEditor.Windows
             {
                 Filter = "CSV 文件 (*.csv)|*.csv",
                 Title = "导出站点列表",
-                FileName = $"站点列表_{documentWorkspace.CurrentTab.ParsedData.MainCity}_{DateTime.Now:yyyyMMdd}.csv"
+                FileName = $"站点列表_{documentWorkspace.CurrentTab?.ParsedData.MainCity}_{DateTime.Now:yyyyMMdd}.csv"
             };
             if (dialog.ShowDialog() != true)
                 return;
@@ -1107,13 +1108,13 @@ namespace MetroEditor.Windows
                 writer.WriteLine("站名,经度,纬度,城市,途经线路");
 
                 // 获取站点数据
-                var stations = documentWorkspace.CurrentTab.ParsedData.Stations;
-                var stationCities = documentWorkspace.CurrentTab.ParsedData.StationCities;
-                var mainCity = documentWorkspace.CurrentTab.ParsedData.MainCity;
+                var stations = documentWorkspace.CurrentTab?.ParsedData.Stations;
+                var stationCities = documentWorkspace.CurrentTab?.ParsedData.StationCities;
+                var mainCity = documentWorkspace.CurrentTab?.ParsedData.MainCity;
 
                 // 预构建线路名称映射
                 var lineNameMap = new Dictionary<string, string>();
-                foreach (var kv in documentWorkspace.CurrentTab.ParsedData.Lines)
+                foreach (var kv in documentWorkspace.CurrentTab?.ParsedData.Lines)
                 {
                     string city = kv.Value.City ?? mainCity;
                     string displayName = (city == mainCity) ? kv.Value.Name : $"{city}{kv.Value.Name}";
@@ -1132,7 +1133,7 @@ namespace MetroEditor.Windows
                     string city = stationCities.TryGetValue(stationName, out var c) ? c : mainCity;
 
                     // 获取该站经过的线路（通过方向列表收集）
-                    var lineIds = documentWorkspace.CurrentTab.ParsedData.Directions.Values
+                    var lineIds = documentWorkspace.CurrentTab?.ParsedData.Directions.Values
                         .Where(d => d.Stations.Contains(stationName))
                         .Select(d => d.LineId)
                         .Distinct()
@@ -1221,6 +1222,18 @@ namespace MetroEditor.Windows
             var existingIds = new HashSet<string>(data.Lines.Keys);
             var dialog = new EditDirectionWindow(stationNames, existingIds);
             dialog.Show();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // 取消 DocumentWorkspace 的事件订阅（如果有）
+            if (documentWorkspace != null)
+            {
+                documentWorkspace.CurrentTabChanged -= OnCurrentTabChanged;
+                documentWorkspace.TabClosing -= OnTabClosing;
+            }
+
+            base.OnClosed(e);
         }
         #endregion
     }

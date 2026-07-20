@@ -1,5 +1,7 @@
 ﻿using MetroEditor.MetroLang.DataModel;
-using MetroEditor.PathFinding;
+using MetroEditor.Simulator;
+using MetroEditor.Simulator.Algorithms;
+using MetroEditor.Simulator.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +12,7 @@ namespace MetroEditor.MetroLang.Exporter
 {
     public static class MBINExporter
     {
-        public static byte[] Export(ParsedData data, MetroGraph graph)
+        public static byte[] Export(ParsedData data, SimMetroGraph graph)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
@@ -206,9 +208,15 @@ namespace MetroEditor.MetroLang.Exporter
                     string toKey = $"{dirId}|{toSt}";
                     if (!nodeMap.TryGetValue(fromKey, out ushort fromNode)) continue;
                     if (!nodeMap.TryGetValue(toKey, out ushort toNode)) continue;
+
                     double distKm = (i < distList.Count && distList[i] < 1e30) ? distList[i] : 0.5;
-                    int maxSpeed = data.Lines.TryGetValue(dir.LineId, out var li) ? (int)(li.Maxspeed ?? 80) : 80;
-                    double timeSec = TimeCalculator.ComputeSegmentTime(distKm, maxSpeed, dir.LineId, dirId, fromSt, toSt, data);
+                    data.Lines.TryGetValue(dir.LineId, out var line);
+                    int maxSpeed = line?.Maxspeed != null ? (int)line.Maxspeed.Value : 80;
+                    int powerKw = line?.PowerKw != null ? (int)line.PowerKw.Value : 2640;
+                    double brake = line?.Brake ?? 1.0;
+                    string formation = line?.Formation ?? "6B";
+
+                    double timeSec = SimTrainTimeUtils.ComputeSegmentTime(distKm, formation, maxSpeed, powerKw, brake);
                     ushort timeUShort = (ushort)Math.Round(timeSec);
                     if (timeUShort == 0) timeUShort = 1;
                     uint distCm = (uint)(distKm * 100000);
@@ -234,7 +242,7 @@ namespace MetroEditor.MetroLang.Exporter
                         var dir2 = data.Directions[dirId2];
                         string dirKey1 = $"{dir1.LineId}|{dir1.Stations.First()}|{dir1.Stations.Last()}";
                         string dirKey2 = $"{dir2.LineId}|{dir2.Stations.First()}|{dir2.Stations.Last()}";
-                        double transferSec = StationUtils.GetInnerTransferTime(st, dirKey1, dirKey2, data);
+                        double transferSec = SimStationUtils.GetTransferTime(graph.Cache, st, dirKey1, dirKey2);
                         ushort transferUShort = (ushort)Math.Round(transferSec);
                         if (transferUShort == 0) transferUShort = 10;
                         transferEdges.Add((nodes[i], nodes[j], transferUShort));
