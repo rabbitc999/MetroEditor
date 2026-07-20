@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MetroEditor.Windows.IntervalTimeCalculatorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:oxy="http://oxyplot.org/wpf" Topmost="True"
         Title="区间运行时间计算器" Height="750" Width="950"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="10">

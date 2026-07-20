@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -47,9 +48,9 @@ namespace MetroEditor.Simulator.Utils
         private const double Gravity = 9.81;
         private const double DefaultBrakeDecel = 0.85;
 
-        // ΔT 缓存
-        private static readonly Dictionary<string, double> DeltaCache = new();
-        private static readonly Dictionary<string, double> ShortTimeCache = new();
+        // ΔT 缓存（线程安全）
+        private static readonly ConcurrentDictionary<string, double> DeltaCache = new();
+        private static readonly ConcurrentDictionary<string, double> ShortTimeCache = new();
 
         private class ConsistInfo
         {

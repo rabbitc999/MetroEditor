@@ -1,6 +1,6 @@
 ﻿<Window x:Class="MetroEditor.Windows.AddSegmentDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Topmost="True"
         Title="添加分段票价" Height="200" Width="350" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid Margin="10">
         <Grid.RowDefinitions>

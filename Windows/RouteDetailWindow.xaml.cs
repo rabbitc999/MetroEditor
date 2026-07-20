@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
-using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.Simulator.Algorithms;
 using MetroEditor.Simulator.Data;
 using MetroEditor.Simulator.Models;
 using MetroEditor.Simulator.Utils;
-using static MetroEditor.MetroLang.Compiler.Context;
 
 namespace MetroEditor.Windows
 {
@@ -48,9 +44,48 @@ namespace MetroEditor.Windows
             // 填充下拉框
             StartCombo.ItemsSource = _allStations;
             EndCombo.ItemsSource = _allStations;
+
+            DayOfWeekCombo.IsEnabled = false;
+            HourBox.IsEnabled = false;
+            MinuteBox.IsEnabled = false;
         }
 
         #region 查询逻辑
+        /// <summary>
+        /// 获取模拟时间的时间戳（毫秒）
+        /// </summary>
+        private long GetSimulatedTimestamp()
+        {
+            // 如果勾选了"使用当前时间"，则返回当前时间
+            if (UseCurrentTimeCheckBox.IsChecked == true)
+                return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            // 解析星期
+            int dayOffset = DayOfWeekCombo.SelectedIndex; // 0=周一, 1=周二, ...
+                                                          // 2026-07-20 是周一，以此为基准
+            DateTime baseDate = new DateTime(2026, 7, 20, 0, 0, 0, DateTimeKind.Utc);
+            DateTime targetDate = baseDate.AddDays(dayOffset);
+
+            // 解析小时
+            if (!int.TryParse(HourBox.Text, out int hour) || hour < 0 || hour > 23)
+                hour = 8;
+            // 解析分钟
+            if (!int.TryParse(MinuteBox.Text, out int minute) || minute < 0 || minute > 59)
+                minute = 0;
+
+            DateTime result = new DateTime(targetDate.Year, targetDate.Month, targetDate.Day,
+                                           hour, minute, 0, DateTimeKind.Utc);
+            return new DateTimeOffset(result).ToUnixTimeMilliseconds();
+        }
+
+        private void UseCurrentTime_Changed(object sender, RoutedEventArgs e)
+        {
+            bool useCurrent = UseCurrentTimeCheckBox.IsChecked == true;
+            DayOfWeekCombo.IsEnabled = !useCurrent;
+            HourBox.IsEnabled = !useCurrent;
+            MinuteBox.IsEnabled = !useCurrent;
+        }
+
         /// <summary>
         /// 查询按钮点击事件：执行路径规划
         /// </summary>
@@ -79,7 +114,14 @@ namespace MetroEditor.Windows
             EndCombo.Text = matchedEnd;
 
             // 执行路径搜索（使用注册表中的权重配置）
-            var weight = new SimSearchWeight(0, 0, 0, 1, 0, 0);
+            double distW = ReadWeight(DistWeightBox, 0);
+            double transW = ReadWeight(TransferWeightBox, 0);
+            double moneyW = ReadWeight(MoneyWeightBox, 0);
+            double timeW = ReadWeight(TimeWeightBox, 1);
+            double stationW = ReadWeight(StationWeightBox, 0);
+            double crowdW = ReadWeight(CrowdWeightBox, 0);
+
+            var weight = new SimSearchWeight(distW, transW, moneyW, timeW, stationW, crowdW);
             var result = _graph.FindTransferPath(matchedStart, matchedEnd, weight);
 
             if (result.Transfers == -1)
@@ -93,7 +135,7 @@ namespace MetroEditor.Windows
             // 计算各项指标
             var path = result.Path;
             double distance = _graph.ComputePathDistance(path);
-            double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, GetSimulatedTimestamp());
             double timeMin = timeSec / 60.0;
             double fare = result.TotalMoney;
 
@@ -116,6 +158,14 @@ namespace MetroEditor.Windows
                 items[i].Stations = segmentStations[i];
             }
             SegmentsItemsControl.ItemsSource = items;
+        }
+
+        // 添加辅助方法
+        private double ReadWeight(TextBox box, double defaultValue)
+        {
+            if (double.TryParse(box.Text, out double val))
+                return val;
+            return defaultValue;
         }
 
         /// <summary>
@@ -238,6 +288,17 @@ namespace MetroEditor.Windows
             public string Subtitle { get; set; }
             public Brush Color { get; set; }
             public List<string> Stations { get; set; }
+        }
+
+        /// <summary>
+        /// ComboBox 获得焦点时自动展开下拉列表
+        /// </summary>
+        private void ComboBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox comboBox)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
         }
     }
 }

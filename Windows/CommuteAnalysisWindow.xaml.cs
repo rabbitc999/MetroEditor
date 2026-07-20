@@ -84,7 +84,14 @@ namespace MetroEditor.Windows
             _results.Clear();
 
             // 从注册表加载用户偏好的搜索权重
-            var weight = new SimSearchWeight(0, 0, 0, 1, 0, 0);
+            double distW = ReadWeight(DistWeightBox, 0);
+            double transW = ReadWeight(TransferWeightBox, 0);
+            double moneyW = ReadWeight(MoneyWeightBox, 0);
+            double timeW = ReadWeight(TimeWeightBox, 1);
+            double stationW = ReadWeight(StationWeightBox, 0);
+            double crowdW = ReadWeight(CrowdWeightBox, 0);
+
+            var weight = new SimSearchWeight(distW, transW, moneyW, timeW, stationW, crowdW);
 
             // 在后台线程执行计算密集型任务
             var rows = await Task.Run(() =>
@@ -103,7 +110,9 @@ namespace MetroEditor.Windows
 
                     var path = result.Path;
                     double distance = _graph.ComputePathDistance(path);
-                    double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, DateTime.Now.Ticks);
+                    DateTime monday8am = new DateTime(2026, 7, 20, 8, 0, 0, DateTimeKind.Utc);
+                    long timestamp = new DateTimeOffset(monday8am).ToUnixTimeMilliseconds();
+                    double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, timestamp);
                     int stationCount = path.Select(n => SimGraphKeyUtils.ParseNode(n)[1]).Distinct().Count() - 1;
                     var segments = _graph.GetRouteSegments(path);
                     string routeDesc = BuildRouteDescription(segments);
@@ -115,7 +124,7 @@ namespace MetroEditor.Windows
                         Transfers = result.Transfers,
                         Time = timeSec / 60.0, // 转换为分钟
                         Fare = result.TotalMoney,
-                        Value = result.Cost,   // 综合代价（用于排序）
+                        Value = result.Cost,   // 综合代价
                         RouteDesc = routeDesc,
                         StationCount = stationCount
                     });
@@ -139,6 +148,14 @@ namespace MetroEditor.Windows
             StatusText.Text = $"完成，共 {_results.Count} 个可达站点";
             CalcButton.IsEnabled = true;
             ExportCsvButton.IsEnabled = _results.Count > 0;
+        }
+
+        // 添加辅助方法
+        private double ReadWeight(TextBox box, double defaultValue)
+        {
+            if (double.TryParse(box.Text, out double val))
+                return val;
+            return defaultValue;
         }
 
         /// <summary>
@@ -190,6 +207,17 @@ namespace MetroEditor.Windows
                 }
                 File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
                 MessageBox.Show($"导出成功：{dialog.FileName}", "完成", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        /// <summary>
+        /// ComboBox 获得焦点时自动展开下拉列表
+        /// </summary>
+        private void ComboBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox comboBox)
+            {
+                comboBox.IsDropDownOpen = true;
             }
         }
     }

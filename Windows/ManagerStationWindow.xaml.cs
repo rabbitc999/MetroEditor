@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
 namespace MetroEditor.Windows
@@ -296,5 +297,14 @@ namespace MetroEditor.Windows
         /// 关闭窗口
         /// </summary>
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+        /// <summary>
+        /// 单元格编辑结束时更新预览
+        /// </summary>
+        private void StationDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            // 编辑完成后调用更新
+            UpdatePreview();
+        }
     }
 }

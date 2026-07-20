@@ -3,22 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="路线查询与详情" Height="700" Width="850"
-        WindowStartupLocation="CenterOwner"
-        d:DesignHeight="700" d:DesignWidth="850">
+        mc:Ignorable="d" Topmost="True"
+        Title="路线查询与详情" Height="750" Width="900"
+        WindowStartupLocation="CenterOwner">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- 输入区 -->
             <RowDefinition Height="Auto"/>
-            <!-- 摘要区 -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <!-- 分段列表 -->
         </Grid.RowDefinitions>
 
-        <!-- ===== 输入区 ===== -->
-        <Border Grid.Row="0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,10">
+        <!-- ===== 输入区（起终点 + 查询按钮） ===== -->
+        <Border Grid.Row="0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -29,17 +27,96 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="起点：" Grid.Column="0" VerticalAlignment="Center"/>
                 <ComboBox x:Name="StartCombo" Grid.Column="1" IsEditable="True" IsTextSearchEnabled="True"
-                          Margin="5,0" VerticalAlignment="Center"/>
+                          Margin="5,0" VerticalAlignment="Center"
+                          GotFocus="ComboBox_GotFocus"/>
                 <Label Content="终点：" Grid.Column="2" VerticalAlignment="Center"/>
                 <ComboBox x:Name="EndCombo" Grid.Column="3" IsEditable="True" IsTextSearchEnabled="True"
-                          Margin="5,0" VerticalAlignment="Center"/>
+                          Margin="5,0" VerticalAlignment="Center"
+                          GotFocus="ComboBox_GotFocus"/>
                 <Button x:Name="QueryBtn" Grid.Column="4" Content="查询" Padding="15,5"
                         Click="QueryBtn_Click" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
+        <!-- ===== 权重配置区 ===== -->
+        <Expander Grid.Row="1" Header="权重配置（默认：时间优先）" IsExpanded="False" Margin="0,0,0,8">
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="距离权重：" Grid.Column="0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="DistWeightBox" Grid.Column="1" Text="0" Width="60" Margin="2,0"/>
+                    <Label Content="换乘权重：" Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBox x:Name="TransferWeightBox" Grid.Column="3" Text="0" Width="60" Margin="2,0"/>
+                    <Label Content="票价权重：" Grid.Column="4" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBox x:Name="MoneyWeightBox" Grid.Column="5" Text="0" Width="60" Margin="2,0"/>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="时间权重：" Grid.Column="0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="TimeWeightBox" Grid.Column="1" Text="1" Width="60" Margin="2,0"/>
+                    <Label Content="站数权重：" Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBox x:Name="StationWeightBox" Grid.Column="3" Text="0" Width="60" Margin="2,0"/>
+                    <Label Content="拥挤权重：" Grid.Column="4" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBox x:Name="CrowdWeightBox" Grid.Column="5" Text="0" Width="60" Margin="2,0"/>
+                </Grid>
+            </Grid>
+        </Expander>
+
+        <!-- ===== 时间选择区（位于权重配置和摘要之间） ===== -->
+        <Expander Grid.Row="2" Header="时间配置（默认：当前时间）" IsExpanded="False" Margin="0,0,0,8">
+            <Border Margin="5" Padding="5" BorderBrush="#eee" BorderThickness="1" CornerRadius="4">
+                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" 
+                   VerticalAlignment="Center" ItemWidth="Auto">
+                    <!-- 模拟时间标签 -->
+                    <Label Content="模拟时间：" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,5,0"/>
+
+                    <!-- 星期选择 -->
+                    <Label Content="星期：" VerticalAlignment="Center" Margin="5,0,2,0"/>
+                    <ComboBox x:Name="DayOfWeekCombo" Width="80" VerticalAlignment="Center" SelectedIndex="0" Margin="0,0,5,0">
+                        <ComboBoxItem Content="周一"/>
+                        <ComboBoxItem Content="周二"/>
+                        <ComboBoxItem Content="周三"/>
+                        <ComboBoxItem Content="周四"/>
+                        <ComboBoxItem Content="周五"/>
+                        <ComboBoxItem Content="周六"/>
+                        <ComboBoxItem Content="周日"/>
+                    </ComboBox>
+
+                    <!-- 小时选择 -->
+                    <Label Content="时：" VerticalAlignment="Center" Margin="5,0,2,0"/>
+                    <TextBox x:Name="HourBox" Text="8" Width="40" VerticalAlignment="Center" TextAlignment="Center" Margin="0,0,5,0"/>
+
+                    <!-- 分钟选择 -->
+                    <Label Content="分：" VerticalAlignment="Center" Margin="5,0,2,0"/>
+                    <TextBox x:Name="MinuteBox" Text="0" Width="40" VerticalAlignment="Center" TextAlignment="Center" Margin="0,0,10,0"/>
+
+                    <!-- 使用当前时间复选框 -->
+                    <CheckBox x:Name="UseCurrentTimeCheckBox" Content="使用当前时间" VerticalAlignment="Center" 
+                      IsChecked="True" Checked="UseCurrentTime_Changed" Unchecked="UseCurrentTime_Changed" Margin="5,0,0,0"/>
+                </WrapPanel>
+            </Border>
+        </Expander>
+
         <!-- ===== 摘要区 ===== -->
-        <Border Grid.Row="1" BorderBrush="#eee" BorderThickness="0,0,0,1" Padding="0,0,0,8" Margin="0,0,0,8">
+        <Border Grid.Row="3" BorderBrush="#eee" BorderThickness="0,0,0,1" Padding="0,0,0,8" Margin="0,0,0,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -71,8 +148,8 @@
             </Grid>
         </Border>
 
-        <!-- ===== 分段列表（可展开） ===== -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <!-- ===== 分段列表 ===== -->
+        <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto">
             <ItemsControl x:Name="SegmentsItemsControl">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

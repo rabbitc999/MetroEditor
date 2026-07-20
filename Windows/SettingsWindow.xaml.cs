@@ -28,54 +28,14 @@ namespace MetroEditor.Windows
     /// </remarks>
     public partial class SettingsWindow : Window
     {
-        // 路径搜索权重属性（供外部访问）
-        public double LengthWeight { get; private set; } = 0.02;
-        public double TransferWeight { get; private set; } = 0.5;
-        public double MoneyWeight { get; private set; } = 1.0;
-        public double TimeWeight { get; private set; } = 0.01;
-        public double StationWeight { get; private set; } = 0.1;
-        public double SpecialWeight { get; private set; } = 1.0;
-
         public SettingsWindow()
         {
             InitializeComponent();
             LoadSettings();          // 加载已有设置
             LoadFonts();            // 加载系统字体
-            RegisterSliderEvents(); // 注册滑块事件
-            UpdateAllDisplays();    // 初始化显示
         }
 
         #region UI初始化
-        /// <summary>
-        /// 注册所有滑块的值变化事件
-        /// </summary>
-        private void RegisterSliderEvents()
-        {
-            // 字体大小
-            FontSizeSlider.ValueChanged += (s, e) => FontSizeDisplay.Text = ((int)e.NewValue).ToString();
-
-            // 路径权重
-            LengthWeightSlider.ValueChanged += (s, e) => LengthWeightDisplay.Text = e.NewValue.ToString("F2");
-            TransferWeightSlider.ValueChanged += (s, e) => TransferWeightDisplay.Text = e.NewValue.ToString("F1");
-            MoneyWeightSlider.ValueChanged += (s, e) => MoneyWeightDisplay.Text = e.NewValue.ToString("F1");
-            TimeWeightSlider.ValueChanged += (s, e) => TimeWeightDisplay.Text = e.NewValue.ToString("F3");
-            StationWeightSlider.ValueChanged += (s, e) => StationWeightDisplay.Text = e.NewValue.ToString("F2");
-            SpecialWeightSlider.ValueChanged += (s, e) => SpecialWeightDisplay.Text = e.NewValue.ToString("F1");
-        }
-
-        /// <summary>
-        /// 更新所有显示标签的文本内容
-        /// </summary>
-        private void UpdateAllDisplays()
-        {
-            FontSizeDisplay.Text = ((int)FontSizeSlider.Value).ToString();
-            LengthWeightDisplay.Text = LengthWeightSlider.Value.ToString("F2");
-            TransferWeightDisplay.Text = TransferWeightSlider.Value.ToString("F1");
-            MoneyWeightDisplay.Text = MoneyWeightSlider.Value.ToString("F1");
-            TimeWeightDisplay.Text = TimeWeightSlider.Value.ToString("F3");
-            StationWeightDisplay.Text = StationWeightSlider.Value.ToString("F2");
-            SpecialWeightDisplay.Text = SpecialWeightSlider.Value.ToString("F1");
-        }
 
         /// <summary>
         /// 加载系统字体列表到下拉框
@@ -85,7 +45,6 @@ namespace MetroEditor.Windows
             var fonts = new ObservableCollection<string>();
             foreach (var family in Fonts.SystemFontFamilies)
                 fonts.Add(family.Source);
-            FontFamilyComboBox.ItemsSource = fonts;
         }
         #endregion
 
@@ -97,12 +56,6 @@ namespace MetroEditor.Windows
         {
             using var key = Registry.CurrentUser.OpenSubKey(@"Software\MetroEditor");
             if (key == null) return;
-
-            // 编辑器设置
-            if (key.GetValue("FontSize") is int size && size > 0)
-                FontSizeSlider.Value = size;
-            if (key.GetValue("FontFamily") is string font)
-                FontFamilyComboBox.Text = font;
 
             // API Key（解密）
             if (key.GetValue("ApiKey") is string apiKey)
@@ -118,14 +71,6 @@ namespace MetroEditor.Windows
                     ApiKeyPasswordBox.Password = apiKey;
                 }
             }
-
-            // 路径搜索权重
-            if (key.GetValue("LengthWeight") is double lw) LengthWeightSlider.Value = lw;
-            if (key.GetValue("TransferWeight") is double tw) TransferWeightSlider.Value = tw;
-            if (key.GetValue("MoneyWeight") is double mw) MoneyWeightSlider.Value = mw;
-            if (key.GetValue("TimeWeight") is double timeW) TimeWeightSlider.Value = timeW;
-            if (key.GetValue("StationWeight") is double sw) StationWeightSlider.Value = sw;
-            if (key.GetValue("SpecialWeight") is double spw) SpecialWeightSlider.Value = spw;
         }
 
         /// <summary>
@@ -137,29 +82,9 @@ namespace MetroEditor.Windows
             {
                 using var key = Registry.CurrentUser.CreateSubKey(@"Software\MetroEditor");
 
-                // 编辑器设置
-                key.SetValue("FontSize", (int)FontSizeSlider.Value);
-                key.SetValue("FontFamily", FontFamilyComboBox.Text);
-
                 // API Key（加密存储）
                 string encrypted = SecureStorageHelper.Encrypt(ApiKeyPasswordBox.Password);
                 key.SetValue("ApiKey", encrypted);
-
-                // 路径搜索权重
-                key.SetValue("LengthWeight", LengthWeightSlider.Value);
-                key.SetValue("TransferWeight", TransferWeightSlider.Value);
-                key.SetValue("MoneyWeight", MoneyWeightSlider.Value);
-                key.SetValue("TimeWeight", TimeWeightSlider.Value);
-                key.SetValue("StationWeight", StationWeightSlider.Value);
-                key.SetValue("SpecialWeight", SpecialWeightSlider.Value);
-
-                // 更新公开属性，供主窗口读取
-                LengthWeight = LengthWeightSlider.Value;
-                TransferWeight = TransferWeightSlider.Value;
-                MoneyWeight = MoneyWeightSlider.Value;
-                TimeWeight = TimeWeightSlider.Value;
-                StationWeight = StationWeightSlider.Value;
-                SpecialWeight = SpecialWeightSlider.Value;
 
                 DialogResult = true;
                 Close();

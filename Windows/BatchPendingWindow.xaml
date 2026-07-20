@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MetroEditor.Windows.BatchPendingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="批量设置暂缓站点" Height="500" Width="600"
+        Title="批量设置暂缓站点" Height="500" Width="600" Topmost="True"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="10">
         <Grid.RowDefinitions>

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MetroEditor.Windows.LineDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:MetroEditor.Windows"
+        xmlns:local="clr-namespace:MetroEditor.Windows" Topmost="True"
         Title="线路详情" Height="600" Width="800"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
