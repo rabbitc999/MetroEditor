@@ -145,29 +145,6 @@
 4. 选择目标框架（如 `net48` 或 `net6.0-windows`）。
 5. 生成解决方案（`Ctrl+Shift+B`）。
 
-### 项目结构
-```
-MetroEditor/
-├── Windows/                 # 所有 XAML 窗口
-├── Controls/                # 自定义控件 (MetroMapControl 等)
-├── Models/                  # 数据模型 (站点、线路、方向等)
-├── MetroLang/               # 编译/反编译/工具
-│   ├── Compiler/            # 编译器实现 (Lexer, Parser, Commands...)
-│   ├── Decompiler/          # 反编译器
-│   ├── JsonModel/           # 标准 JSON 数据模型
-│   └── Tool/                # 辅助工具 (迁移、元数据提取、OSM导入)
-├── PathFinding/             # 路径规划引擎
-│   ├── MetroGraph.cs        # 图构建与搜索
-│   ├── TrainTimeCalculator.cs # 物理运行时间
-│   ├── FareCalculator.cs    # 票价计算
-│   └── ...                  # 辅助类
-├── Services/                # 业务逻辑 (编译、反编译、解析、分析等)
-├── Utils/                   # 辅助工具类
-├── Resources/               # 图标、样式等
-├── doc/                     # 项目文档 (见下方 文档)
-└── App.xaml / MainWindow.xaml
-```
-
 ---
 
 ## 文档
