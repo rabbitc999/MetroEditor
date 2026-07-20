@@ -27,7 +27,6 @@ namespace MetroEditor.Windows.Controls
             bool has = _tabs.Count > 0;
             documentTabControl.Visibility = has ? Visibility.Visible : Visibility.Collapsed;
             placeholderBorder.Visibility = has ? Visibility.Collapsed : Visibility.Visible;
-            gridSplitter.Visibility = has ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public DocumentWorkspace()

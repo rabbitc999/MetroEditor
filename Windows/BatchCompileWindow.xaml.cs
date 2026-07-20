@@ -1,5 +1,7 @@
 ﻿using MetroEditor.MetroLang;
 using MetroEditor.MetroLang.Compiler;
+using MetroEditor.MetroLang.Exporter;
+using MetroEditor.PathFinding;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -99,6 +101,9 @@ namespace MetroEditor.Windows
         /// <summary>
         /// 开始编译按钮点击事件：异步执行批量编译操作
         /// </summary>
+        /// <summary>
+        /// 开始编译按钮点击事件：异步执行批量编译操作
+        /// </summary>
         private async void StartCompile_Click(object sender, RoutedEventArgs e)
         {
             // 验证输入
@@ -115,9 +120,8 @@ namespace MetroEditor.Windows
                 return;
             }
 
-            // 获取输出格式（压缩为.bmetro或普通.json）
+            // 获取输出格式
             string format = (OutputFormatCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "bmetro";
-            bool compress = format == "bmetro";
 
             // 重置文件状态
             foreach (var item in _files)
@@ -134,59 +138,70 @@ namespace MetroEditor.Windows
 
             try
             {
-                // 在后台线程中并行处理文件
                 await Task.Run(() =>
                 {
                     Parallel.ForEach(_files, (fileItem, state) =>
                     {
                         try
                         {
-                            // 读取源文件内容
                             string content = File.ReadAllText(fileItem.FullPath, Encoding.UTF8);
-
-                            // 使用MetroCompiler进行编译
-                            var parser = new MetroCompiler();
-                            parser.Parse(content, Path.GetDirectoryName(fileItem.FullPath));
-                            var root = parser.ExportJson();
-
-                            // 序列化为JSON字符串
-                            var jsonOptions = new JsonSerializerOptions
-                            {
-                                WriteIndented = false,
-                                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                            };
-                            string json = JsonSerializer.Serialize(root, jsonOptions);
-
-                            // 构建输出文件路径
                             string baseName = Path.GetFileNameWithoutExtension(fileItem.FullPath);
-                            string ext = compress ? ".bmetro" : ".json";
-                            string outputPath = Path.Combine(outputDir, baseName + ext);
 
-                            if (compress)
+                            // -------- 编译 --------
+                            var compiler = new MetroCompiler();
+                            compiler.Parse(content, Path.GetDirectoryName(fileItem.FullPath));
+                            var root = compiler.ExportJson();
+                            var parsedData = compiler.GetParsedData();
+
+                            string outputPath;
+
+                            switch (format)
                             {
-                                // 压缩为GZip格式并写入文件
-                                byte[] compressed = MainWindow.CompressJson(json);
-                                File.WriteAllBytes(outputPath, compressed);
-                            }
-                            else
-                            {
-                                // 直接写入JSON文本
-                                File.WriteAllText(outputPath, json, Encoding.UTF8);
+                                case "mbin":
+                                    // -------- MBIN 导出 --------
+                                    var graph = new MetroGraph(parsedData);
+                                    byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
+                                    outputPath = Path.Combine(outputDir, baseName + ".mbin");
+                                    File.WriteAllBytes(outputPath, mbinBytes);
+                                    break;
+
+                                case "bmetro":
+                                    // -------- 压缩 JSON (.bmetro) --------
+                                    var jsonOptions = new JsonSerializerOptions
+                                    {
+                                        WriteIndented = false,
+                                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                                    };
+                                    string json = JsonSerializer.Serialize(root, jsonOptions);
+                                    byte[] compressed = MainWindow.CompressJson(json);
+                                    outputPath = Path.Combine(outputDir, baseName + ".bmetro");
+                                    File.WriteAllBytes(outputPath, compressed);
+                                    break;
+
+                                case "json":
+                                default:
+                                    // -------- 明文 JSON (.json) --------
+                                    var jsonOptions2 = new JsonSerializerOptions
+                                    {
+                                        WriteIndented = false,
+                                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                                    };
+                                    string jsonText = JsonSerializer.Serialize(root, jsonOptions2);
+                                    outputPath = Path.Combine(outputDir, baseName + ".json");
+                                    File.WriteAllText(outputPath, jsonText, Encoding.UTF8);
+                                    break;
                             }
 
-                            // 更新状态为成功
                             fileItem.Status = "成功";
                             fileItem.Message = $"已保存至 {Path.GetFileName(outputPath)}";
                         }
                         catch (Exception ex)
                         {
-                            // 记录失败状态和异常信息
                             fileItem.Status = "失败";
                             fileItem.Message = ex.Message;
                         }
                         finally
                         {
-                            // 原子操作更新完成计数，并刷新进度条
                             Interlocked.Increment(ref completed);
                             Dispatcher.Invoke(() =>
                             {
@@ -198,7 +213,6 @@ namespace MetroEditor.Windows
             }
             finally
             {
-                // 恢复UI状态
                 Dispatcher.Invoke(() =>
                 {
                     CompileButton.IsEnabled = true;
@@ -206,7 +220,6 @@ namespace MetroEditor.Windows
                 });
             }
 
-            // 显示完成消息
             MessageBox.Show($"批量编译完成。成功: {_files.Count(f => f.Status == "成功")}，失败: {_files.Count(f => f.Status == "失败")}",
                             "完成", MessageBoxButton.OK, MessageBoxImage.Information);
         }

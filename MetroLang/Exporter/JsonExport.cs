@@ -1,13 +1,14 @@
-﻿using MetroEditor.MetroLang.DataModel;
+﻿using MetroEditor.MetroLang.Compiler;
+using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.JsonModel;
 
-namespace MetroEditor.MetroLang.Compiler
+namespace MetroEditor.MetroLang.Exporter
 {
-    public class JsonExport
+    public class JsonExporter
     {
         private Context context;
 
-        public JsonExport(Context context)
+        public JsonExporter(Context context)
         {
             this.context = context;
         }
@@ -136,7 +137,7 @@ namespace MetroEditor.MetroLang.Compiler
                       )
                     : null,
 
-                                Promotions = context.Promotions.Any()
+                Promotions = context.Promotions.Any()
                     ? context.Promotions.Select(MapToJsonPromotionPolicy).ToList()
                     : null,
 

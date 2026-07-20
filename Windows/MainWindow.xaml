@@ -139,6 +139,7 @@
                 <Separator/>
                 <MenuItem Header="站点管理" Command="{StaticResource OpenStationManagerCommand}"/>
                 <Separator/>
+                
                 <MenuItem Header="生成线路" Command="{StaticResource GenerateLineCommand}"/>
                 <MenuItem Header="生成方向" Command="{StaticResource GenerateDirectionCommand}"/>
                 <MenuItem Header="站点拖拽微调" Command="{StaticResource MapEditorCommand}"/>

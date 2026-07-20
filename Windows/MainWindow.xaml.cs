@@ -4,8 +4,10 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using MetroEditor.MetroLang.Compiler;
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.Decompiler;
+using MetroEditor.MetroLang.Exporter;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.MetroLang.Tool;
+using MetroEditor.PathFinding;
 using MetroEditor.Windows.Controls;
 using MetroEditor.Windows.Controls.Style;
 using Microsoft.Win32;
@@ -90,10 +92,6 @@ namespace MetroEditor.Windows
                 if (!string.IsNullOrEmpty(_startupFile))
                 {
                     LoadFileFromArgument(_startupFile);
-                }
-                else if (documentWorkspace.Tabs.Count == 0)
-                {
-                    NewFile_Click(null, null);
                 }
             };
 
@@ -556,50 +554,109 @@ namespace MetroEditor.Windows
 
         private void Compile_Click(object sender, EventArgs e)
         {
-            if (documentWorkspace.CurrentTab == null) return;
-            if (string.IsNullOrWhiteSpace(documentWorkspace.CurrentTab.Text))
+            var tab = documentWorkspace.CurrentTab;
+            if (tab == null) return;
+
+            string sourceText = tab.Text;
+            if (string.IsNullOrWhiteSpace(sourceText))
             {
                 MessageBox.Show("编辑器为空，无法编译", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var dlg = new SaveFileDialog
+
+            try
             {
-                Filter = "编译后地铁数据 (*.bmetro)|*.bmetro|JSON 文件 (*.json)|*.json",
-                Title = "保存编译结果"
-            };
-            if (dlg.ShowDialog() == true)
-            {
-                try
+                statusInfo.Text = "正在编译...";
+
+                // ---------- 编译 ----------
+                var compiler = new MetroCompiler();
+                compiler.Parse(sourceText, tab.BaseDirectory);
+                var root = compiler.ExportJson();
+                var parsedData = compiler.GetParsedData();
+
+                // ---------- 保存对话框：支持四种格式 ----------
+                var saveDlg = new SaveFileDialog
                 {
-                    string filePath = dlg.FileName;
-                    statusInfo.Text = "正在编译...";
+                    Filter =
+                        "BMETRO压缩JSON文件 (*.bmetro)|*.bmetro|" +
+                        "JSON文件 (*.json)|*.json|" +
+                        "MBIN嵌入式二进制 (*.mbin)|*.mbin|" +
+                        "C嵌入式代码文件 (*.c;*.h)|*.c;*.h",
+                    FileName = $"route_data_{parsedData.MainCity}",
+                    Title = "编译完成，选择导出格式",
+                    DefaultExt = ".mbin"
+                };
 
-                    var parser = new MetroCompiler();
-                    parser.Parse(documentWorkspace.CurrentTab.Text, documentWorkspace.CurrentTab.BaseDirectory);
-                    var root = parser.ExportJson();
+                if (saveDlg.ShowDialog() == true)
+                {
+                    string ext = Path.GetExtension(saveDlg.FileName).ToLowerInvariant();
+                    string fullPath = saveDlg.FileName;
 
-                    var jsonOptions = new JsonSerializerOptions
+                    switch (ext)
                     {
-                        WriteIndented = false,
-                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                    };
-                    string json = JsonSerializer.Serialize(root, jsonOptions);
+                        case ".mbin":
+                            // -------- 导出 MBIN 二进制 --------
+                            var graph = new MetroGraph(parsedData);
+                            byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
+                            File.WriteAllBytes(fullPath, mbinBytes);
+                            statusInfo.Text = $"MBIN 导出完成: {Path.GetFileName(fullPath)}";
+                            break;
 
-                    string ext = Path.GetExtension(filePath).ToLowerInvariant();
-                    if (ext == ".json")
-                        File.WriteAllText(filePath, json, Encoding.UTF8);
-                    else if (ext == ".bmetro")
-                        File.WriteAllBytes(filePath, CompressJson(json));
-                    else
-                        File.WriteAllBytes(filePath, CompressJson(json));
+                        case ".c":
+                        case ".h":
+                            // -------- 导出 C 代码（三个文件） --------
+                            var graph2 = new MetroGraph(parsedData);
+                            byte[] cBytes = MBINExporter.Export(parsedData, graph2);
+                            string outputDir = Path.GetDirectoryName(fullPath);
+                            if (string.IsNullOrEmpty(outputDir))
+                                outputDir = Environment.CurrentDirectory;
+                            CCodeExporter.ExportAll(cBytes, outputDir, parsedData.MainCity);
+                            statusInfo.Text = $"C 代码导出完成: {outputDir}";
+                            break;
 
-                    statusInfo.Text = $"编译完成，保存至 {Path.GetFileName(filePath)}";
+                        case ".bmetro":
+                            // -------- 导出压缩 JSON (.bmetro) --------
+                            var jsonOptions = new JsonSerializerOptions
+                            {
+                                WriteIndented = false,
+                                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                            };
+                            string json = JsonSerializer.Serialize(root, jsonOptions);
+                            byte[] compressed = CompressJson(json);
+                            File.WriteAllBytes(fullPath, compressed);
+                            statusInfo.Text = $"编译完成，保存至 {Path.GetFileName(fullPath)}";
+                            break;
+
+                        case ".json":
+                            // -------- 导出明文 JSON (.json) --------
+                            var jsonOptions2 = new JsonSerializerOptions
+                            {
+                                WriteIndented = true,  // 明文 JSON 方便阅读
+                                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                            };
+                            string jsonText = JsonSerializer.Serialize(root, jsonOptions2);
+                            File.WriteAllText(fullPath, jsonText, Encoding.UTF8);
+                            statusInfo.Text = $"JSON 导出完成: {Path.GetFileName(fullPath)}";
+                            break;
+
+                        default:
+                            MessageBox.Show($"不支持的文件扩展名: {ext}", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            statusInfo.Text = "导出取消";
+                            return;
+                    }
+
+                    // 成功提示
+                    MessageBox.Show($"导出成功！\n文件已保存至：{fullPath}", "完成", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show($"编译失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    statusInfo.Text = DefaultStatus;
+                    statusInfo.Text = "导出已取消";
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"编译或导出失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                statusInfo.Text = "编译失败";
             }
         }
 
@@ -1143,7 +1200,7 @@ namespace MetroEditor.Windows
         }
         #endregion
 
-        #region 生成窗口辅助（调用现有对话框）
+        #region 其他事件
         private void GenerateLine_Click(object sender, EventArgs e)
         {
             var data = documentWorkspace.CurrentTab?.ParsedData;

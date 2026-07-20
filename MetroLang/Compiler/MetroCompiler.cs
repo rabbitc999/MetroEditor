@@ -1,6 +1,8 @@
 ﻿using MetroEditor.MetroLang.Compiler.Compiler;
 using MetroEditor.MetroLang.DataModel;
+using MetroEditor.MetroLang.Exporter;
 using MetroEditor.MetroLang.JsonModel;
+using MetroEditor.PathFinding;
 using static MetroEditor.MetroLang.Compiler.Context;
 
 namespace MetroEditor.MetroLang.Compiler
@@ -46,8 +48,16 @@ namespace MetroEditor.MetroLang.Compiler
         public JsonRoot ExportJson()
         {
             Context _context = context.DeepClone();
-            JsonExport jsonRoot = new JsonExport(_context);
+            JsonExporter jsonRoot = new JsonExporter(_context);
             return jsonRoot.ExportJson();
+        }
+
+        public byte[] ExportMBIN()
+        {
+            Context _context = context.DeepClone();
+            ParsedData data = context.GetParsedData();
+            MetroGraph metroGraph = new MetroGraph(data);
+            return MBINExporter.Export(data, metroGraph);
         }
 
         // ====================================================================

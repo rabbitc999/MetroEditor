@@ -54,8 +54,9 @@
                 <Label Grid.Row="0" Grid.Column="0" Content="输出格式:" VerticalAlignment="Center"/>
                 <ComboBox Grid.Row="0" Grid.Column="1" x:Name="OutputFormatCombo"
                           VerticalAlignment="Center" Margin="5,0" SelectedIndex="0">
-                    <ComboBoxItem Content=".bmetro (压缩)" Tag="bmetro"/>
-                    <ComboBoxItem Content=".json (明文)" Tag="json"/>
+                    <ComboBoxItem Content=".bmetro (压缩JSON文件)" Tag="bmetro"/>
+                    <ComboBoxItem Content=".json (明文JSON文件)" Tag="json"/>
+                    <ComboBoxItem Content=".mbin (嵌入式二进制)" Tag="mbin"/>
                 </ComboBox>
 
                 <Label Grid.Row="1" Grid.Column="0" Content="输出目录:" VerticalAlignment="Center"/>
