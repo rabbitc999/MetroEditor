@@ -88,7 +88,7 @@
                 <DataGridTextColumn Header="时间(分钟)" Binding="{Binding Time, StringFormat={}{0:F1}}" Width="80"/>
                 <DataGridTextColumn Header="站数" Binding="{Binding StationCount}" Width="60"/>
                 <DataGridTextColumn Header="票价(元)" Binding="{Binding Fare, StringFormat={}{0:F2}}" Width="80"/>
-                <DataGridTextColumn Header="痛苦度" Binding="{Binding Value, StringFormat={}{0:F3}}" Width="80"/>
+                <DataGridTextColumn Header="综合代价" Binding="{Binding Value, StringFormat={}{0:F3}}" Width="80"/>
                 <DataGridTextColumn Header="乘车指引" Binding="{Binding RouteDesc}" Width="*" MinWidth="200"/>
             </DataGrid.Columns>
         </DataGrid>

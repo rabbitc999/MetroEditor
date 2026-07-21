@@ -206,8 +206,54 @@ namespace MetroEditor.Windows
                     sb.AppendLine($"{row.Index},{row.Station},{row.Distance:F3},{row.Transfers},{row.Time:F1},{row.StationCount},{row.Fare:F2},{row.Value:F3},\"{row.RouteDesc}\"");
                 }
                 File.WriteAllText(dialog.FileName, sb.ToString(), Encoding.UTF8);
+
+                // 提取综合代价列表并排序
+                var values = _results.Select(r => r.Value).OrderBy(v => v).ToList();
+                values.Sort();
+                int n = values.Count;
+                double Q1 = Percentile(values, 0.25);
+                double Q2 = Percentile(values, 0.50);
+                double Q3 = Percentile(values, 0.75);
+
+                // 生成 MD 内容
+                var md = new StringBuilder();
+                md.AppendLine("# 通勤分析综合代价四分位数报告");
+                md.AppendLine($"- **起点站**：{start}");
+                md.AppendLine($"- **计算时间**：{DateTime.Now:yyyy-MM-dd HH:mm}");
+                md.AppendLine($"- **可达站点总数**：{n}");
+                md.AppendLine();
+                md.AppendLine("## 综合代价四分位数");
+                md.AppendLine("| 分位 | 数值 |");
+                md.AppendLine("| :--- | ---: |");
+                md.AppendLine($"| Q1 (25%) | {Q1:F2} |");
+                md.AppendLine($"| Q2 (50%) | {Q2:F2} |");
+                md.AppendLine($"| Q3 (75%) | {Q3:F2} |");
+                md.AppendLine();
+                md.AppendLine("## 通勤代价等级划分");
+                md.AppendLine("| 等级 | 代价范围 | 建议 |");
+                md.AppendLine("| :--- | :--- | :--- |");
+                md.AppendLine($"| 🟢 低代价 | ≤ {Q1:F2} | 首选通勤圈 |");
+                md.AppendLine($"| 🟡 中等偏低 | {Q1:F2} ~ {Q2:F2} | 可接受 |");
+                md.AppendLine($"| 🟠 中等偏高 | {Q2:F2} ~ {Q3:F2} | 需权衡 |");
+                md.AppendLine($"| 🔴 高代价 | > {Q3:F2} | 谨慎考虑 |");
+
+                // 写入 .md 文件（与 CSV 同目录）
+                string mdPath = Path.ChangeExtension(dialog.FileName, ".md");
+                File.WriteAllText(mdPath, md.ToString(), Encoding.UTF8);
+
                 MessageBox.Show($"导出成功：{dialog.FileName}", "完成", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private double Percentile(List<double> sortedValues, double percentile)
+        {
+            int N = sortedValues.Count;
+            double index = (N - 1) * percentile;
+            int left = (int)Math.Floor(index);
+            int right = (int)Math.Ceiling(index);
+            if (left == right) return sortedValues[left];
+            double frac = index - left;
+            return sortedValues[left] * (1 - frac) + sortedValues[right] * frac;
         }
 
         /// <summary>

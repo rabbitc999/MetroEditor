@@ -501,7 +501,7 @@ namespace MetroEditor.Simulator.Algorithms
                     return -1;
                 double transferTime = SimStationUtils.GetTransferTime(cache, fromStation, fromDir, toDir);
                 double waitTime = SimTimeCalculator.ComputeTransferWaitTime(cache, toDir, travelTimeMillis);
-                return weight.TransferWeight + weight.TimeWeight * (transferTime + waitTime);
+                return weight.TransferWeight + weight.TimeWeight * (transferTime + waitTime) / 60;
             }
 
             // 同一方向内边
@@ -548,7 +548,7 @@ namespace MetroEditor.Simulator.Algorithms
                 addDist.Value, formation, maxSpeed, powerKw, brake);
 
             double cost = weight.DistanceWeight * addDist.Value
-                        + weight.TimeWeight * segmentTime
+                        + weight.TimeWeight * segmentTime / 60
                         + weight.StationWeight * 1;
 
             if (weight.CrowdWeight > 0)

@@ -7,8 +7,8 @@
         ResizeMode="CanResize">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="640" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="240" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

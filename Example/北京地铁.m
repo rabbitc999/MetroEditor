@@ -1,4 +1,6 @@
-﻿# 数据集信息
+﻿%DEFINE FUTURE_NETWORK
+
+# 数据集信息
 PROGRAM_DEFINE
     KEY_CITY '北京'
     OTHER_CITY '河北'
@@ -112,7 +114,7 @@ LINE_DEFINE B6
   OPEN_YEAR 2012
   LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%816%E5%8F%B7%E7%BA%BF'
   DIRECTION_DEFINE B6_0
-    STATIONS ['金安桥', '苹果园', '杨庄', '西黄村', '廖公庄', '田村', '海淀五路居', '慈寿寺', '花园桥', '白石桥南', '二里沟', '车公庄西', '车公庄', '平安里', '北海北', '南锣鼓巷', '东四', '朝阳门', '东大桥', '呼家楼', '金台路', '十里堡', '青年路', '褡裢坡', '黄渠', '常营', '草房', '物资学院路', '通州北关', '北运河西', '北运河东', '郝家府', '东夏园', '潞城', '潞阳']
+    STATIONS ['金安桥', '苹果园', '杨庄', '西黄村', '廖公庄', '田村', '海淀五路居', '慈寿寺', '花园桥', '白石桥南', '二里沟', '车公庄西', '车公庄', '平安里', '北海北', '南锣鼓巷', '东四', '朝阳门', '东大桥', '呼家楼', '金台路', '十里堡', '青年路', '褡裢坡', '黄渠', '常营', '草房', '物资学院路', '通州北关', '北运河西', '北京通州站', '郝家府', '东夏园', '潞城', '潞阳']
     DISTANCE [1.280000, 0.740000, 1.920000, 1.730000, 2.240000, 2.070000, 1.510000, 1.320000, 1.240000, 0.740000, 0.910000, 0.910000, 1.410000, 1.280000, 1.400000, 1.510000, 1.460000, 1.560000, 0.850000, 1.450000, 2.000000, 1.290000, 4.030000, 1.260000, 1.760000, 1.430000, 1.990000, 2.090000, 2.870000, 1.680000, 0.810000, 1.370000, 1.230000, 1.600000, NIL]
   END_DEFINE
   DIRECTION_DEFINE B6_1 REV B6_0
@@ -1055,3 +1057,162 @@ PRICE_DEFINE
   SPECIAL_LINE DXJ SEGMENT '大兴机场' '大兴新城' 25.00
   SPECIAL_LINE DXJ SEGMENT '大兴新城' '大兴机场' 25.00
 END_DEFINE
+
+# ============================================================
+# 未来部分网络
+# ============================================================
+%IF FUTURE_NETWORK
+
+# 删除原有13号线和18号线的旧定义（它们将被重新定义）
+LINE_DELETE B1
+LINE_DELETE B3
+LINE_DELETE B13
+LINE_DELETE B18
+LINE_DELETE B19
+LINE_DELETE B22
+
+LINE_DEFINE B1
+  NAME '1号线/八通线'
+  COLOR '#BE3A35'
+  FORMATION '6B'
+  MAXSPEED 80.00
+  POWER 2160
+  OPEN_YEAR 1969
+  LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%811%E5%8F%B7%E7%BA%BF'
+  DIRECTION_DEFINE B1_0
+    STATIONS ['环球度假区', '花庄', '土桥', '临河里', '梨园', '九棵树', '果园', '通州北苑', '八里桥', '管庄', '双桥', '传媒大学', '高碑店', '四惠东', '四惠', '大望路', '国贸', '永安里', '建国门', '东单', '王府井', '天安门东', '天安门西', '西单', '复兴门', '南礼士路', '木樨地', '军事博物馆', '公主坟', '万寿路', '五棵松', '玉泉路', '八宝山', '八角游乐园', '古城', '苹果园', '福寿岭']
+    DISTANCE AUTO
+  END_DEFINE
+  DIRECTION_DEFINE B1_1 REV B1_0
+  DIRECTION_DEFINE B1_2
+    BRANCH
+    STATIONS ['环球度假区', '花庄', '土桥', '临河里', '梨园', '九棵树', '果园', '通州北苑', '八里桥', '管庄', '双桥', '传媒大学', '高碑店', '四惠东', '四惠', '大望路', '国贸', '永安里', '建国门', '东单', '王府井', '天安门东', '天安门西', '西单', '复兴门', '南礼士路', '木樨地', '军事博物馆', '公主坟', '万寿路', '五棵松', '玉泉路', '八宝山', '八角游乐园', '衙门口西', '园博园西', '张郭庄', '北宫', '后吕村', '云岗', '王佐', '魏各庄', '青龙湖东']
+    DISTANCE AUTO
+  END_DEFINE
+  DIRECTION_DEFINE B1_3 REV B1_2
+END_DEFINE
+
+LINE_DEFINE B3
+  NAME '3号线'
+  COLOR '#E50330'
+  FORMATION '4A/6A'
+  MAXSPEED 100.00
+  POWER 2160
+  OPEN_YEAR 2024
+  LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%813%E5%8F%B7%E7%BA%BF'
+  DIRECTION_DEFINE B3_0
+    STATIONS ['曹各庄北', '高辛庄', '楼梓庄', '楼梓庄桥西', '管庄路西口', '东坝北', '东坝', '东坝南', '姚家园', '朝阳站', '石佛营', '朝阳公园', '团结湖', '工人体育场', '东四十条']
+        DISTANCE AUTO
+  END_DEFINE
+  DIRECTION_DEFINE B3_1 REV B3_0
+END_DEFINE
+
+# ---- 新13号线（13A） ----
+# 原18号线的路由（马连洼 → 天通苑东）现在成为新13号线
+LINE_DEFINE B13
+    NAME '13号线'
+    COLOR '#F8EA01'          # 沿用原13号线黄色
+    FORMATION '6B'
+    MAXSPEED 100.00
+    POWER 2160
+    OPEN_YEAR 2025           # 2025年底开通
+    LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%8113%E5%8F%B7%E7%BA%BF'
+  DIRECTION_DEFINE B13_0
+    STATIONS ['东直门', '柳芳', '光熙门', '芍药居', '望京西', '北苑', '立水桥', '霍营', '回龙观', '龙泽', '龙泽西', '东北旺', '上地软件园', '马连洼']
+        DISTANCE AUTO
+  END_DEFINE
+    # 反向
+    DIRECTION_DEFINE B13_1 REV B13_0
+END_DEFINE
+
+# ---- 新18号线（13B） ----
+# 原13号线的东段（东直门→马连洼）经过改造后成为新18号线
+LINE_DEFINE B18
+    NAME '18号线'
+    COLOR '#5652A0'
+    FORMATION '6B'
+    MAXSPEED 100.00
+    POWER 2160
+    OPEN_YEAR 2026           # 预计2026年后
+    LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%8118%E5%8F%B7%E7%BA%BF'
+    # 未来西延（马连洼→车公庄），可选项
+    DIRECTION_DEFINE B13_2
+        STATIONS ['车公庄', '西直门', '四道口', '大钟寺', '知春路', '保福寺', '五道口', '清华东路西口', '上地', '清河站', '西二旗', '龙泽西', '回龙观西大街', '文华路', '回龙观东大街', '霍营东', '天通苑', '太平庄', '天通苑东']
+        DISTANCE AUTO
+    END_DEFINE
+    DIRECTION_DEFINE B13_3 REV B13_2
+END_DEFINE
+
+LINE_DEFINE B19
+  NAME '19号线'
+  COLOR '#D4AEC3'
+  FORMATION '4A/8A'
+  MAXSPEED 120.00
+  POWER 4560
+  OPEN_YEAR 2021
+  LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%8119%E5%8F%B7%E7%BA%BF'
+  DIRECTION_DEFINE B19_2
+    STATIONS ['生命谷', '生命科学园南', '龙泽', '西三旗', '清河小营桥', '上清桥南', '北沙滩', '牡丹园', '北太平庄', '积水潭', '平安里', '太平桥', '牛街', '景风门', '草桥', '新发地', '新宫']
+        DISTANCE AUTO
+  END_DEFINE
+  DIRECTION_DEFINE B19_4
+    STATIONS ['上地', '上清桥南', '北沙滩', '牡丹园', '北太平庄', '积水潭', '平安里', '太平桥', '牛街', '景风门', '草桥', '新发地', '新宫']
+    DISTANCE AUTO
+    BRANCH
+  END_DEFINE
+  DIRECTION_DEFINE B19_3 REV B19_2
+  DIRECTION_DEFINE B19_5 REV B19_4
+END_DEFINE
+
+LINE_DEFINE B22
+  NAME '22号线'
+  COLOR '#F5C1C9'
+  FORMATION '8D'
+  MAXSPEED 160.00
+  OPEN_YEAR 2026
+  LINK 'https://baike.baidu.com/item/%E5%8C%97%E4%BA%AC%E5%9C%B0%E9%93%8122%E5%8F%B7%E7%BA%BF'
+  DIRECTION_DEFINE B22_1
+        STATIONS ['东大桥', '金台夕照', '红庙', '慈云寺桥', '甘露园', '定福庄', '管庄', '永顺', '通州北关', '运河商务区', '北京通州站', '政务中心', '政务中心东', '燕郊站', '神威大街', '潮白大街', '高楼', '齐心庄', '马坊', '马昌营', '农业创新港', '平谷']
+        DISTANCE AUTO
+  END_DEFINE
+  DIRECTION_DEFINE B22_0 REV B22_1
+END_DEFINE
+
+# ---- 更新换乘规则 ----
+# 删除旧换乘中涉及B13和B18的规则（如果有），然后新增
+# 注意：实际使用时可能需要先删除，这里直接添加新规则
+
+# 龙泽西站：新13号线与新18号线同台换乘
+TRANSFER SAME "龙泽西" B13 B18
+
+# 马连洼站：16号线与新13号线换乘（原已有，但线路ID变为B13）
+TRANSFER CHANNEL "马连洼" B16 B13
+
+# 西直门站：2/4与新18号线换乘
+TRANSFER HALL "西直门" B2 B4
+TRANSFER CHANNEL "西直门" B2 B18
+TRANSFER CHANNEL "西直门" B4 B18
+
+# 东直门站：2号线、新18号线与机场线换乘
+TRANSFER CHANNEL "东直门" B2 B18
+TRANSFER OUT "东直门" B18 SD
+
+# 大钟寺站：12号线与新18号线换乘
+TRANSFER OUT "大钟寺" B12 B18
+
+# ---- 更新拥挤度/发车间隔（可沿用原参数或调整） ----
+HEADWAY_PROFILE B13
+    PERIOD TIME_RANGE 07:00 09:00 VALUE 150 WORKDAY
+    PERIOD TIME_RANGE 17:00 19:00 VALUE 150 WORKDAY
+    PERIOD TIME_RANGE 09:00 17:00 VALUE 300 WORKDAY
+    PERIOD TIME_RANGE 06:00 22:00 VALUE 360 WEEKEND
+END_DEFINE
+
+HEADWAY_PROFILE B18
+    PERIOD TIME_RANGE 07:00 09:00 VALUE 150 WORKDAY
+    PERIOD TIME_RANGE 17:00 19:00 VALUE 180 WORKDAY
+    PERIOD TIME_RANGE 09:00 17:00 VALUE 300 WORKDAY
+    PERIOD TIME_RANGE 06:00 22:00 VALUE 360 WEEKEND
+END_DEFINE
+
+%ENDIF

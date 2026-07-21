@@ -445,7 +445,7 @@ namespace MetroEditor.Windows
 
         private void UpdateTitle(MetroEditorTab tab)
         {
-            Title = $"MetroLang 线路编辑器 - {tab.TabHeader}";
+            Title = $"地铁线路编辑器 - {tab.TabHeader}";
         }
 
         private void UpdateUIFromTab(MetroEditorTab tab)

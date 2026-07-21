@@ -4,7 +4,7 @@
         xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:local="clr-namespace:MetroEditor"
         xmlns:controls="clr-namespace:MetroEditor.Windows.Controls"
-        Title="MetroLang 编辑器" Height="800" Width="1199"
+        Title="地铁线路编辑器" Height="800" Width="1199"
         WindowStartupLocation="CenterScreen" Icon="/ic_launcher-playstore.png"
         AllowDrop="True"
         DragEnter="Window_DragEnter"
