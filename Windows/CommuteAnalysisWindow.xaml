@@ -23,6 +23,9 @@
                 <Button x:Name="CalcButton" Content="计算所有站点" Margin="10,0" Padding="12,4" Click="CalcButton_Click"/>
                 <Button x:Name="ExportCsvButton" Content="导出 CSV" Margin="0,0,10,0" Padding="12,4" 
                         Click="ExportCsvButton_Click" IsEnabled="False"/>
+                <Button x:Name="ExportAllMatrixBtn" Content="导出全矩阵" 
+                    IsEnabled="True" Click="ExportAllMatrixBtn_Click" 
+                    Margin="5,0" />
                 <TextBlock x:Name="StatusText" VerticalAlignment="Center" Foreground="#555"/>
             </StackPanel>
         </Border>

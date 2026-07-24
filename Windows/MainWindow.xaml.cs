@@ -1,7 +1,4 @@
-﻿using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Highlighting;
-using MetroEditor.MetroLang.Compiler;
+﻿using MetroEditor.MetroLang.Compiler;
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.Decompiler;
 using MetroEditor.MetroLang.Exporter;
@@ -10,7 +7,6 @@ using MetroEditor.MetroLang.Tool;
 using MetroEditor.Simulator.Algorithms;
 using MetroEditor.Simulator.Data;
 using MetroEditor.Windows.Controls;
-using MetroEditor.Windows.Controls.Style;
 using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -19,19 +15,12 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using static MetroEditor.MetroLang.SyntaxUsage;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using Application = System.Windows.Application;
-using Button = System.Windows.Controls.Button;
-using ListView = System.Windows.Controls.ListView;
 using Path = System.IO.Path;
 using Window = System.Windows.Window;
 
@@ -573,9 +562,6 @@ namespace MetroEditor.Windows
                 var compiler = new MetroCompiler();
                 compiler.Parse(sourceText, tab.BaseDirectory);
                 var root = compiler.ExportJson();
-                var parsedData = compiler.GetParsedData();
-                SimDataCache cache = SimDataParser.Parse(root);
-                var graph = new SimMetroGraph(cache);
 
                 // ---------- 保存对话框：支持四种格式 ----------
                 var saveDlg = new SaveFileDialog
@@ -583,9 +569,8 @@ namespace MetroEditor.Windows
                     Filter =
                         "BMETRO压缩JSON文件 (*.bmetro)|*.bmetro|" +
                         "JSON文件 (*.json)|*.json|" +
-                        "MBIN嵌入式二进制 (*.mbin)|*.mbin|" +
-                        "C嵌入式代码文件 (*.c;*.h)|*.c;*.h",
-                    FileName = $"route_data_{parsedData.MainCity}",
+                        "MBIN嵌入式二进制 (*.mbin)|*.mbin",
+                    FileName = $"route_data_{root.KeyCity}",
                     Title = "编译完成，选择导出格式",
                     DefaultExt = ".mbin"
                 };
@@ -599,20 +584,9 @@ namespace MetroEditor.Windows
                     {
                         case ".mbin":
                             // -------- 导出 MBIN 二进制 --------
-                            byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
+                            byte[] mbinBytes = MBINExporter.Export(root);
                             File.WriteAllBytes(fullPath, mbinBytes);
                             statusInfo.Text = $"MBIN 导出完成: {Path.GetFileName(fullPath)}";
-                            break;
-
-                        case ".c":
-                        case ".h":
-                            // -------- 导出 C 代码（三个文件） --------
-                            byte[] cBytes = MBINExporter.Export(parsedData, graph);
-                            string outputDir = Path.GetDirectoryName(fullPath);
-                            if (string.IsNullOrEmpty(outputDir))
-                                outputDir = Environment.CurrentDirectory;
-                            CCodeExporter.ExportAll(cBytes, outputDir);
-                            statusInfo.Text = $"C 代码导出完成: {outputDir}";
                             break;
 
                         case ".bmetro":
@@ -632,7 +606,7 @@ namespace MetroEditor.Windows
                             // -------- 导出明文 JSON (.json) --------
                             var jsonOptions2 = new JsonSerializerOptions
                             {
-                                WriteIndented = true,  // 明文 JSON 方便阅读
+                                WriteIndented = false,  // 明文 JSON 方便阅读
                                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                             };
                             string jsonText = JsonSerializer.Serialize(root, jsonOptions2);

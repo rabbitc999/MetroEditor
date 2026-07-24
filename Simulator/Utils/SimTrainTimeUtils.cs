@@ -25,6 +25,7 @@ namespace MetroEditor.Simulator.Utils
     public static class SimTrainTimeUtils
     {
         private static readonly HashSet<char> ValidCarTypes = new() { 'A', 'B', 'C', 'L', 'D' };
+        public static bool DisableExcatlyCalc { get; set; } = false;
 
         private static readonly Dictionary<char, double> MassPerCar = new()
         {
@@ -251,14 +252,19 @@ namespace MetroEditor.Simulator.Utils
         {
             if (distanceKm <= 0) return 0;
             if (brakeDecel <= 0) brakeDecel = DefaultBrakeDecel;
+            double distanceM = distanceKm * 1000.0;
+
+            if (DisableExcatlyCalc)
+            {
+                double vMaxMs = vMaxKmh / 3.6;
+                return distanceM / vMaxMs + 60;  // 默认加速间隔60秒
+            }
 
             double roundedDist = Math.Round(distanceKm * 100000.0) / 100000.0;
             string key = $"{roundedDist:F5}|{consist}|{powerKw:F0}|{vMaxKmh:F0}|{brakeDecel:F2}";
 
             if (ShortTimeCache.TryGetValue(key, out double cached))
                 return cached;
-
-            double distanceM = distanceKm * 1000.0;
             const double shortThreshold = 1.5;
 
             double result;

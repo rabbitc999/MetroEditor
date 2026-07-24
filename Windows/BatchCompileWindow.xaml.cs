@@ -152,7 +152,6 @@ namespace MetroEditor.Windows
                             var compiler = new MetroCompiler();
                             compiler.Parse(content, Path.GetDirectoryName(fileItem.FullPath));
                             var root = compiler.ExportJson();
-                            var parsedData = compiler.GetParsedData();
 
                             string outputPath;
 
@@ -160,9 +159,7 @@ namespace MetroEditor.Windows
                             {
                                 case "mbin":
                                     // -------- MBIN 导出 --------
-                                    SimDataCache cache = SimDataParser.Parse(root);
-                                    var graph = new SimMetroGraph(cache);
-                                    byte[] mbinBytes = MBINExporter.Export(parsedData, graph);
+                                    byte[] mbinBytes = MBINExporter.Export(root);
                                     outputPath = Path.Combine(outputDir, baseName + ".mbin");
                                     File.WriteAllBytes(outputPath, mbinBytes);
                                     break;

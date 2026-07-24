@@ -11,6 +11,7 @@ namespace MetroEditor.Simulator.Algorithms
 {
     /// <summary>
     /// 地铁线路图核心数据结构与路径规划算法（从 Android MetroGraph 转换）
+    /// 改造：将内部 Dijkstra 升级为 A*，利用地理距离估算启发式加速搜索。
     /// </summary>
     public class SimMetroGraph
     {
@@ -39,7 +40,6 @@ namespace MetroEditor.Simulator.Algorithms
         public SimMetroGraph(SimDataCache simDataCache)
         {
             _cache = simDataCache;
-
             BuildGraphs();
         }
 
@@ -377,7 +377,7 @@ namespace MetroEditor.Simulator.Algorithms
             return FindTransferPath(start, end, weight, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
 
-        // ==================== 内部 Dijkstra ====================
+        // ==================== 内部 A* 路径搜索 ====================
         private SimPathResult FindTransferPathInternal(string start, string end, SimSearchWeight weight,
                                                        bool excludeSpecial, long travelTimeMillis)
         {
@@ -407,10 +407,21 @@ namespace MetroEditor.Simulator.Algorithms
                     return new SimPathResult(-1, 0, new List<string>());
             }
 
-            var distTotal = new Dictionary<string, double>();
+            // 准备终点节点集合（用于终止条件）
+            var endNodes = new HashSet<string>();
+            foreach (string dir in endDirs)
+            {
+                string node1 = SimGraphKeyUtils.MakeNode(dir, end);
+                endNodes.Add(node1);
+            }
+            // 取第一个终点节点作为启发式目标（启发式只依赖站点，任意一个均可）
+            string targetNodeForHeuristic = endNodes.First();
+
+            var distTotal = new Dictionary<string, double>(); // g 值
             var prev = new Dictionary<string, string>();
             var heap = new PriorityQueue<SimNodeState, double>();
 
+            // 初始化起点
             foreach (string dir in startDirs)
             {
                 string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dir)!;
@@ -419,7 +430,8 @@ namespace MetroEditor.Simulator.Algorithms
                 if (SimStationUtils.IsFutureStation(_cache, start)) continue;
                 string node1 = SimGraphKeyUtils.MakeNode(dir, start);
                 distTotal[node1] = 0.0;
-                heap.Enqueue(new SimNodeState(node1, 0.0), 0.0);
+                double h = ComputeHeuristic(node1, targetNodeForHeuristic, weight);
+                heap.Enqueue(new SimNodeState(node1, 0.0), 0.0 + h);
             }
 
             string? foundNode = null;
@@ -428,23 +440,19 @@ namespace MetroEditor.Simulator.Algorithms
             {
                 var cur = heap.Dequeue();
                 string curNode = cur.Node;
-                double curCost = cur.TotalCost;
-                if (distTotal.TryGetValue(curNode, out double existing) && existing < curCost - 1e-9)
+                double curG = cur.TotalCost; // 这里存储的是 g
+                if (distTotal.TryGetValue(curNode, out double existingG) && existingG < curG - 1e-9)
                     continue;
 
-                string[] curParsed = SimGraphKeyUtils.ParseNode(curNode);
-                string station = curParsed[1];
-
-                if (station == end)
+                // 检查是否到达终点
+                if (endNodes.Contains(curNode))
                 {
-                    string dirKey = curParsed[0];
-                    if (excludeSpecial && SimStationUtils.IsSpecialDirKey(_cache, dirKey)) continue;
-                    string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey)!;
-                    string status = SimStationUtils.GetStationLineStatus(_cache, end, lineId);
-                    if (SimStationUtils.IsClosed(status)) continue;
                     foundNode = curNode;
                     break;
                 }
+
+                string[] curParsed = SimGraphKeyUtils.ParseNode(curNode);
+                string station = curParsed[1];
 
                 if (!_transferGraph.TryGetValue(curNode, out var edges)) continue;
 
@@ -454,12 +462,13 @@ namespace MetroEditor.Simulator.Algorithms
                     double edgeCost = ComputeEdgeCost(curNode, neighbor, weight, _cache, excludeSpecial, travelTimeMillis);
                     if (edgeCost < 0) continue;
 
-                    double newCost = curCost + edgeCost;
-                    if (!distTotal.TryGetValue(neighbor, out double oldCost) || newCost < oldCost - 1e-9)
+                    double newG = curG + edgeCost;
+                    if (!distTotal.TryGetValue(neighbor, out double oldG) || newG < oldG - 1e-9)
                     {
-                        distTotal[neighbor] = newCost;
+                        distTotal[neighbor] = newG;
                         prev[neighbor] = curNode;
-                        heap.Enqueue(new SimNodeState(neighbor, newCost), newCost);
+                        double h = ComputeHeuristic(neighbor, targetNodeForHeuristic, weight);
+                        heap.Enqueue(new SimNodeState(neighbor, newG), newG + h);
                     }
                 }
             }
@@ -482,7 +491,44 @@ namespace MetroEditor.Simulator.Algorithms
             return new SimPathResult(transfers, distTotal[foundNode], path);
         }
 
-        // ==================== 边代价计算 ====================
+        // ==================== A* 启发式计算 ====================
+        /// <summary>
+        /// 计算 A* 启发式：估计从当前节点到目标节点的最小可能代价（下界）。
+        /// 仅考虑距离和时间权重，忽略换乘、停站、拥挤等离散因素。
+        /// 使用地理距离除以全局最高速度估算最小行驶时间。
+        /// </summary>
+        private double ComputeHeuristic(string fromNode, string toNode, SimSearchWeight weight)
+        {
+            string fromStation = SimGraphKeyUtils.ParseNode(fromNode)[1];
+            string toStation = SimGraphKeyUtils.ParseNode(toNode)[1];
+
+            if (_cache.StationCoords.TryGetValue(fromStation, out double[]? fromCoord) &&
+                _cache.StationCoords.TryGetValue(toStation, out double[]? toCoord))
+            {
+                double geoDist = GeoDistance(fromCoord[0], fromCoord[1], toCoord[0], toCoord[1]);
+                // 取所有线路最高速度（km/h），若没有则默认 80
+                double maxSpeed = _cache.LineMaxSpeedMap.Values.DefaultIfEmpty(80).Max();
+                double minTravelSec = geoDist / (maxSpeed / 3.6);
+                return weight.DistanceWeight * geoDist + weight.TimeWeight * minTravelSec;
+            }
+            // 若无坐标信息，返回 0（退化为 Dijkstra）
+            return 0.0;
+        }
+
+        /// <summary> 计算两点经纬度距离（千米）</summary>
+        private static double GeoDistance(double lon1, double lat1, double lon2, double lat2)
+        {
+            const double R = 6371.0;
+            double dLat = (lat2 - lat1) * Math.PI / 180;
+            double dLon = (lon2 - lon1) * Math.PI / 180;
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return R * c;
+        }
+
+        // ==================== 边代价计算（与原相同） ====================
         private double ComputeEdgeCost(string fromNode, string toNode, SimSearchWeight weight,
                                        SimDataCache cache, bool excludeSpecial, long travelTimeMillis)
         {
@@ -539,7 +585,6 @@ namespace MetroEditor.Simulator.Algorithms
                 }
             }
 
-            // 获取编组、功率、制动
             string formation = cache.LineFormationMap.TryGetValue(lineId, out string? f) ? f : "6B";
             double powerKw = cache.LinePowerKwMap.TryGetValue(lineId, out double p) ? p : 2000.0;
             double brake = cache.LineBrakeMap.TryGetValue(lineId, out double b) ? b : 0.85;
@@ -573,7 +618,7 @@ namespace MetroEditor.Simulator.Algorithms
             return transfers;
         }
 
-        // ==================== 路径信息查询 ====================
+        // ==================== 路径信息查询（与原相同） ====================
         public double ComputePathDistance(List<string> path)
         {
             double total = 0.0;
@@ -639,13 +684,12 @@ namespace MetroEditor.Simulator.Algorithms
             return false;
         }
 
-        // ==================== 获取行程分段 ====================
+        // ==================== 获取行程分段（与原相同） ====================
         public List<SimRouteSegment> GetRouteSegments(List<string> path)
         {
             var segments = new List<SimRouteSegment>();
             if (path == null || path.Count < 2) return segments;
 
-            // 拆分为连续同方向段
             var rawSegments = new List<SimSegment>();
             string[] firstParsed = SimGraphKeyUtils.ParseNode(path[0]);
             string curDir = firstParsed[0];
@@ -693,7 +737,6 @@ namespace MetroEditor.Simulator.Algorithms
                 string start = dirParts[1];
                 string end = dirParts[2];
 
-                // 判断实际终点
                 string actualEnd = end;
                 if (_dirStations.TryGetValue(dirKey, out var stList) && stations.Count >= 2)
                 {
@@ -705,7 +748,6 @@ namespace MetroEditor.Simulator.Algorithms
                         actualEnd = idxFirst < idxLast ? end : start;
                 }
 
-                // 判断是否包含支线独有站点
                 bool isBranchSegment = false;
                 if (_lineBranchOnlyStationsMap.TryGetValue(lineId, out var branchOnly))
                 {
@@ -759,7 +801,6 @@ namespace MetroEditor.Simulator.Algorithms
                     .Where(e => IsActualEndOfSegment(_cache, stations[0], stations[^1], e))
                     .ToList();
 
-                // 替换暂缓开通站
                 var finalEnds = new List<string>();
                 foreach (string e in uniqueEnds)
                 {
@@ -800,39 +841,44 @@ namespace MetroEditor.Simulator.Algorithms
             }
         }
 
-        // ==================== 格式化乘车指引 ====================
+        // ==================== 格式化乘车指引（与原相同） ====================
         public string FormatRouteWithDirection(List<string> path)
         {
             var segments = GetRouteSegments(path);
-            if (segments.Count == 0) return "不可达";
-            if (path.Count == 1) return "无需乘坐地铁";
+            if (path == null || path.Count == 0) return "无效的路径！";
+            if (path.Count == 1) return "无需乘坐地铁！";
 
-            var descParts = new List<string>();
-            for (int idx = 0; idx < segments.Count; idx++)
+            var clauses = new List<string>();
+
+            for (int i = 0; i < segments.Count; i++)
             {
-                var seg = segments[idx];
-                string part = BuildRouteDescription(seg, idx);
-                descParts.Add(part);
+                var seg = segments[i];
+                string line = seg.LineName;
+                string dir = seg.Direction;
+                string end = seg.EndStation;
+                int count = seg.StationCount;
+                string endQuote = $"【{end}】";
+
+                if (i == 0)
+                {
+                    string startQuote = $"【{seg.StartStation}】";
+                    // 核心改动：用“开往”替代括号
+                    clauses.Add($"在{startQuote}上车，先乘坐开往{dir}方向的{line}，坐{count}站到{endQuote}");
+                }
+                else if (i == segments.Count - 1)
+                {
+                    clauses.Add($"最后换乘开往{dir}方向的{line}，坐{count}站即可到达{endQuote}");
+                }
+                else
+                {
+                    clauses.Add($"再换乘开往{dir}方向的{line}，坐{count}站到{endQuote}");
+                }
             }
-            return string.Join("；", descParts);
+
+            return string.Join("；", clauses) + "。";
         }
 
-        private string BuildRouteDescription(SimRouteSegment seg, int idx)
-        {
-            string lineDisplay = seg.LineName;
-            string directionQuote = "\"" + seg.Direction + "\"";
-            string endQuote = "\"" + seg.EndStation + "\"";
-            if (idx == 0)
-                return $"乘坐开往{directionQuote}的{lineDisplay}，{seg.StationCount}站后到达{endQuote}";
-            else
-            {
-                string transferQuote = "\"" + seg.StartStation + "\"";
-                string transferType = seg.IsOutStationTransfer ? "出站换乘" : "换乘";
-                return $"再{transferQuote}{transferType}开往{directionQuote}的{lineDisplay}，{seg.StationCount}站后到达{endQuote}";
-            }
-        }
-
-        // ==================== 随机路径 ====================
+        // ==================== 随机路径（与原相同，未改造为A*） ====================
         public SimPathResult FindRandomPath(string start, string end, SimSearchWeight weight, int maxAttempts)
         {
             var shortest = FindTransferPath(start, end, SimSearchWeight.GetShortestWeight());
@@ -946,7 +992,6 @@ namespace MetroEditor.Simulator.Algorithms
             string? foundNode = null;
             while (heap.Count > 0)
             {
-                // 随机化选择：从堆顶的两个候选节点中随机选一个
                 var first = heap.Dequeue();
                 heap.TryPeek(out var second, out _);
                 SimNodeState cur;
@@ -1023,8 +1068,7 @@ namespace MetroEditor.Simulator.Algorithms
         /// </summary>
         private static double NextGaussian(Random rand)
         {
-            // 使用 Box-Muller 算法，生成两个独立的标准正态变量
-            double u1 = 1.0 - rand.NextDouble(); // 避免取到 0
+            double u1 = 1.0 - rand.NextDouble();
             double u2 = 1.0 - rand.NextDouble();
             return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
         }

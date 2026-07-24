@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.Simulator.Algorithms;
@@ -17,6 +20,7 @@ using MetroEditor.Simulator.Data;
 using MetroEditor.Simulator.Models;
 using MetroEditor.Simulator.Utils;
 using Microsoft.Win32;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using static MetroEditor.MetroLang.Compiler.Context;
 
 namespace MetroEditor.Windows
@@ -114,8 +118,7 @@ namespace MetroEditor.Windows
                     long timestamp = new DateTimeOffset(monday8am).ToUnixTimeMilliseconds();
                     double timeSec = SimTimeCalculator.ComputeTotalTime(_cache, path, _graph, weight, timestamp);
                     int stationCount = path.Select(n => SimGraphKeyUtils.ParseNode(n)[1]).Distinct().Count() - 1;
-                    var segments = _graph.GetRouteSegments(path);
-                    string routeDesc = BuildRouteDescription(segments);
+                    string routeDesc = _graph.FormatRouteWithDirection(path);
 
                     list.Add(new CommuteResult
                     {
@@ -156,29 +159,6 @@ namespace MetroEditor.Windows
             if (double.TryParse(box.Text, out double val))
                 return val;
             return defaultValue;
-        }
-
-        /// <summary>
-        /// 构建乘车指引描述
-        /// </summary>
-        /// <param name="segments">路径分段</param>
-        /// <returns>人类可读的乘车指引</returns>
-        private string BuildRouteDescription(List<SimRouteSegment> segments)
-        {
-            if (segments == null || segments.Count == 0) return "";
-            var parts = new List<string>();
-            for (int i = 0; i < segments.Count; i++)
-            {
-                var seg = segments[i];
-                string line = seg.LineName;
-                string dir = seg.Direction;
-                int count = seg.StationCount;
-                if (i == 0)
-                    parts.Add($"乘坐{line}（{dir}方向）{count}站");
-                else
-                    parts.Add($"换乘{line}（{dir}方向）{count}站");
-            }
-            return string.Join(" → ", parts);
         }
 
         /// <summary>
@@ -265,6 +245,386 @@ namespace MetroEditor.Windows
             {
                 comboBox.IsDropDownOpen = true;
             }
+        }
+
+        private async void ExportAllMatrixBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // 弹出保存对话框，让用户选择保存位置
+            var dialog = new SaveFileDialog
+            {
+                Filter = "CSV文件 (*.csv)|*.csv",
+                FileName = $"全站点距离矩阵_{DateTime.Now:yyyyMMdd_HHmmss}.csv"
+            };
+            if (dialog.ShowDialog() != true)
+                return; // 用户取消，不执行计算
+
+            ExportAllMatrixBtn.IsEnabled = false;
+            StatusText.Text = "正在计算全站点最短路径...";
+
+            // 从界面读取权重
+            double distW = ReadWeight(DistWeightBox, 0);
+            double transW = ReadWeight(TransferWeightBox, 0);
+            double moneyW = ReadWeight(MoneyWeightBox, 0);
+            double timeW = ReadWeight(TimeWeightBox, 1);
+            double stationW = ReadWeight(StationWeightBox, 0);
+            double crowdW = ReadWeight(CrowdWeightBox, 0);
+
+            try
+            {
+                // 传入用户选择的文件路径
+                await ExportAllPairsToCsvAsync(dialog.FileName, distW, transW, moneyW, timeW, stationW, crowdW);
+                StatusText.Text = $"全矩阵导出完成，文件已保存至 {dialog.FileName}";
+                MessageBox.Show($"全矩阵已导出至：\n{dialog.FileName}", "完成", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"导出失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusText.Text = "导出失败";
+            }
+            finally
+            {
+                ExportAllMatrixBtn.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// 异步计算所有站点对的最短路径，并保存为用户指定的 CSV 文件
+        /// </summary>
+        /// <param name="outputFilePath">用户选择的 CSV 文件完整路径</param>
+        /// <param name="distW">距离权重</param>
+        /// <param name="transW">换乘权重</param>
+        /// <param name="moneyW">票价权重</param>
+        /// <param name="timeW">时间权重</param>
+        /// <param name="stationW">站点数权重</param>
+        /// <param name="crowdW">拥挤度权重</param>
+        /// <summary>
+        /// 异步计算所有站点对的最短路径，保存为 CSV 并生成统计摘要（性能优化版）
+        /// </summary>
+        /// <summary>
+        /// 异步计算所有站点对的最短路径（极致性能版）
+        /// </summary>
+        private async Task ExportAllPairsToCsvAsync(string outputFilePath,
+            double distW, double transW, double moneyW, double timeW, double stationW, double crowdW)
+        {
+            var allStations = _allStations;
+            int n = allStations.Count;
+            if (n < 2)
+            {
+                MessageBox.Show("站点数量不足", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var weight = new SimSearchWeight(distW, transW, moneyW, timeW, stationW, crowdW);
+            DateTime monday8am = new DateTime(2026, 7, 20, 8, 0, 0, DateTimeKind.Utc);
+            long timestamp = new DateTimeOffset(monday8am).ToUnixTimeMilliseconds();
+
+            int totalPairs = n * n - n;
+
+            // 预分配容量，减少动态扩容
+            var results = new ConcurrentBag<AllPairResult>();
+
+            // 禁用精确计算以提升性能
+            SimTrainTimeUtils.DisableExcatlyCalc = true;
+
+            // 获取最优并行度（物理核心数，而非逻辑核心）
+            int physicalCoreCount = Environment.ProcessorCount;
+            // 如果是超线程，可以尝试使用物理核心数
+            // int physicalCoreCount = GetPhysicalCoreCount();
+
+            // 使用线程池饱和策略
+            ThreadPool.GetMinThreads(out int minWorker, out int minIOC);
+            ThreadPool.SetMinThreads(Math.Max(minWorker, physicalCoreCount * 2), minIOC);
+
+            // 创建分区器，优化负载均衡
+            var partitioner = Partitioner.Create(0, n, Math.Max(1, n / (physicalCoreCount * 4)));
+
+            // 进度追踪（使用低锁策略）
+            long processed = 0;
+            int lastReportedProgress = 0;
+
+            await Task.Run(() =>
+            {
+                // 使用 Parallel.ForEach 配合自定义分区器
+                Parallel.ForEach(partitioner,
+                    new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = physicalCoreCount,
+                        TaskScheduler = TaskScheduler.Default
+                    },
+                    () => new ThreadLocalStorage(), // 每个线程的本地存储
+                    (range, loopState, threadLocal) =>
+                    {
+                        var localResults = threadLocal.Results;
+                        var localCache = threadLocal.Cache ??= new Dictionary<string, object>();
+
+                        for (int i = range.Item1; i < range.Item2; i++)
+                        {
+                            string from = allStations[i];
+
+                            // 内循环优化：避免重复查找
+                            for (int j = 0; j < n; j++)
+                            {
+                                if (i == j) continue;
+
+                                string to = allStations[j];
+
+                                // 复用计算结果（如果适用）
+                                var cacheKey = $"{from}->{to}";
+                                if (!localCache.TryGetValue(cacheKey, out var cachedResult))
+                                {
+                                    var result = _graph.FindTransferPath(from, to, weight);
+                                    if (result.Transfers != -1)
+                                    {
+                                        var path = result.Path;
+
+                                        // 批量计算，减少方法调用开销
+                                        double distanceKm = _graph.ComputePathDistance(path);
+                                        double timeSec = SimTimeCalculator.ComputeTotalTime(
+                                            _cache, path, _graph, weight, timestamp);
+                                        double timeMin = timeSec / 60.0;
+                                        var segments = _graph.GetRouteSegments(path);
+                                        string routeDesc = _graph.FormatRouteWithDirection(path);
+                                        int stationCount = segments.Sum(seg => seg.StationCount);
+                                        double fareYuan = result.TotalMoney;
+
+                                        var pairResult = new AllPairResult
+                                        {
+                                            From = from,
+                                            To = to,
+                                            DistanceKm = distanceKm,
+                                            TimeMin = timeMin,
+                                            Transfers = result.Transfers,
+                                            StationCount = stationCount,
+                                            Fare = fareYuan,
+                                            Cost = result.Cost,
+                                            RouteDesc = routeDesc
+                                        };
+
+                                        localResults.Add(pairResult);
+                                        localCache[cacheKey] = pairResult;
+                                    }
+                                    else
+                                    {
+                                        localCache[cacheKey] = null;
+                                    }
+                                }
+                                else if (cachedResult != null)
+                                {
+                                    localResults.Add((AllPairResult)cachedResult);
+                                }
+
+                                // 进度更新（无锁批量更新）
+                                long current = Interlocked.Increment(ref processed);
+
+                                // 自适应进度报告：初期频繁，后期稀疏
+                                int reportInterval = current < totalPairs * 0.1 ? 1000 :
+                                                   current < totalPairs * 0.5 ? 2000 : 5000;
+
+                                int currentProgress = (int)(current / reportInterval);
+                                if (currentProgress > lastReportedProgress)
+                                {
+                                    lastReportedProgress = currentProgress;
+                                    int currentSnapshot = (int)current;
+
+                                    // 异步更新UI，不阻塞计算
+                                    Task.Run(() =>
+                                    {
+                                        Dispatcher.InvokeAsync(() =>
+                                            StatusText.Text = $"进度 {currentSnapshot}/{totalPairs} ({(double)currentSnapshot / totalPairs * 100:F1}%)"
+                                        , DispatcherPriority.Background);
+                                    });
+                                }
+                            }
+                        }
+                        return threadLocal;
+                    },
+                    threadLocal =>
+                    {
+                        // 合并线程本地结果到全局集合
+                        foreach (var result in threadLocal.Results)
+                        {
+                            results.Add(result);
+                        }
+
+                        // 清理线程本地资源
+                        threadLocal.Results.Clear();
+                        threadLocal.Cache?.Clear();
+                    });
+            });
+
+            SimTrainTimeUtils.DisableExcatlyCalc = false;
+
+            if (results.IsEmpty)
+                throw new InvalidOperationException("未找到任何可达站点对");
+
+            // ---- 写入 CSV（使用缓冲流提升IO性能）----
+            await WriteCsvOptimizedAsync(outputFilePath, results, totalPairs);
+
+            // ---- 生成统计摘要（并行计算统计值）----
+            await GenerateStatisticsParallelAsync(outputFilePath, results, n);
+        }
+
+        /// <summary>
+        /// 线程本地存储结构
+        /// </summary>
+        private class ThreadLocalStorage
+        {
+            public List<AllPairResult> Results { get; } = new List<AllPairResult>(10000);
+            public Dictionary<string, object> Cache { get; set; }
+        }
+
+        /// <summary>
+        /// 优化的CSV写入
+        /// </summary>
+        private async Task WriteCsvOptimizedAsync(string outputFilePath, ConcurrentBag<AllPairResult> results, int totalPairs)
+        {
+            // 使用更大的缓冲区
+            const int bufferSize = 1024 * 1024; // 1MB缓冲区
+
+            await using (var fs = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write,
+                               FileShare.None, bufferSize, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            using (var sw = new StreamWriter(fs, Encoding.UTF8, bufferSize))
+            {
+                // 写入BOM以提高Excel兼容性
+                await sw.WriteAsync('\uFEFF');
+
+                // 表头
+                await sw.WriteLineAsync("序号,起点站,终点站,距离(km),换乘次数,时间(分钟),站数,票价(元),综合代价,乘车指引");
+
+                // 并行排序后写入（使用ArrayPool减少GC）
+                var sortedResults = results.OrderBy(r => r.From).ThenBy(r => r.To).ToArray();
+
+                int index = 1;
+                var lineBuffer = new StringBuilder(4096);
+
+                foreach (var r in sortedResults)
+                {
+                    lineBuffer.Clear();
+                    string desc = r.RouteDesc?.Replace("\"", "\"\"") ?? "";
+
+                    lineBuffer.Append(index++).Append(',')
+                             .Append(r.From).Append(',')
+                             .Append(r.To).Append(',')
+                             .Append(r.DistanceKm.ToString("F3")).Append(',')
+                             .Append(r.Transfers).Append(',')
+                             .Append(r.TimeMin.ToString("F1")).Append(',')
+                             .Append(r.StationCount).Append(',')
+                             .Append(r.Fare.ToString("F2")).Append(',')
+                             .Append(r.Cost.ToString("F3")).Append(',')
+                             .Append('"').Append(desc).Append('"');
+
+                    await sw.WriteLineAsync(lineBuffer);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 并行生成统计摘要
+        /// </summary>
+        private async Task GenerateStatisticsParallelAsync(string outputFilePath, ConcurrentBag<AllPairResult> results, int n)
+        {
+            var list = results.ToList();
+
+            // 并行计算各项统计
+            var statsTasks = new[]
+            {
+        Task.Run(() => ComputeStats(list.Select(r => r.DistanceKm))),
+        Task.Run(() => ComputeStats(list.Select(r => r.TimeMin))),
+        Task.Run(() => ComputeStats(list.Select(r => (double)r.Transfers))),
+        Task.Run(() => ComputeStats(list.Select(r => r.Fare))),
+        Task.Run(() => ComputeStats(list.Select(r => r.Cost)))
+    };
+
+            var stats = await Task.WhenAll(statsTasks);
+
+            var md = new StringBuilder(8192);
+            md.AppendLine("# 全站点对通勤统计摘要");
+            md.AppendLine($"- **总记录数**：{list.Count}");
+            md.AppendLine($"- **站点总数**：{n}");
+            md.AppendLine();
+            md.AppendLine("## 距离分布 (km)");
+            md.Append(stats[0]);
+            md.AppendLine("## 时间分布 (分钟)");
+            md.Append(stats[1]);
+            md.AppendLine("## 换乘次数分布");
+            md.Append(stats[2]);
+            md.AppendLine("## 票价分布 (元)");
+            md.Append(stats[3]);
+            md.AppendLine("## 综合代价分布");
+            md.Append(stats[4]);
+
+            string mdPath = Path.ChangeExtension(outputFilePath, ".md");
+            await File.WriteAllTextAsync(mdPath, md.ToString(), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 并行计算统计值
+        /// </summary>
+        private string ComputeStats(IEnumerable<double> values)
+        {
+            var sorted = values.ToList();
+            sorted.Sort();
+
+            if (sorted.Count == 0) return "- 无数据\n";
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"- 最小值：{sorted.Min():F2}");
+            sb.AppendLine($"- 最大值：{sorted.Max():F2}");
+            sb.AppendLine($"- 平均值：{sorted.Average():F2}");
+            sb.AppendLine($"- 中位数：{Percentile(sorted, 0.50):F2}");
+            sb.AppendLine($"- Q1 (25%)：{Percentile(sorted, 0.25):F2}");
+            sb.AppendLine($"- Q3 (75%)：{Percentile(sorted, 0.75):F2}");
+            sb.AppendLine();
+
+            return sb.ToString();
+        }
+
+        // 可选：获取物理核心数（需要P/Invoke）
+        [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetLogicalProcessorInformation(
+            [Out] SYSTEM_LOGICAL_PROCESSOR_INFORMATION[] buffer,
+            ref uint returnLength);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SYSTEM_LOGICAL_PROCESSOR_INFORMATION
+        {
+            public ulong ProcessorMask;
+            public uint Relationship;
+            public uint Flags;
+        }
+
+        private int GetPhysicalCoreCount()
+        {
+            try
+            {
+                uint length = 0;
+                GetLogicalProcessorInformation(null, ref length);
+                var buffer = new SYSTEM_LOGICAL_PROCESSOR_INFORMATION[length / Marshal.SizeOf<SYSTEM_LOGICAL_PROCESSOR_INFORMATION>()];
+                GetLogicalProcessorInformation(buffer, ref length);
+
+                return buffer.Count(info => info.Relationship == 0); // RelationProcessorCore
+            }
+            catch
+            {
+                return Environment.ProcessorCount;
+            }
+        }
+
+        /// <summary>
+        /// 辅助数据类
+        /// </summary>
+        private class AllPairResult
+        {
+            public string From { get; set; }
+            public string To { get; set; }
+            public double DistanceKm { get; set; }
+            public double TimeMin { get; set; }
+            public int Transfers { get; set; }
+            public int StationCount { get; set; }
+            public double Fare { get; set; }
+            public double Cost { get; set; }
+            public string RouteDesc { get; set; }
         }
     }
 
