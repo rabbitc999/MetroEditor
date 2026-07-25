@@ -19,6 +19,9 @@
 *.app
 *.pdb
 *.tmp
+*.bookmarks
+*.debug
+*.layout
 
 # ========== IDE/±à¼­Æ÷ ==========
 *.iml
