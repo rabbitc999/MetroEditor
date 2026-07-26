@@ -61,6 +61,8 @@ namespace MetroEditor.Windows
         /// </summary>
         public MainWindow()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             InitializeComponent();
             ConfigureCommands();
             LoadSettings();
@@ -569,7 +571,7 @@ namespace MetroEditor.Windows
                     Filter =
                         "BMETRO压缩JSON文件 (*.bmetro)|*.bmetro|" +
                         "JSON文件 (*.json)|*.json|" +
-                        "MBIN嵌入式二进制 (*.mbin)|*.mbin",
+                        "BIN嵌入式二进制 (*.bin)|*.bin",
                     FileName = $"route_data_{root.KeyCity}",
                     Title = "编译完成，选择导出格式",
                     DefaultExt = ".mbin"
@@ -582,13 +584,6 @@ namespace MetroEditor.Windows
 
                     switch (ext)
                     {
-                        case ".mbin":
-                            // -------- 导出 MBIN 二进制 --------
-                            byte[] mbinBytes = MBINExporter.Export(root);
-                            File.WriteAllBytes(fullPath, mbinBytes);
-                            statusInfo.Text = $"MBIN 导出完成: {Path.GetFileName(fullPath)}";
-                            break;
-
                         case ".bmetro":
                             // -------- 导出压缩 JSON (.bmetro) --------
                             var jsonOptions = new JsonSerializerOptions
@@ -612,6 +607,25 @@ namespace MetroEditor.Windows
                             string jsonText = JsonSerializer.Serialize(root, jsonOptions2);
                             File.WriteAllText(fullPath, jsonText, Encoding.UTF8);
                             statusInfo.Text = $"JSON 导出完成: {Path.GetFileName(fullPath)}";
+                            break;
+
+                        case ".bin":
+                            // 选择 CSV 文件
+                            var csvDialog = new OpenFileDialog
+                            {
+                                Filter = "CSV 文件 (*.csv)|*.csv|所有文件 (*.*)|*.*",
+                                Title = "选择乘车指引 CSV 文件"
+                            };
+                            if (csvDialog.ShowDialog() == true)
+                            {
+                                BinExport.Encode(root, csvDialog.FileName, fullPath);
+                                statusInfo.Text = $"BIN 导出完成: {Path.GetFileName(fullPath)}";
+                            }
+                            else
+                            {
+                                statusInfo.Text = "导出已取消（未选择 CSV）";
+                                return; // 用户取消则终止
+                            }
                             break;
 
                         default:
@@ -724,7 +738,73 @@ namespace MetroEditor.Windows
         }
         #endregion
 
+        #region 编译与数据更新
+
+        /// <summary>
+        /// 增量更新UI：仅当数据实际变化时才刷新DataGrid
+        /// 设计要点：
+        /// 1. 深度Diff：比较列表的每个元素，而非仅引用比较
+        /// 2. 避免闪烁：减少DataGrid的ItemsSource重置次数，保留滚动位置和选中态
+        /// 3. 联动更新：数据变化后同步刷新详情面板和右侧Tab页
+        /// </summary>
+        private bool UpdateUI(ParsedData data)
+        {
+            if (data == null) return false;
+
+            _lineNameMap = data.Lines.ToDictionary(
+                kv => kv.Key,
+                kv =>
+                {
+                    string city = kv.Value.City ?? data.MainCity;
+                    return (city == data.MainCity) ? kv.Value.Name : $"{city}{kv.Value.Name}";
+                }
+            );
+
+            stationListPanel.ParsedData = data;
+            directionListPanel.ParsedData = data;
+            lineListPanel.ParsedData = data;
+            fareParametersPanel.ParsedData = data;
+            timeParametersPanel.ParsedData = data;
+            systemInfo.ParsedData = data;
+
+            return true;
+        }
+        #endregion
+
         #region 其他事件
+        private void GenerateLine_Click(object sender, EventArgs e)
+        {
+            var data = documentWorkspace.CurrentTab?.ParsedData;
+            var existingIds = new HashSet<string>(data?.Lines.Keys ?? Enumerable.Empty<string>());
+            var dialog = new EditLineWindow(existingIds) { };
+            dialog.Show();
+        }
+
+        private void GenerateDirection_Click(object sender, EventArgs e)
+        {
+            var data = documentWorkspace.CurrentTab?.ParsedData;
+            if (data == null)
+            {
+                MessageBox.Show("请先编译文件以获得站台列表", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            var stationNames = data.Stations.Keys.OrderBy(x => x).ToList();
+            var existingIds = new HashSet<string>(data.Lines.Keys);
+            var dialog = new EditDirectionWindow(stationNames, existingIds);
+            dialog.Show();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // 取消 DocumentWorkspace 的事件订阅（如果有）
+            if (documentWorkspace != null)
+            {
+                documentWorkspace.CurrentTabChanged -= OnCurrentTabChanged;
+                documentWorkspace.TabClosing -= OnTabClosing;
+            }
+
+            base.OnClosed(e);
+        }
         private void Settings_Click(object sender, EventArgs e)
         {
             var dialog = new SettingsWindow { Owner = this };
@@ -1138,76 +1218,6 @@ namespace MetroEditor.Windows
                 MessageBox.Show($"导出失败：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 statusInfo.Text = "导出失败";
             }
-        }
-        #endregion
-
-
-        #region 编译与数据更新
-
-        /// <summary>
-        /// 增量更新UI：仅当数据实际变化时才刷新DataGrid
-        /// 设计要点：
-        /// 1. 深度Diff：比较列表的每个元素，而非仅引用比较
-        /// 2. 避免闪烁：减少DataGrid的ItemsSource重置次数，保留滚动位置和选中态
-        /// 3. 联动更新：数据变化后同步刷新详情面板和右侧Tab页
-        /// </summary>
-        private bool UpdateUI(ParsedData data)
-        {
-            if (data == null) return false;
-
-            _lineNameMap = data.Lines.ToDictionary(
-                kv => kv.Key,
-                kv =>
-                {
-                    string city = kv.Value.City ?? data.MainCity;
-                    return (city == data.MainCity) ? kv.Value.Name : $"{city}{kv.Value.Name}";
-                }
-            );
-
-            stationListPanel.ParsedData = data;
-            directionListPanel.ParsedData = data;
-            lineListPanel.ParsedData = data;
-            fareParametersPanel.ParsedData = data;
-            timeParametersPanel.ParsedData = data;
-            systemInfo.ParsedData = data;
-
-            return true;
-        }
-        #endregion
-
-        #region 其他事件
-        private void GenerateLine_Click(object sender, EventArgs e)
-        {
-            var data = documentWorkspace.CurrentTab?.ParsedData;
-            var existingIds = new HashSet<string>(data?.Lines.Keys ?? Enumerable.Empty<string>());
-            var dialog = new EditLineWindow(existingIds) { };
-            dialog.Show();
-        }
-
-        private void GenerateDirection_Click(object sender, EventArgs e)
-        {
-            var data = documentWorkspace.CurrentTab?.ParsedData;
-            if (data == null)
-            {
-                MessageBox.Show("请先编译文件以获得站台列表", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            var stationNames = data.Stations.Keys.OrderBy(x => x).ToList();
-            var existingIds = new HashSet<string>(data.Lines.Keys);
-            var dialog = new EditDirectionWindow(stationNames, existingIds);
-            dialog.Show();
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            // 取消 DocumentWorkspace 的事件订阅（如果有）
-            if (documentWorkspace != null)
-            {
-                documentWorkspace.CurrentTabChanged -= OnCurrentTabChanged;
-                documentWorkspace.TabClosing -= OnTabClosing;
-            }
-
-            base.OnClosed(e);
         }
         #endregion
     }

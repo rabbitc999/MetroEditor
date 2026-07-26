@@ -157,13 +157,6 @@ namespace MetroEditor.Windows
 
                             switch (format)
                             {
-                                case "mbin":
-                                    // -------- MBIN 导出 --------
-                                    byte[] mbinBytes = MBINExporter.Export(root);
-                                    outputPath = Path.Combine(outputDir, baseName + ".mbin");
-                                    File.WriteAllBytes(outputPath, mbinBytes);
-                                    break;
-
                                 case "bmetro":
                                     // -------- 压缩 JSON (.bmetro) --------
                                     var jsonOptions = new JsonSerializerOptions
