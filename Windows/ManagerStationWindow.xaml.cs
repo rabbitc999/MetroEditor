@@ -215,7 +215,9 @@ namespace MetroEditor.Windows
             }
             try
             {
-                Clipboard.SetText(code);
+                MainWindow.InsertText(code);
+                MessageBox.Show("代码已复制到主界面", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
                 MessageBox.Show("已复制到剪贴板", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)

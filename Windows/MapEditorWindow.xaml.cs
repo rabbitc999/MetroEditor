@@ -135,8 +135,8 @@ namespace MetroEditor.Windows
                 }
 
                 string code = GenerateStationDefineCode(_root, _currentStations);
-                Clipboard.SetText(code);
-                MessageBox.Show("STATION_DEFINE 代码已复制到剪贴板", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                MainWindow.InsertText(code);
+                MessageBox.Show("代码已复制到主界面", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
                 Close();
             }
             catch (Exception ex)

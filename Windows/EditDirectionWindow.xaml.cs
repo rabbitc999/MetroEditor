@@ -267,6 +267,7 @@ namespace MetroEditor.Windows
                 return null;
 
             var attrs = new List<string>();
+
             if (LoopCheckBox.IsChecked == true) attrs.Add("LOOP");
             if (BranchCheckBox.IsChecked == true) attrs.Add("BRANCH");
             if (FastCheckBox.IsChecked == true) attrs.Add("FAST");
@@ -296,9 +297,11 @@ namespace MetroEditor.Windows
             if (attrs.Contains("BRANCH")) lines.Add("    BRANCH");
             if (attrs.Contains("FAST")) lines.Add("    FAST");
             if (attrs.Contains("FUTURE")) lines.Add("    FUTURE");
+            lines.Add("    DISTANCE AUTO");
 
             // 注意：DISTANCE AUTO 未添加，用户可手动补充
             lines.Add("END_DEFINE");
+
             return string.Join("\n", lines);
         }
 
@@ -323,8 +326,9 @@ namespace MetroEditor.Windows
             }
             try
             {
-                Clipboard.SetText(PreviewTextBox.Text);
-                MessageBox.Show("已复制到剪贴板", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                MainWindow.InsertText(PreviewTextBox.Text);
+                MessageBox.Show("代码已复制到主界面", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
             }
             catch (Exception ex)
             {

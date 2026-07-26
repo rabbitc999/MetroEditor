@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
 using Clipboard = System.Windows.Clipboard;
+using System.Security.Cryptography;
 
 namespace MetroEditor.Windows
 {
@@ -246,7 +247,8 @@ namespace MetroEditor.Windows
             try
             {
                 Clipboard.SetText(PreviewTextBox.Text);
-                MessageBox.Show("已复制到剪贴板", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("代码已复制到主界面", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
             }
             catch (Exception ex)
             {

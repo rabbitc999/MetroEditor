@@ -42,7 +42,7 @@
         <!-- 底部工具栏 -->
         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="10" HorizontalAlignment="Center">
             <Button Content="刷新预览" Click="RefreshPreview_Click" Margin="0,0,10,0" />
-            <Button Content="复制代码" Click="Copy_Click" Margin="0,0,10,0" />
+            <Button Content="复制到主界面" Click="Copy_Click" Margin="0,0,10,0" />
             <Button Content="关闭" Click="Close_Click" />
         </StackPanel>
     </Grid>

@@ -31,6 +31,8 @@ namespace MetroEditor.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static MainWindow _instance = null;
+
         #region 常量与静态资源
         private const string DefaultStatus = "就绪";
         private const string DefaultCity = "北京";
@@ -112,6 +114,8 @@ namespace MetroEditor.Windows
                 // 地图已准备就绪，可以执行一些操作
                 Debug.WriteLine("地图已加载完成");
             };
+
+            _instance = this;
         }
 
         private void StationListPanel_EditStationRequested(object sender, StationViewModel station)
@@ -1220,5 +1224,22 @@ namespace MetroEditor.Windows
             }
         }
         #endregion
+
+        /// <summary>
+        /// 在光标位置插入文本，如果指定 insertAtEnd 为 true，则插入到文档末尾。
+        /// </summary>
+        public static void InsertText(string text, bool insertAtEnd = false)
+        {
+            var editor = _instance.documentWorkspace?.CurrentTab?.Editor;
+            if (editor == null) return;
+
+            var textEditor = editor.Editor;
+            textEditor.Focus();
+
+            // 计算插入位置
+            int offset = textEditor.Document.TextLength;
+            text = "\n" + text;
+            textEditor.Document.Insert(offset, text);
+        }
     }
 }

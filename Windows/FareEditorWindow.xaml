@@ -110,7 +110,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right" Margin="5">
                     <Button Content="更新预览" Click="RefreshPreview_Click" Margin="0,0,5,0"/>
-                    <Button Content="复制到剪贴板" Click="CopyPreview_Click"/>
+                    <Button Content="复制到主窗口" Click="CopyPreview_Click"/>
                 </StackPanel>
                 <TextBox x:Name="PreviewTextBox" Grid.Row="1" IsReadOnly="True" 
                          TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" 
