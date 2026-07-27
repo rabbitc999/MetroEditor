@@ -59,40 +59,5 @@ namespace MetroEditor.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   查找类似 &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;zh&quot;&gt;
-        ///
-        ///&lt;head&gt;
-        ///    &lt;meta charset=&quot;UTF-8&quot; /&gt;
-        ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, user-scalable=no&quot; /&gt;
-        ///    &lt;title&gt;交互式地铁线路图&lt;/title&gt;
-        ///    &lt;script&gt;
-        ///        // https://d3js.org v7.9.0 Copyright 2010-2023 Mike Bostock
-        ///        !function (t, n) { &quot;object&quot; == typeof exports &amp;&amp; &quot;undefined&quot; != typeof module ? n(exports) : &quot;function&quot; == typeof define &amp;&amp; define.amd ? define([&quot;exports&quot;], n) : n((t = &quot;undefined&quot; != typeof globalThis ? globalThis : t || [字符串的其余部分被截断]&quot;; 的本地化字符串。
-        /// </summary>
-        internal static string EditHtml {
-            get {
-                return ResourceManager.GetString("EditHtml", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;zh&quot;&gt;
-        ///&lt;head&gt;
-        ///    &lt;meta charset=&quot;UTF-8&quot; /&gt;
-        ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, user-scalable=no&quot; /&gt;
-        ///    &lt;title&gt;交互式地铁线路图&lt;/title&gt;
-        ///    &lt;script&gt;
-        ///        // https://d3js.org v7.9.0 Copyright 2010-2023 Mike Bostock
-        ///        !function (t, n) { &quot;object&quot; == typeof exports &amp;&amp; &quot;undefined&quot; != typeof module ? n(exports) : &quot;function&quot; == typeof define &amp;&amp; define.amd ? define([&quot;exports&quot;], n) : n((t = &quot;undefined&quot; != typeof globalThis ? globalThis : t || s [字符串的其余部分被截断]&quot;; 的本地化字符串。
-        /// </summary>
-        internal static string MapHtml {
-            get {
-                return ResourceManager.GetString("MapHtml", resourceCulture);
-            }
-        }
     }
 }

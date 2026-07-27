@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using static MetroEditor.MetroLang.SyntaxUsage;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Application = System.Windows.Application;
 using Path = System.IO.Path;
 using Window = System.Windows.Window;
@@ -411,8 +412,19 @@ namespace MetroEditor.Windows
 
         private void SaveFile_Click(object sender, EventArgs e)
         {
-            if (documentWorkspace.CurrentTab != null)
-                documentWorkspace.CurrentTab?.Save();
+            if (documentWorkspace.CurrentTab == null) return;
+                try
+            {
+                    documentWorkspace.CurrentTab.Save();
+            }
+            catch (Exception ex)
+            {
+                var dlg = new SaveFileDialog { Filter = "Metro文件 (*.metro;*.m)|*.metro;*.m|所有文件 (*.*)|*.*" };
+                if (dlg.ShowDialog() == true)
+                {
+                    documentWorkspace.CurrentTab.SaveFile(dlg.FileName);
+                }
+            }
         }
 
         private void OnTabCompilationCompleted(object? sender, CompilationEventArgs e)

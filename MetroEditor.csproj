@@ -50,4 +50,13 @@
   <ItemGroup>
     <Folder Include="Converter\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Page\edit.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Page\map.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

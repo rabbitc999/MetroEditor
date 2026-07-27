@@ -123,6 +123,13 @@ namespace MetroEditor.MetroLang.DataModel
 
         public List<PromotionPolicy> Promotions { get; set; } = new();
 
+
+
+        /// <summary>
+        /// 平台坐标映射 (车站ID, 线路ID) -> (经度, 纬度)
+        /// </summary>
+        public Dictionary<(string Station, string LineId), (double Lon, double Lat)> PlatformCoords { get; set; } = new();
+
         public ParsedData Clone()
         {
             return new ParsedData
@@ -163,7 +170,8 @@ namespace MetroEditor.MetroLang.DataModel
                 SpecialLines = this.SpecialLines.Select(sl => sl.Clone()).ToList(),
                 DefaultBoardTime = this.DefaultBoardTime,
                 LanguageOrder = new List<string>(this.LanguageOrder),
-                StationOtherNames = new Dictionary<string, List<string>>(this.StationOtherNames.Select(kv => new KeyValuePair<string, List<string>>(kv.Key, new List<string>(kv.Value))))
+                StationOtherNames = new Dictionary<string, List<string>>(this.StationOtherNames.Select(kv => new KeyValuePair<string, List<string>>(kv.Key, new List<string>(kv.Value)))),
+                PlatformCoords = new Dictionary<(string, string), (double, double)>(this.PlatformCoords)
             };
         }
     }

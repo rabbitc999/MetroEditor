@@ -199,6 +199,7 @@
 | `start` | string | 该方向的起始站 |
 | `end` | string | 该方向的终点站 |
 | `status` | string (可选) | 该站在该线路上的状态：`"operating"`, `"pending"`, `"out_station"` |
+| `platform_coord` | object (可选) | 该线路在该车站的平台坐标（独立于全局坐标）。格式：`{ "lon": number, "lat": number }`。若存在，前端绘制线路路径时优先使用此坐标。 |
 
 ### `transfers` 值说明
 - **字符串**：仅表示状态（如 `"operating"`），换乘时间使用全局默认值。

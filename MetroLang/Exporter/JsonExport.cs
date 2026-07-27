@@ -451,6 +451,18 @@ namespace MetroEditor.MetroLang.Exporter
                         if (context.StationStatus.TryGetValue((stationName, lineId), out var status))
                             stationLine.Status = status;
                         stationEntry.Lines.Add(stationLine);
+
+                        // 添加平台坐标
+                        if (context.PlatformCoords.TryGetValue((stationName, lineId), out var platformCoord))
+                        {
+                            stationLine.PlatformCoord = new JsonCoord
+                            {
+                                Lon = platformCoord.Lon,
+                                Lat = platformCoord.Lat
+                            };
+                        }
+
+                        stationEntry.Lines.Add(stationLine);
                     }
                 }
 

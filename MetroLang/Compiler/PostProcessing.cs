@@ -175,6 +175,24 @@ namespace MetroEditor.MetroLang.Compiler
                     mode.Station = newStation;
             }
 
+            // 2.11 更新 PlatformCoords
+            var newPlatformCoords = new Dictionary<(string Station, string LineId), (double Lon, double Lat)>();
+            foreach (var kv in context.PlatformCoords)
+            {
+                var (station, lineId) = kv.Key;
+                if (keyMap.TryGetValue(station, out var newStation))
+                {
+                    newPlatformCoords[(newStation, lineId)] = kv.Value;
+                }
+                else
+                {
+                    newPlatformCoords[(station, lineId)] = kv.Value;
+                }
+            }
+            context.PlatformCoords.Clear();
+            foreach (var kv in newPlatformCoords)
+                context.PlatformCoords[kv.Key] = kv.Value;
+
             // 3. 替换字典
             context.Stations.Clear();
             foreach (var kv in newStations)

@@ -106,7 +106,8 @@ namespace MetroEditor.Windows.Controls.Style
                 
                 // 特殊命令
                 "REV", "DEPOT", "STATION_STATUS", "STATION_MODE", "AS",
-                "IMPORT", "IMPORT", "INCLUDE", "DEFINE", "UNDEFINE", "IF", "ELSE",
+                "IMPORT", "INCLUDE", "DEFINE", "UNDEFINE", "IF", "END_IF", "ELSE",
+                "PLATFORM_COORD", "GEN_TRANSFER", "DEFINE", "UNDEFINE",
                 
                 // 线路/方向操作（新增）
                 "LINE_MERGE", "LINE_SPLIT", "LINE_COPY", "LINE_RENAME", "LINE_DELETE",

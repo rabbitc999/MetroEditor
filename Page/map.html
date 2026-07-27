@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -14,13 +13,11 @@
         * {
             box-sizing: border-box;
         }
-
         body {
             margin: 0;
             overflow: hidden;
             font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
         }
-
         #container {
             width: 100vw;
             height: 100vh;
@@ -45,7 +42,6 @@
             backdrop-filter: blur(4px);
             max-width: calc(100% - 40px);
         }
-
         #controls select,
         #controls input[type="file"] {
             padding: 4px 10px;
@@ -55,7 +51,6 @@
             background: white;
             outline: none;
         }
-
         #controls select:focus {
             border-color: #4CAF50;
         }
@@ -78,7 +73,6 @@
             font-size: 12px;
             padding-right: 6px;
         }
-
         #legend .legend-item {
             display: flex;
             align-items: center;
@@ -90,11 +84,9 @@
             height: 24px;
             line-height: 24px;
         }
-
         #legend .legend-item:hover {
             background: #e8e8e8;
         }
-
         #legend .color-box {
             width: 22px;
             height: 4px;
@@ -102,7 +94,6 @@
             border-radius: 3px;
             flex-shrink: 0;
         }
-
         #legend .line-name {
             flex: 1;
             overflow: hidden;
@@ -114,16 +105,13 @@
         #legend::-webkit-scrollbar {
             width: 4px;
         }
-
         #legend::-webkit-scrollbar-track {
             background: transparent;
         }
-
         #legend::-webkit-scrollbar-thumb {
             background: transparent;
             border-radius: 4px;
         }
-
         #legend:hover::-webkit-scrollbar-thumb,
         #legend::-webkit-scrollbar-thumb:hover {
             background: #ccc;
@@ -145,19 +133,16 @@
             line-height: 1.5;
             backdrop-filter: blur(4px);
         }
-
         .tooltip .station-name {
             font-weight: 600;
             margin-bottom: 4px;
         }
-
         .tooltip .line-tag-container {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
             margin-top: 4px;
         }
-
         .line-tag {
             display: inline-block;
             padding: 2px 10px;
@@ -167,14 +152,12 @@
             white-space: nowrap;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
-
         #info-content {
             margin-top: 2px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-
         #info-content .line-tag-container {
             display: flex;
             flex-wrap: wrap;
@@ -196,7 +179,6 @@
             text-align: center;
             color: #555;
         }
-
         #loading small {
             display: block;
             font-size: 13px;
@@ -204,37 +186,16 @@
             margin-top: 6px;
         }
 
-        #toast {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 1000;
-            white-space: nowrap;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-        }
-
         .station {
             cursor: pointer;
             transition: opacity 0.25s;
         }
-
         .line-path {
             fill: none;
             stroke-linejoin: round;
             stroke-linecap: round;
             transition: opacity 0.3s;
         }
-
         .station-label {
             font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
             text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 6px #fff;
@@ -242,14 +203,12 @@
             pointer-events: none;
             transition: opacity 0.25s;
         }
-
         .temp-line {
             fill: none;
             stroke-linejoin: round;
             stroke-linecap: round;
             pointer-events: none;
         }
-
         .temp-marker {
             pointer-events: none;
         }
@@ -262,12 +221,10 @@
                 font-size: 12px;
                 gap: 6px;
             }
-
             #controls select {
                 font-size: 12px;
                 padding: 2px 6px;
             }
-
             #legend {
                 bottom: 16px;
                 left: 12px;
@@ -277,18 +234,15 @@
                 padding: 8px 10px;
                 padding-right: 6px;
             }
-
             #legend .legend-item {
                 height: 22px;
                 line-height: 22px;
             }
-
             #legend .color-box {
                 width: 16px;
                 height: 3px;
                 margin-right: 6px;
             }
-
             #loading {
                 font-size: 15px;
                 padding: 16px 24px;
@@ -296,7 +250,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <div id="container">
@@ -305,10 +258,7 @@
         </div>
     </div>
 
-    <div id="toast"></div>
-
     <div id="legend"></div>
-
     <div class="tooltip" id="tooltip">
         <div class="station-name"></div>
         <div class="line-tag-container"></div>
@@ -436,7 +386,7 @@
         //  3. 主绘图（含优先级交互）
         // ============================================================
         let metroData = null;
-        const LABEL_BASE_SIZE = 7;
+        const LABEL_BASE_SIZE = 5;
         let globalBounds = null;
 
         function drawMap(data) {
@@ -449,6 +399,22 @@
 
             const rawDirections = [];
             const stationToDirKeys = {};
+
+            // ---- 构建平台坐标查找表 ----
+            const platformCoordLookup = {};
+            for (const [stationName, stationInfo] of Object.entries(stations)) {
+                if (stationInfo.lines) {
+                    for (const lineInfo of stationInfo.lines) {
+                        if (lineInfo.platform_coord) {
+                            if (!platformCoordLookup[stationName]) platformCoordLookup[stationName] = {};
+                            platformCoordLookup[stationName][lineInfo.id] = {
+                                lon: lineInfo.platform_coord.lon,
+                                lat: lineInfo.platform_coord.lat
+                            };
+                        }
+                    }
+                }
+            }
 
             for (const [lineId, lineInfo] of Object.entries(lines)) {
                 lineInfo.direction.forEach((dir, idx) => {
@@ -470,7 +436,7 @@
                     const color = dir.nick_color || lineInfo.color || '#888';
                     const isLoop = dir.is_loop || false;
                     const stationNames = dir.station.map(s => s.name);
-                    const isFuture = dir.is_future === true; // 添加这一行
+                    const isFuture = dir.is_future === true;
 
                     rawDirections.push({
                         key: dirKey,
@@ -492,7 +458,6 @@
                 });
             }
 
-            // ========== [MOD] 建立 dirKey → groupKey 映射，用于交互过滤 ==========
             const dirKeyToGroupKey = new Map();
             for (const dir of rawDirections) {
                 dirKeyToGroupKey.set(dir.key, dir.groupKey);
@@ -517,16 +482,14 @@
 
             const mergedLines = [];
             for (const [groupKey, group] of groupMap) {
-                // 从 rawDirections 中获取该 groupKey 对应的任意一个 lineId
                 const sampleDir = rawDirections.find(d => d.groupKey === groupKey);
                 const lineId = sampleDir ? sampleDir.lineId : null;
-                // 从 lines 中取基础颜色（优先使用 lines 中的 color）
                 const baseColor = (lineId && lines[lineId] && lines[lineId].color) ? lines[lineId].color : group.color;
 
                 mergedLines.push({
                     displayName: groupKey,
                     keys: group.keys,
-                    color: baseColor,   // 使用线路基础色
+                    color: baseColor,
                     stationNames: Array.from(group.stationNamesSet),
                     isLoop: group.isLoop,
                     hasFuture: group.hasFuture
@@ -546,19 +509,17 @@
             const height = window.innerHeight;
             const size = Math.min(width, height);
 
-            // ---------- 经纬度范围（必须保留） ----------
             const lonRange = maxLon - minLon || 0.01;
             const latRange = maxLat - minLat || 0.01;
 
-            // ---------- 等比缩放（关键修改） ----------
             const margin = 40;
             const scale = Math.min(
                 (width - 2 * margin) / lonRange,
                 (height - 2 * margin) / latRange
-            ) * 0.9;   // 统一比例因子，保留 0.9 边距
+            ) * 0.9;
 
             const xRange = [margin, margin + lonRange * scale];
-            const yRange = [margin + latRange * scale, margin]; // y 轴反转
+            const yRange = [margin + latRange * scale, margin];
 
             const xScale = d3.scaleLinear()
                 .domain([minLon, maxLon])
@@ -574,9 +535,8 @@
                 .attr("height", height)
                 .style("background", "#f5f5f5");
 
-            // ---- 状态管理 ----
             let currentZoomK = 1;
-            let currentMode = 'all'; // 'all' | 'highlight' | 'route'
+            let currentMode = 'all';
             let currentHighlightGroupKey = 'all';
             let routeStationNames = [];
 
@@ -589,7 +549,7 @@
 
                     g.selectAll(".station-label")
                         .attr("y", d => d.y - LABEL_BASE_SIZE / currentZoomK)
-                        .attr("font-size", function (d) {
+                        .attr("font-size", function(d) {
                             let size = LABEL_BASE_SIZE / currentZoomK;
                             size = Math.min(8, Math.max(2, size));
                             return size + "px";
@@ -601,27 +561,32 @@
             svg.call(zoom);
             const g = svg.append("g");
 
+            // ---- 定义坐标获取函数（优先平台坐标） ----
+            function getCoord(stationName, lineId) {
+                if (platformCoordLookup[stationName] && platformCoordLookup[stationName][lineId]) {
+                    const pc = platformCoordLookup[stationName][lineId];
+                    return { x: xScale(pc.lon), y: yScale(pc.lat) };
+                } else {
+                    const st = stationData.find(d => d.name === stationName);
+                    return st ? { x: st.x, y: st.y } : null;
+                }
+            }
+
             stationData = Object.entries(stations).map(([name, info]) => {
                 const dirKeys = Array.from(stationToDirKeys[name] || []);
-
-                // ===== 判断逻辑 =====
-                // 该站点是否属于任何已开通方向？
                 const isActive = activeStationSet.has(name);
-
-                // 该站点是否只属于未来方向（且不属于已开通方向）？
                 const isFutureOnly = !isActive && dirKeys.length > 0 &&
                     dirKeys.every(k => {
                         const dir = rawDirections.find(d => d.key === k);
                         return dir && dir.isFuture === true;
                     });
 
-                // ---- 新增：换乘站判断（基于不同 groupKey） ----
                 const uniqueGroupKeys = new Set();
                 dirKeys.forEach(k => {
                     const gk = dirKeyToGroupKey.get(k);
                     if (gk) uniqueGroupKeys.add(gk);
                 });
-                const isTransfer = uniqueGroupKeys.size > 0;
+                const isTransfer = uniqueGroupKeys.size > 1;
 
                 return {
                     name,
@@ -636,31 +601,25 @@
                 };
             });
 
+            // ---- 生成路径（使用平台坐标） ----
             const pathData = [];
             for (const dir of rawDirections) {
                 const stationNames = dir.stationNames;
                 if (stationNames.length < 2) continue;
 
-                // ========== 核心改动 ==========
                 let effectiveStationNames = stationNames;
-
                 if (dir.isFuture) {
-                    // 未来方向：剔除已开通站点，只保留纯未来站点
                     effectiveStationNames = stationNames.filter(name => !activeStationSet.has(name));
-
-                    // 如果过滤后不足 2 个站，则整条未来段不绘制（因为没有连续的纯未来段）
                     if (effectiveStationNames.length < 2) {
                         console.log(`未来方向 "${dir.displayName}" 无连续纯未来段，跳过绘制`);
                         continue;
                     }
-                    console.log(`未来方向 "${dir.displayName}" 过滤后保留 ${effectiveStationNames.length} 个纯未来站点`);
                 }
 
-                // 使用 effectiveStationNames 构建路径点
                 const pts = effectiveStationNames
                     .map(name => {
-                        const found = stationData.find(d => d.name.trim() === name.trim());
-                        return found ? { x: found.x, y: found.y } : null;
+                        const coord = getCoord(name, dir.lineId);
+                        return coord ? { x: coord.x, y: coord.y } : null;
                     })
                     .filter(p => p !== null);
 
@@ -704,13 +663,10 @@
                 .attr("data-group", d => d.groupKey)
                 .attr("data-key", d => d.key);
 
-            // ========== [MOD] 定义交互过滤函数 ==========
+            // ---- 交互过滤 ----
             function shouldRespondToEvent(station) {
-                if (currentMode === 'all') {
-                    return true; // 默认只响应换乘站
-                }
+                if (currentMode === 'all') return true;
                 if (currentMode === 'highlight') {
-                    // 站点属于高亮线路
                     return station.dirKeys.some(k => {
                         const gk = dirKeyToGroupKey.get(k);
                         return gk === currentHighlightGroupKey;
@@ -722,82 +678,9 @@
                 return true;
             }
 
-            function updatePathsForStation(stationName, newX, newY) {
-                // 更新 stationData 中的坐标（已经在 drag 中更新了 d 对象）
-                // 重新计算所有路径的 d
-                pathElements.each(function (pathDatum) {
-                    // 检查该路径是否包含该站点
-                    const dir = rawDirections.find(d => d.key === pathDatum.key);
-                    if (!dir) return;
-                    const stationNames = dir.stationNames;
-                    if (!stationNames.includes(stationName)) return;
-
-                    // 重新生成该路径的所有点
-                    const pts = stationNames
-                        .map(name => {
-                            const found = stationData.find(d => d.name === name);
-                            return found ? { x: found.x, y: found.y } : null;
-                        })
-                        .filter(p => p !== null);
-                    if (pts.length < 2) return;
-                    const isLoop = dir.isLoop;
-                    const smoothPoints = generateSmoothPoints(pts, isLoop, 10);
-                    let d = "";
-                    if (smoothPoints.length > 0) {
-                        d = "M" + smoothPoints.map(p => p.join(",")).join("L");
-                        if (isLoop) d += "Z";
-                    } else {
-                        d = "M" + pts.map(p => p.x + "," + p.y).join("L");
-                        if (isLoop) d += "Z";
-                    }
-                    // 更新该 path 的 d
-                    d3.select(this).attr("d", d);
-                });
-            }
-
             const stationGroup = g.append("g").attr("class", "stations");
 
-            // ---------- 拖拽行为 ----------
-            const drag = d3.drag()
-                .on("start", function (event, d) {
-                    // 拖拽开始时，提升被拖拽元素的层级
-                    d3.select(this).raise();
-                })
-                .on("drag", function (event, d) {
-                    const [mx, my] = d3.pointer(event, g.node());
-                    d.x = mx;
-                    d.y = my;
-                    d.lon = xScale.invert(mx);
-                    d.lat = yScale.invert(my);
-
-                    d3.select(this).attr("cx", mx).attr("cy", my);
-
-                    // 更新标签
-                    stationLabels.filter(label => label.name === d.name)
-                        .attr("x", mx)
-                        .attr("y", my - LABEL_BASE_SIZE / currentZoomK);
-
-                    // 更新相关线路
-                    updatePathsForStation(d.name, mx, my);
-                })
-                .on("end", function (event, d) {
-                    const toast = document.getElementById('toast');
-                    if (toast) {
-                        const lonStr = d.lon.toFixed(4);
-                        const latStr = d.lat.toFixed(4);
-                        toast.textContent = `📍 站点 “${d.name}” 坐标已更新到 (${lonStr}, ${latStr})`;
-                        toast.style.opacity = 1;
-                        clearTimeout(toast._hideTimer);
-                        toast._hideTimer = setTimeout(() => {
-                            toast.style.opacity = 0;
-                        }, 2500);
-                    }
-                    // 通知 C# 更新预览
-                    if (window.chrome && window.chrome.webview) {
-                        window.chrome.webview.postMessage({ type: 'stationUpdated', name: d.name, lon: d.lon, lat: d.lat });
-                    }
-                });
-
+            // ---- 站点圆圈（全局坐标，不可拖拽） ----
             const stationCircles = stationGroup.selectAll(".station")
                 .data(stationData)
                 .enter()
@@ -807,7 +690,7 @@
                 .attr("cy", d => d.y)
                 .attr("r", 4.5)
                 .attr("fill", d => {
-                    if (d.isTransfer) return "#FF4500"; 
+                    if (d.isTransfer) return "#FF45BB";
                     if (d.dirKeys.length > 1) return "#FF4500";
                     else if (d.dirKeys.length === 1) {
                         const key = d.dirKeys[0];
@@ -816,7 +699,6 @@
                     } else return '#888';
                 })
                 .attr("data-station", d => d.name)
-                // ========== [MOD] mouseover 加入过滤 ==========
                 .on("mouseover", (event, d) => {
                     if (!shouldRespondToEvent(d)) return;
                     const nameSet = new Map();
@@ -847,17 +729,15 @@
                 .on("mouseout", () => {
                     d3.select("#tooltip").style("opacity", 0);
                 })
-                // ========== [MOD] click 加入过滤 ==========
                 .on("click", (event, d) => {
                     if (d.isFutureOnly) return;
                     if (!shouldRespondToEvent(d)) return;
                     showStationInfo(d.name, d.dirKeys);
-                })
-                .call(drag);  // 添加拖拽
+                });
 
-            // ========== [MOD] touch 事件加入过滤 ==========
+            // ---- 触摸长按（仅显示信息，无拖拽） ----
             let longPressTimer = null;
-            stationCircles.on("touchstart", function (event) {
+            stationCircles.on("touchstart", function(event) {
                 const d = d3.select(this).datum();
                 if (!shouldRespondToEvent(d)) {
                     clearTimeout(longPressTimer);
@@ -867,12 +747,13 @@
                     showStationInfo(d.name, d.dirKeys);
                     event.preventDefault();
                 }, 500);
-            }).on("touchend", function () {
+            }).on("touchend", function() {
                 clearTimeout(longPressTimer);
-            }).on("touchmove", function () {
+            }).on("touchmove", function() {
                 clearTimeout(longPressTimer);
             });
 
+            // ---- 站点标签 ----
             const stationLabels = stationGroup.selectAll(".station-label")
                 .data(stationData)
                 .enter()
@@ -890,9 +771,32 @@
                 .style("user-select", "none")
                 .style("font-weight", "500");
 
+            // ---- 绘制平台坐标（虚线空心圆） ----
+            const platformCoords = [];
+            for (const [stationName, lineMap] of Object.entries(platformCoordLookup)) {
+                for (const [lineId, coord] of Object.entries(lineMap)) {
+                    const x = xScale(coord.lon);
+                    const y = yScale(coord.lat);
+                    platformCoords.push({ x, y, stationName, lineId });
+                }
+            }
+            const platformCircles = stationGroup.selectAll(".platform-coord")
+                .data(platformCoords)
+                .enter()
+                .append("circle")
+                .attr("class", "platform-coord")
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y)
+                .attr("r", 3)
+                .attr("fill", "none")
+                .attr("stroke", "#999")
+                .attr("stroke-width", 1.5)
+                .style("pointer-events", "none");
+
+            // ---- 临时图层（寻路） ----
             const tempLineGroup = g.insert('g', '.stations').attr("class", "temp-layer");
 
-            // ---- 统一样式更新（包含 cursor） ----
+            // ---- 统一样式更新 ----
             function updateStyles(k) {
                 const baseWidth = 2.8;
                 const baseRadius = 4.5;
@@ -925,36 +829,32 @@
                         }
                     });
 
-                stationCircles.attr("r", scaledRadius);
-                stationCircles.attr("opacity", d => {
-                    if (currentMode === 'all') {
-                        // 默认模式：仅显示换乘站
-                        return d.isTransfer ? 1 : 0.2;
-                    }
-                    if (isHighlight) {
-                        const belongs = d.dirKeys.some(k => {
-                            const gk = dirKeyToGroupKey.get(k);
-                            return gk === currentHighlightGroupKey;
-                        });
-                        return belongs ? 1 : 0;
-                    }
-                    if (isRoute) {
-                        return routeStationNames.includes(d.name) ? 1 : 0;
-                    }
-                    return 1;
-                });
+                stationCircles
+                    .attr("r", scaledRadius)
+                    .attr("opacity", d => {
+                        if (currentMode === 'all') {
+                            return d.isTransfer ? 1 : 0.8;
+                        }
+                        if (isHighlight) {
+                            const belongs = d.dirKeys.some(k => {
+                                const gk = dirKeyToGroupKey.get(k);
+                                return gk === currentHighlightGroupKey;
+                            });
+                            return belongs ? 1 : 0.1;
+                        }
+                        if (isRoute) {
+                            return routeStationNames.includes(d.name) ? 1 : 0.1;
+                        }
+                        return 1;
+                    })
+                    .style("cursor", d => {
+                        if (shouldRespondToEvent(d)) return "pointer";
+                        else return "default";
+                    });
 
-                // ========== [MOD] 根据模式设置光标样式 ==========
-                stationCircles.style("cursor", d => {
-                    if (shouldRespondToEvent(d)) return "pointer";
-                    else return "default";
-                });
-
-
-                // 站点标签
                 stationLabels.attr("opacity", d => {
                     if (currentMode === 'all') {
-                        return d.isTransfer ? 1 : 0.5;
+                        return d.isTransfer ? 1 : 0.8;
                     }
                     if (isRoute) {
                         return routeStationNames.includes(d.name) ? 1 : 0;
@@ -968,6 +868,11 @@
                     }
                     return 1;
                 });
+
+                // 平台坐标圆圈随缩放调整大小
+                platformCircles
+                    .attr("r", Math.min(Math.max(3 / k, 0.8), 4))
+                    .attr("stroke-width", Math.min(Math.max(1.5 / k, 0.5), 2));
 
                 tempLineGroup.selectAll(".temp-line")
                     .attr("stroke-width", Math.min(Math.max(3 / k, 0.8), 5));
@@ -975,7 +880,7 @@
                     .attr("r", Math.min(Math.max(5 / k, 0.8), 6));
             }
 
-            // ---- 高亮切换（优先级逻辑） ----
+            // ---- 高亮、寻路等控制函数（与 edit.html 相同） ----
             function highlightLine(groupKey) {
                 if (currentMode === 'highlight' && currentHighlightGroupKey === groupKey) {
                     if (routeStationNames.length > 0) {
@@ -1026,7 +931,7 @@
             }
 
             function updateLegendAndSelect(groupKey) {
-                legendDiv.selectAll(".legend-item").each(function () {
+                legendDiv.selectAll(".legend-item").each(function() {
                     const itemKey = d3.select(this).attr("data-group");
                     if (groupKey === 'all') {
                         d3.select(this).style("background", "transparent");
@@ -1072,7 +977,6 @@
                 svg.transition().duration(500).call(zoom.transform, transform);
             }
 
-            // ---- 绘制临时连线（寻路演示） ----
             function drawTempLine(stationNames, isRestore = false) {
                 if (!isRestore) {
                     routeStationNames = stationNames.slice();
@@ -1137,14 +1041,13 @@
                 updateStyles(currentZoomK);
             }
 
-            // ---- 清除寻路 ----
             function clearTempMode() {
                 routeStationNames = [];
                 tempLineGroup.selectAll("*").remove();
                 setAllMode();
             }
 
-            // ---- 图例 & 下拉 ----
+            // ---- 图例 ----
             const legendDiv = d3.select("#legend");
             legendDiv.html("");
 
@@ -1190,7 +1093,7 @@
                 globalBounds = { minX: 0, maxX: 1, minY: 0, maxY: 1 };
             }
 
-            // ---- 暴露 ----
+            // ---- 暴露全局控制（与 edit.html 一致） ----
             window.__stationData = stationData;
             window.__mergedLines = mergedLines;
             window.__rawDirections = rawDirections;
@@ -1200,17 +1103,15 @@
             window.__clearTempMode = clearTempMode;
             window.__setAllMode = setAllMode;
             window.__setRouteMode = setRouteMode;
-            window.__getStationsDataAsJSON = getStationsDataAsJSON;
             window.__tempLineGroup = tempLineGroup;
             window.__svg = svg;
             window.__zoom = zoom;
             window.__globalBounds = globalBounds;
 
+            // ---- 初始化 ----
             setAllMode();
-
             legendDiv.style("display", "block");
         }
-
         // ============================================================
         //  4. 信息面板
         // ============================================================
@@ -1243,7 +1144,7 @@
             try {
                 const data = JSON.parse(jsonString);
                 drawMap(data);
-            } catch (e) {
+            } catch(e) {
                 alert('数据解析失败: ' + e.message);
             }
         }
@@ -1260,23 +1161,6 @@
             }, 250);
         });
 
-        function getStationsDataAsJSON() {
-            const stationsData = window.__stationData || [];
-            const stationsObj = {};
-            stationsData.forEach(d => {
-                stationsObj[d.name] = {
-                    lon: d.lon,
-                    lat: d.lat,
-                    lines: []  // 如果需要保留lines信息，可以填充
-                };
-            });
-            const output = {
-                key_city: (metroData && metroData.key_city) || '北京',
-                stations: stationsObj
-            };
-            return JSON.stringify(output, null, 2);
-        }
-
         console.log('📂 请选择 JSON 数据文件。');
         console.log('💡 交互优先级：路线显示 > 寻路演示 > 全部线路。');
         console.log('🔍 高亮/寻路模式下，只有相关站点可悬停和点击。');
@@ -1287,5 +1171,4 @@
         });
     </script>
 </body>
-
 </html>

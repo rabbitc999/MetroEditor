@@ -31,5 +31,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("status")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Status { get; set; }
+
+        /// <summary>
+        /// 该线路在该车站的平台坐标（若与全局坐标不同）。
+        /// </summary>
+        [JsonPropertyName("platform_coord")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public JsonCoord? PlatformCoord { get; set; }
     }
 }

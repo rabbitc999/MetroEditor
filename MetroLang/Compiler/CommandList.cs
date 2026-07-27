@@ -66,6 +66,9 @@ namespace MetroEditor.MetroLang.Compiler.Compiler
             command["LINE_TEMPLATE"] = new LineTemplateCommand();
             command["DIRECTION_TEMPLATE"] = new DirectionTemplateCommand();
 
+            command["PLATFORM_COORD"] = new PlatformCoord();
+            command["GEN_TRANSFER"] = new GenTransfer();
+
             return command;
         }
     }

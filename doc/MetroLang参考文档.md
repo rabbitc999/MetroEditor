@@ -552,8 +552,48 @@ ECHO "方向总数：{DIRECTION_COUNT}"
 ```
 
 ---
+## 28. 平台坐标与自动换乘时间
 
-## 28. 完整示例
+### 29.1 平台坐标（单行命令）
+`PLATFORM_COORD` 用于为特定线路上的车站设置独立的站台坐标（平台坐标），以精确表示不同线路在同一车站的不同站台位置，从而优化换乘时间计算和线路绘制。
+```metro
+PLATFORM_COORD '站名' '线路ID' COORD 经度, 纬度
+```
+
+- 坐标格式与 `STATION_DEFINE` 中的 `COORD` 相同（经度, 纬度）。
+- 若已存在相同站名+线路的平台坐标，则覆盖。
+- 该坐标仅影响路径绘制（优先使用）和换乘时间计算，不影响全局站点坐标。
+
+### 29.2 自动换乘时间生成（单行命令）
+`GEN_TRANSFER` 基于平台坐标（若未定义则回退到全局坐标）自动计算并更新换乘规则中的时间。
+
+```metro
+GEN_TRANSFER [WALK_SPEED 速度(km/h)] [UPDATE_EXISTING]
+```
+
+- `WALK_SPEED`：步行速度，默认 5.0 km/h。
+- `UPDATE_EXISTING`：若指定，则强制更新所有换乘规则的 `TIME` 字段；否则仅更新未显式设置时间的规则。
+- 计算逻辑：
+  1. 遍历所有已定义的换乘规则（`TRANSFER_DEFINE` 或 `TRANSFER` 生成的规则）。
+  2. 若该换乘站未在任何线路上定义平台坐标，则跳过（不更新）。
+  3. 分别获取两条线路的有效坐标（优先平台坐标，否则全局坐标）。
+  4. 若两条线路均未定义平台坐标，则跳过（不更新）。
+  5. 否则，计算两坐标间的直线距离（Haversine 公式），按步行速度换算为秒，并更新 `TIME` 字段。
+- 该命令通常在定义完线路、方向和平台坐标后调用。
+
+**示例**：
+```metro
+PLATFORM_COORD '西直门' 'LINE2' COORD 116.357, 39.945
+TRANSFER_DEFINE '西直门' LINE1 LINE2
+    STATUS operating
+    ; TIME 未设置，稍后由 GEN_TRANSFER 填充
+END_DEFINE
+GEN_TRANSFER WALK_SPEED 5.0 UPDATE_EXISTING
+```
+
+---
+
+## 29. 完整示例
 
 ```metro
 %DEFINE CITY_BJ

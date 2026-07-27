@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using MetroEditor.MetroLang.JsonModel;
+using System.IO;
 
 namespace MetroEditor.Windows.Controls
 {
@@ -71,6 +72,8 @@ namespace MetroEditor.Windows.Controls
         /// </summary>
         public event EventHandler MapReady;
 
+        private string _html;
+
         #endregion
 
         public MetroMapControl()
@@ -94,8 +97,10 @@ namespace MetroEditor.Windows.Controls
                 webView.NavigationCompleted += OnNavigationCompleted;
 
                 // 根据模式加载不同的 HTML
-                string html = IsEditMode ? Properties.Resources.EditHtml : Properties.Resources.MapHtml;
-                webView.NavigateToString(html);
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string htmlPath = IsEditMode ? Path.Combine(baseDirectory, "Page/edit.html") : Path.Combine(baseDirectory, "Page/map.html");
+                _html = File.ReadAllText(htmlPath);
+                webView.NavigateToString(_html);
             }
             catch (Exception)
             {
@@ -310,8 +315,7 @@ namespace MetroEditor.Windows.Controls
             // 如果已经加载，切换 HTML（需要重新加载）
             if (_isPageLoaded && webView.CoreWebView2 != null)
             {
-                string html = isEdit ? Properties.Resources.EditHtml : Properties.Resources.MapHtml;
-                webView.NavigateToString(html);
+                webView.NavigateToString(_html);
                 _isPageLoaded = false; // 重置加载状态
             }
         }

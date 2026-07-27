@@ -63,6 +63,14 @@ namespace MetroEditor.MetroLang.Decompiler
             GenerateLineDefinitions();
             EndRegion();
 
+            // REGION: 平台坐标（线路级车站坐标）
+            if (HasPlatformCoordData())
+            {
+                AddRegion("平台坐标");
+                GeneratePlatformCoords();
+                EndRegion();
+            }
+
             // REGION: 运营参数与换乘
             AddRegion("运营参数与换乘");
             GenerateOperationAndTransfers();
@@ -211,6 +219,17 @@ namespace MetroEditor.MetroLang.Decompiler
                        .Where(s => s.Lines != null)
                        .SelectMany(s => s.Lines)
                        .Any(sl => !string.IsNullOrEmpty(sl.Status));
+        }
+
+        /// <summary>
+        /// 检查是否存在平台坐标数据。
+        /// </summary>
+        private bool HasPlatformCoordData()
+        {
+            return _root.Stations.Values
+                .Where(s => s.Lines != null)
+                .SelectMany(s => s.Lines)
+                .Any(l => l.PlatformCoord != null);
         }
         #endregion
 
@@ -468,6 +487,30 @@ namespace MetroEditor.MetroLang.Decompiler
                 WriteLine($"{Indent}{Indent}VIA {string.Join(" ", direction.ViaDirections)}");
 
             WriteLine($"{Indent}END_DEFINE");
+        }
+
+        /// <summary>
+        /// 生成平台坐标命令（线路级车站坐标）。
+        /// </summary>
+        private void GeneratePlatformCoords()
+        {
+            WriteLine("# 线路级车站坐标（平台坐标）");
+            foreach (var stationEntry in _root.Stations.OrderBy(kv => kv.Key))
+            {
+                string station = stationEntry.Key;
+                var lines = stationEntry.Value.Lines;
+                if (lines == null) continue;
+
+                foreach (var line in lines.OrderBy(l => l.Id))
+                {
+                    if (line.PlatformCoord != null)
+                    {
+                        var coord = line.PlatformCoord;
+                        WriteLine($"PLATFORM_COORD '{station}' {line.Id} COORD {coord.Lon:R}, {coord.Lat:R}");
+                    }
+                }
+            }
+            AddBlankLine();
         }
         #endregion
 

@@ -367,7 +367,21 @@ namespace MetroEditor.MetroLang
                 Format = "%import '文件路径' AS STATIONS",
                 Example = "%import 'stations.csv' AS STATIONS",
                 InsertTemplate = "%import '<CSV文件路径>' AS STATIONS"
-            }
+            },
+            new SyntaxReferenceItem
+            {
+                Command = "PLATFORM_COORD",
+                Format = "PLATFORM_COORD '<站名>' <线路ID> COORD <经度> <纬度>",
+                Example = "PLATFORM_COORD '西直门' LINE2 COORD 116.357, 39.945",
+                InsertTemplate = "PLATFORM_COORD '<站名>' <线路ID> COORD <经度>, <纬度>"
+            },
+            new SyntaxReferenceItem
+            {
+                Command = "GEN_TRANSFER",
+                Format = "GEN_TRANSFER [WALK_SPEED <速度>] [UPDATE_EXISTING]",
+                Example = "GEN_TRANSFER WALK_SPEED 5.0 UPDATE_EXISTING",
+                InsertTemplate = "GEN_TRANSFER WALK_SPEED 5.0"
+            },
         };
 
         public static List<KeyValuePair<string, string>> KeyWords = new()
@@ -530,6 +544,8 @@ namespace MetroEditor.MetroLang
             new("CLOSED", "关闭"),
             new("PENDING", "待开通"),
             new("OUT_STATION", "出站"),
+            new("PLATFORM_COORD", "设置线路平台坐标"),
+            new("GEN_TRANSFER", "自动生成换乘时间"),
 
             // ----- 星期与时段 -----
             new("MONDAY", "星期一"),

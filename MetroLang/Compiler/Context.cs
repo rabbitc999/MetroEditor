@@ -95,6 +95,12 @@ namespace MetroEditor.MetroLang.Compiler
         /// <summary>虚拟换乘规则列表（出站换乘/虚拟换乘）</summary>
         public List<VirtualTransferRule> VirtualTransfers { get; internal set; } = new();
 
+        /// <summary>
+        /// 特定线路上的站台坐标（Key: (车站ID, 线路ID), Value: (Lon, Lat)）
+        /// 若未定义，则回退到全局 Stations 坐标。
+        /// </summary>
+        public Dictionary<(string Station, string LineId), (double Lon, double Lat)> PlatformCoords { get; internal set; } = new();
+
         // ====================================================================
         // 4. 时间与运营参数
         // ====================================================================
@@ -251,7 +257,10 @@ namespace MetroEditor.MetroLang.Compiler
 
                 // 地图标注和特殊票价配置
                 Labels = new List<Label>(Labels),
-                SpecialLines = new List<SpecialLine>(PriceConfig.SpecialLines)
+                SpecialLines = new List<SpecialLine>(PriceConfig.SpecialLines),
+
+
+                PlatformCoords = new Dictionary<(string, string), (double, double)>(this.PlatformCoords)
             };
 
             // 转换拥挤度规则中的方向键：内部ID → 外部格式
@@ -414,6 +423,7 @@ namespace MetroEditor.MetroLang.Compiler
             // ---- 10. 辅助映射 ----
             clone.StationCity = new Dictionary<string, string>(this.StationCity);
             clone.DefinedSymbols = new HashSet<string>(this.DefinedSymbols);
+            clone.PlatformCoords = new Dictionary<(string Station, string LineId), (double Lon, double Lat)>(this.PlatformCoords);
             //clone.Assertions = this.Assertions.Select(a => a.Clone()).ToList();
             //clone.EchoMessages = new List<string>(this.EchoMessages);
 
