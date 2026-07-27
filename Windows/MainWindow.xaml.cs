@@ -109,12 +109,6 @@ namespace MetroEditor.Windows
             timeParametersPanel.EditTransfersRequested += (s, e) => EditTransfers_Click(null, null);
             timeParametersPanel.EditDwellTimesRequested += (s, e) => EditDwellTimes_Click(null, null);
 
-            mapControl.MapReady += (s, e) =>
-            {
-                // 地图已准备就绪，可以执行一些操作
-                Debug.WriteLine("地图已加载完成");
-            };
-
             _instance = this;
         }
 
