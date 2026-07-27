@@ -65,14 +65,14 @@ static void MenuLoop(void) {
                 input[strcspn(input, "\n")] = '\0';
                 if (strlen(input) == 0) continue;
                 char start[128];
-                strcpy(start, input);
+                strcpy_s(start, 128, input);
                 
                 printf("请输入终点站名或拼音首字母: ");
                 if (fgets(input, sizeof(input), stdin) == NULL) break;
                 input[strcspn(input, "\n")] = '\0';
                 if (strlen(input) == 0) continue;
                 char end[128];
-                strcpy(end, input);
+                strcpy_s(end, 128, input);
                 
                 int startId = -1, endId = -1;
                 

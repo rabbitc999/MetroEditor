@@ -74,7 +74,7 @@ static uint16_t ReadLE16(const uint8_t *p) {
 }
 static uint32_t ReadLE32(const uint8_t *p) {
     return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
-    ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+        ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
 }
 static uint64_t ReadLE64(const uint8_t *p) {
     uint64_t v = 0;
@@ -99,26 +99,26 @@ static void CleanupInternal(void) {
     METRO_FREE(s_Stations);
     s_Stations = NULL;
     s_StationCount = 0;
-    
+
     for (int i = 0; i < s_LineCount; i++) {
         METRO_FREE(s_Lines[i].name);
         METRO_FREE(s_Lines[i].city);
     }
     METRO_FREE(s_Lines);
     s_LineCount = 0;
-    
+
     for (int i = 0; i < s_DirCount; i++) {
         METRO_FREE(s_Directions[i].name);
     }
     METRO_FREE(s_Directions);
     s_DirCount = 0;
-    
+
     for (int i = 0; i < s_RecordCount; i++) {
         METRO_FREE(s_Records[i].segs);
     }
     METRO_FREE(s_Records);
     s_RecordCount = 0;
-    
+
     if (s_LineOrders != NULL) {
         for (int i = 0; i < s_LineCount; i++) {
             for (int d = 0; d < s_LineOrders[i].dirCount; d++) {
@@ -131,10 +131,10 @@ static void CleanupInternal(void) {
         METRO_FREE(s_LineOrders);
         s_LineOrders = NULL;
     }
-    
+
     METRO_FREE(s_KeyCity);
     s_KeyCity = NULL;
-    
+
     RouteIndex_T *cur, *tmp;
     HASH_ITER(hh, s_IndexMap, cur, tmp) {
         HASH_DEL(s_IndexMap, cur);
@@ -149,10 +149,10 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         fprintf(stderr, "数据指针无效或长度不足\n");
         return 0;
     }
-    
+
     const uint8_t *ptr = data;
     const uint8_t *end = data + dataSize;
-    
+
     if (end - ptr < 6) {
         fprintf(stderr, "数据长度不足，无法读取文件头\n");
         return 0;
@@ -167,7 +167,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         return 0;
     }
     ptr += 6;
-    
+
     /* key_city */
     if (end - ptr < 2) {
         fprintf(stderr, "数据长度不足，无法读取key_city长度\n");
@@ -184,7 +184,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     memcpy(s_KeyCity, ptr, keyCityLen);
     s_KeyCity[keyCityLen] = '\0';
     ptr += keyCityLen;
-    
+
     /* 偏移表 */
     if (end - ptr < 2) {
         fprintf(stderr, "数据长度不足，无法读取区块数量\n");
@@ -193,7 +193,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     uint16_t sectionCount = ReadLE16(ptr);
     ptr += 2;
-    
+
     size_t secTableSize = (size_t)sectionCount * 18;
     if (end - ptr < secTableSize) {
         fprintf(stderr, "数据长度不足，无法读取偏移表\n");
@@ -202,27 +202,27 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     const uint8_t *secBuf = ptr;
     ptr += secTableSize;
-    
+
     uint64_t offStation = 0, lenStation = 0;
     uint64_t offLine    = 0, lenLine    = 0;
     uint64_t offDir     = 0, lenDir     = 0;
     uint64_t offRecord  = 0, lenRecord  = 0;
     uint64_t offOrder   = 0, lenOrder   = 0;
-    
+
     for (int i = 0; i < sectionCount; i++) {
         const uint8_t *p = secBuf + i * 18;
         uint16_t type = ReadLE16(p);
         uint64_t off  = ReadLE64(p + 2);
         uint64_t len  = ReadLE64(p + 10);
         switch (type) {
-            case TYPE_STATION: offStation = off; lenStation = len; break;
-            case TYPE_LINE:    offLine    = off; lenLine    = len; break;
-            case TYPE_DIR:     offDir     = off; lenDir     = len; break;
-            case TYPE_RECORD:  offRecord  = off; lenRecord  = len; break;
-            case TYPE_ORDER:   offOrder   = off; lenOrder   = len; break;
+        case TYPE_STATION: offStation = off; lenStation = len; break;
+        case TYPE_LINE:    offLine    = off; lenLine    = len; break;
+        case TYPE_DIR:     offDir     = off; lenDir     = len; break;
+        case TYPE_RECORD:  offRecord  = off; lenRecord  = len; break;
+        case TYPE_ORDER:   offOrder   = off; lenOrder   = len; break;
         }
     }
-    
+
     /* 站点区块 */
     if (offStation == 0 || lenStation == 0) {
         fprintf(stderr, "站点区块无效\n");
@@ -281,7 +281,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         s_Stations[i].lineCount = lineCnt;
         s_Stations[i].lineIds = lineIds;
     }
-    
+
     /* 线路区块 */
     if (offLine == 0 || lenLine == 0) { CleanupInternal(); return 0; }
     if (offLine + lenLine > dataSize) { CleanupInternal(); return 0; }
@@ -319,7 +319,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         s_Lines[i].color = color;
         s_Lines[i].city = city;
     }
-    
+
     /* 方向区块 */
     if (offDir == 0 || lenDir == 0) { CleanupInternal(); return 0; }
     if (offDir + lenDir > dataSize) { CleanupInternal(); return 0; }
@@ -344,7 +344,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         s_Directions[i].id = i + 1;
         s_Directions[i].name = name;
     }
-    
+
     /* 路线记录区块 */
     if (offRecord == 0 || lenRecord == 0) { CleanupInternal(); return 0; }
     if (offRecord + lenRecord > dataSize) { CleanupInternal(); return 0; }
@@ -392,7 +392,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         entry->record = rec;
         HASH_ADD(hh, s_IndexMap, key, sizeof(RouteKey_T), entry);
     }
-    
+
     /* 线路顺序表 */
     if (offOrder == 0 || lenOrder == 0) { CleanupInternal(); return 0; }
     if (offOrder + lenOrder > dataSize) { CleanupInternal(); return 0; }
@@ -418,7 +418,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
             char *dirName = (char*)METRO_MALLOC(dirNameLen + 1);
             memcpy(dirName, p, dirNameLen); dirName[dirNameLen] = '\0'; p += dirNameLen;
             s_LineOrders[i].dirs[d].dirName = dirName;
-            
+
             if (p + 2 > ordEnd) { CleanupInternal(); return 0; }
             uint16_t stCnt = ReadLE16(p); p += 2;
             s_LineOrders[i].dirs[d].stationCount = stCnt;
@@ -479,13 +479,25 @@ int Metro_FindStationByName(const char *name) {
     return -1;
 }
 
+int Metro_StrCaseCmp(const char *cmp0, const char *cmp1, int len) {
+    int n0 = strlen(cmp0);
+    int n1 = strlen(cmp1);
+    if (n0 != n1) { return n0 - n1; }
+    for (int i = 0; i < len && cmp0[i] != '\0'; i++) {
+        char low0 = tolower(cmp0[i]);
+        char low1 = tolower(cmp1[i]);
+        if (low0 != low1) { return low0 - low1; }
+    }
+    return 0;
+}
+
 int* Metro_FindStationsByPinyin(const char *prefix, int *count) {
     int *results = NULL;
     int found = 0;
     if (!prefix) { if (count) *count = 0; return NULL; }
     int len = strlen(prefix);
     for (int i = 0; i < s_StationCount; i++) {
-        if (strncasecmp(s_Stations[i].pinyin, prefix, len) == 0) {
+        if (Metro_StrCaseCmp(s_Stations[i].pinyin, prefix, len) == 0) {
             results = (int*)METRO_REALLOC(results, (found + 1) * sizeof(int));
             if (!results) { if (count) *count = 0; return NULL; }
             results[found++] = s_Stations[i].id;
