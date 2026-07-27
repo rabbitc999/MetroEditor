@@ -31,6 +31,7 @@ namespace MetroEditor.Windows
             InitializeComponent();
             FileDataGrid.ItemsSource = _files;
             OutputDirTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

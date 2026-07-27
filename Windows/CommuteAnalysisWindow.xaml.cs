@@ -54,6 +54,7 @@ namespace MetroEditor.Windows
 
             // 右键复制站名功能
             ResultGrid.PreviewMouseRightButtonDown += ResultGrid_PreviewMouseRightButtonDown;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

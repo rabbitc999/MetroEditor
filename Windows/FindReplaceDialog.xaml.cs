@@ -58,6 +58,7 @@ namespace MetroEditor.Windows
             {
                 ReplaceTextBox.Text = Clipboard.GetText();
             }
+            Loaded += (o, e) => Topmost = false;
         }
 
         #region 核心查找逻辑

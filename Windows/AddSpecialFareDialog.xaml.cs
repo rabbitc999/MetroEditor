@@ -37,6 +37,7 @@ namespace MetroEditor.Windows
                 StartBox.IsEnabled = isSegment;
                 EndBox.IsEnabled = isSegment;
             };
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

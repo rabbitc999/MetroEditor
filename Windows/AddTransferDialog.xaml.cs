@@ -41,6 +41,7 @@ namespace MetroEditor.Windows
             Line2Combo.DisplayMemberPath = "Display";
             Line2Combo.SelectedValuePath = "Id";
             Line2Combo.ItemsSource = lineItems;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

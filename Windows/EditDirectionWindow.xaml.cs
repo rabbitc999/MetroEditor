@@ -66,6 +66,7 @@ namespace MetroEditor.Windows
             SearchTextBox.KeyDown += SearchTextBox_KeyDown; // 支持回车快速添加
 
             Title = "修改方向";
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

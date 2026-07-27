@@ -44,6 +44,7 @@ namespace MetroEditor.Windows
         public OsmImportWindow()
         {
             InitializeComponent();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

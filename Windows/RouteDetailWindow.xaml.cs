@@ -48,6 +48,7 @@ namespace MetroEditor.Windows
             DayOfWeekCombo.IsEnabled = false;
             HourBox.IsEnabled = false;
             MinuteBox.IsEnabled = false;
+            Loaded += (o, e) => Topmost = false;
         }
 
         #region 查询逻辑

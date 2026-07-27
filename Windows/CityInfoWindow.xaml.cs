@@ -26,6 +26,7 @@ namespace MetroEditor.Windows
             InitializeComponent();
             _data = data;
             LoadData();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

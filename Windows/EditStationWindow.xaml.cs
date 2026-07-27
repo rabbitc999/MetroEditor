@@ -37,6 +37,7 @@ namespace MetroEditor.Windows
             Title = "编辑站点";
             UpdatePreview();
             LoadApiKey();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

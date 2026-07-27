@@ -67,6 +67,7 @@ namespace MetroEditor.Windows
             // ---------- 站点序列（分组显示） ----------
             var displayItems = BuildDisplayItems(data, lineId);
             StationListView.ItemsSource = displayItems;
+            Loaded += (o, e) => Topmost = false;
         }
 
         #region 数据构建逻辑

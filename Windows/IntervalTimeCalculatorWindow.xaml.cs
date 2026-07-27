@@ -36,6 +36,7 @@ namespace MetroEditor.Windows
             LoadDefaultValues();
             // 首次打开时自动计算（异步执行）
             CalcButton_Click(null, null);
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

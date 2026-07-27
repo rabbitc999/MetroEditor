@@ -54,6 +54,7 @@ namespace MetroEditor.Windows
 
             // 加载完成后自动聚焦到输入框
             Loaded += (_, _) => InputTextBox.Focus();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

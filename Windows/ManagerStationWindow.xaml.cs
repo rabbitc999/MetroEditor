@@ -72,6 +72,7 @@ namespace MetroEditor.Windows
             InitializeComponent();
             StationDataGrid.ItemsSource = _stations;
             LoadApiKey(); // 加载加密的API Key
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

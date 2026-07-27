@@ -48,6 +48,7 @@ namespace MetroEditor.Windows
 
             // 可选：设置初始焦点
             StartBox.Focus();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

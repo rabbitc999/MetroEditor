@@ -45,6 +45,7 @@ namespace MetroEditor.Windows
             LineComboBox.ItemsSource = items;
             if (items.Any())
                 LineComboBox.SelectedIndex = 0;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

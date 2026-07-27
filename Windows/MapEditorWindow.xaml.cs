@@ -22,6 +22,7 @@ namespace MetroEditor.Windows
         {
             InitializeComponent();
             Loaded += MapEditorWindow_Loaded;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

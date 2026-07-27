@@ -88,6 +88,7 @@ namespace MetroEditor.Windows
 
             // 初始化代码预览
             RefreshPreview();
+            Loaded += (o, e) => Topmost = false;
         }
 
         #region 普通票价分段操作

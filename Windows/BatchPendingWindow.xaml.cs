@@ -62,6 +62,7 @@ namespace MetroEditor.Windows
             // 事件绑定
             LineCombo.SelectionChanged += LineCombo_SelectionChanged; // 线路切换时刷新站点
             SearchBox.TextChanged += SearchBox_TextChanged;           // 搜索框实时过滤
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

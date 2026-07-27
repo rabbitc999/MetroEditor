@@ -34,6 +34,7 @@ namespace MetroEditor.Windows
             FileDataGrid.ItemsSource = _files;
             // 设置默认输出目录为用户文档文件夹
             OutputDirTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

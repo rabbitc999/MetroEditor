@@ -33,6 +33,7 @@ namespace MetroEditor.Windows
             InitializeComponent();
             LoadSettings();          // 加载已有设置
             LoadFonts();            // 加载系统字体
+            Loaded += (o, e) => Topmost = false;
         }
 
         #region UI初始化

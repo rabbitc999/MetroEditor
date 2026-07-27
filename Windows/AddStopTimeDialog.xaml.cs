@@ -30,6 +30,7 @@ namespace MetroEditor.Windows
             // 构建线路下拉框的数据源，显示名称，值为ID
             var lineItems = lines.Select(id => new { Display = lineNameMap.GetValueOrDefault(id, id), Id = id }).ToList();
             LineCombo.ItemsSource = lineItems;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

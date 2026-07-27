@@ -26,6 +26,7 @@ namespace MetroEditor.Windows
         {
             // 加载XAML定义的界面组件
             InitializeComponent();
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>

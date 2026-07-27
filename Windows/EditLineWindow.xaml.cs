@@ -92,6 +92,7 @@ namespace MetroEditor.Windows
 
             // 事件绑定：颜色文本框变化时实时更新预览
             ColorTextBox.TextChanged += ColorTextBox_TextChanged;
+            Loaded += (o, e) => Topmost = false;
         }
 
         /// <summary>
