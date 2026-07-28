@@ -1,3 +1,10 @@
+/**
+ * @file metro.c
+ * @brief 地铁数据解析与查询库的实现
+ * @details 提供加载二进制数据、查询站点/线路/路线、打印信息等功能。
+ *          内部使用 uthash 建立路线索引，支持快速查找。
+ */
+
 #include "metro.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,44 +25,55 @@
 #endif
 
 /* ---- 常量 ---- */
-#define MAGIC               "ROUT"
-#define VERSION_SUPPORTED   5
+#define MAGIC               "ROUT"          /**< 文件魔数 */
+#define VERSION_SUPPORTED   5               /**< 支持的版本号 */
 
+/**
+ * @brief 区块类型枚举（对应二进制偏移表中的类型）
+ */
 enum SectionType {
-    TYPE_STATION = 1,
-    TYPE_LINE    = 2,
-    TYPE_DIR     = 3,
-    TYPE_RECORD  = 4,
-    TYPE_ORDER   = 5
+    TYPE_STATION = 1,   /**< 站点区块 */
+    TYPE_LINE    = 2,   /**< 线路区块 */
+    TYPE_DIR     = 3,   /**< 方向区块 */
+    TYPE_RECORD  = 4,   /**< 路线记录区块 */
+    TYPE_ORDER   = 5    /**< 线路顺序区块 */
 };
 
 /* ---- 内部数据结构 ---- */
+
+/**
+ * @brief 单条线路中某个方向的车站顺序及状态
+ */
 typedef struct __LineOrderDir_T {
-    char             *dirName;
-    int               stationCount;
-    int              *stationIds;
-    unsigned char    *status;
+    char             *dirName;      /**< 方向名称（如“内环”） */
+    int               stationCount; /**< 该方向的车站总数 */
+    int              *stationIds;   /**< 车站ID数组（按顺序） */
+    unsigned char    *status;       /**< 车站状态数组（1=暂缓开通，0=运营中） */
 } LineOrderDir_T;
 
+/**
+ * @brief 线路的车站顺序表（包含所有方向）
+ */
 typedef struct __LineOrder_T {
-    int               lineId;
-    int               dirCount;
-    LineOrderDir_T   *dirs;
+    int               lineId;       /**< 线路ID */
+    int               dirCount;     /**< 方向数量 */
+    LineOrderDir_T   *dirs;         /**< 方向数组 */
 } LineOrder_T;
 
 /* ---- 全局变量 ---- */
-static Station_T       *s_Stations      = NULL;
-static int              s_StationCount  = 0;
-static Line_T          *s_Lines         = NULL;
-static int              s_LineCount     = 0;
-static Direction_T     *s_Directions    = NULL;
-static int              s_DirCount      = 0;
-static RouteRecord_T   *s_Records       = NULL;
-static int              s_RecordCount   = 0;
-static LineOrder_T     *s_LineOrders    = NULL;
-static char            *s_KeyCity       = NULL;
 
-/* uthash 索引 */
+static Station_T       *s_Stations      = NULL;  /**< 站点数组 */
+static int              s_StationCount  = 0;     /**< 站点总数 */
+static Line_T          *s_Lines         = NULL;  /**< 线路数组 */
+static int              s_LineCount     = 0;     /**< 线路总数 */
+static Direction_T     *s_Directions    = NULL;  /**< 方向数组 */
+static int              s_DirCount      = 0;     /**< 方向总数 */
+static RouteRecord_T   *s_Records       = NULL;  /**< 路线记录数组 */
+static int              s_RecordCount   = 0;     /**< 路线记录总数 */
+static LineOrder_T     *s_LineOrders    = NULL;  /**< 线路顺序表（与s_Lines对应） */
+static char            *s_KeyCity       = NULL;  /**< 关键城市名（用于打印时省略前缀） */
+
+/* uthash 索引：路线查找表 */
 typedef struct __RouteKey_T {
     int startId;
     int endId;
@@ -66,22 +84,46 @@ typedef struct __RouteIndex_T {
     RouteRecord_T   *record;
     UT_hash_handle   hh;
 } RouteIndex_T;
-static RouteIndex_T *s_IndexMap = NULL;
+static RouteIndex_T *s_IndexMap = NULL;  /**< 路线哈希索引（起点->终点） */
 
-/* ---- 小端读取 ---- */
+/* ---- 小端读取函数 ---- */
+
+/**
+ * @brief 从内存中读取16位小端无符号整数
+ * @param p 数据指针
+ * @return 转换后的16位值
+ */
 static uint16_t ReadLE16(const uint8_t *p) {
     return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
 }
+
+/**
+ * @brief 从内存中读取32位小端无符号整数
+ * @param p 数据指针
+ * @return 转换后的32位值
+ */
 static uint32_t ReadLE32(const uint8_t *p) {
     return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
         ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
 }
+
+/**
+ * @brief 从内存中读取64位小端无符号整数
+ * @param p 数据指针
+ * @return 转换后的64位值
+ */
 static uint64_t ReadLE64(const uint8_t *p) {
     uint64_t v = 0;
     for (int i = 0; i < 8; i++)
         v |= ((uint64_t)p[i] << (i*8));
     return v;
 }
+
+/**
+ * @brief 从内存中读取32位小端浮点数
+ * @param p 数据指针
+ * @return 转换后的float值
+ */
 static float ReadFloat(const uint8_t *p) {
     uint32_t u = ReadLE32(p);
     float f;
@@ -89,7 +131,12 @@ static float ReadFloat(const uint8_t *p) {
     return f;
 }
 
-/* ---- 清理 ---- */
+/* ---- 清理函数 ---- */
+
+/**
+ * @brief 释放所有内部动态内存，并将全局变量重置为初始状态
+ * @note 该函数由 CleanupInternal 调用，不直接对外
+ */
 static void CleanupInternal(void) {
     for (int i = 0; i < s_StationCount; i++) {
         METRO_FREE(s_Stations[i].name);
@@ -143,7 +190,15 @@ static void CleanupInternal(void) {
     s_IndexMap = NULL;
 }
 
-/* ---- 加载二进制（版本5） ---- */
+/* ---- 加载二进制数据（版本5） ---- */
+
+/**
+ * @brief 从内存中解析二进制数据并填充全局数据结构
+ * @param data     二进制数据指针
+ * @param dataSize 数据大小（字节）
+ * @return 1 成功，0 失败
+ * @note 失败时会自动调用 CleanupInternal 清理已分配的资源
+ */
 static int LoadBinary(const uint8_t *data, size_t dataSize) {
     if (data == NULL || dataSize < 6) {
         fprintf(stderr, "数据指针无效或长度不足\n");
@@ -180,7 +235,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         return 0;
     }
     s_KeyCity = (char*)METRO_MALLOC(keyCityLen + 1);
-    if (!s_KeyCity) return 0;
+    if (s_KeyCity == NULL) return 0;
     memcpy(s_KeyCity, ptr, keyCityLen);
     s_KeyCity[keyCityLen] = '\0';
     ptr += keyCityLen;
@@ -257,7 +312,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     s_StationCount = count;
     s_Stations = (Station_T*)METRO_MALLOC(count * sizeof(Station_T));
-    if (!s_Stations) { CleanupInternal(); return 0; }
+    if (s_Stations == NULL) { CleanupInternal(); return 0; }
     p = staData;
     for (int i = 0; i < count; i++) {
         uint16_t nameLen = ReadLE16(p); p += 2;
@@ -304,7 +359,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     s_LineCount = count;
     s_Lines = (Line_T*)METRO_MALLOC(count * sizeof(Line_T));
-    if (!s_Lines) { CleanupInternal(); return 0; }
+    if (s_Lines == NULL) { CleanupInternal(); return 0; }
     p = lineData;
     for (int i = 0; i < count; i++) {
         uint16_t nameLen = ReadLE16(p); p += 2;
@@ -335,7 +390,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     s_DirCount = count;
     s_Directions = (Direction_T*)METRO_MALLOC(count * sizeof(Direction_T));
-    if (!s_Directions) { CleanupInternal(); return 0; }
+    if (s_Directions == NULL) { CleanupInternal(); return 0; }
     p = dirData;
     for (int i = 0; i < count; i++) {
         uint16_t nameLen = ReadLE16(p); p += 2;
@@ -362,7 +417,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     }
     s_RecordCount = count;
     s_Records = (RouteRecord_T*)METRO_MALLOC(count * sizeof(RouteRecord_T));
-    if (!s_Records) { CleanupInternal(); return 0; }
+    if (s_Records == NULL) { CleanupInternal(); return 0; }
     p = recData;
     for (int i = 0; i < count; i++) {
         if (p + 18 > recEnd) break;
@@ -377,7 +432,7 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
         rec->segCount = ReadLE16(p + 16);
         p += 18;
         rec->segs = (RouteSegment_T*)METRO_MALLOC(rec->segCount * sizeof(RouteSegment_T));
-        if (!rec->segs) { CleanupInternal(); return 0; }
+        if (rec->segs == NULL) { CleanupInternal(); return 0; }
         for (int j = 0; j < rec->segCount; j++) {
             rec->segs[j].start = ReadLE16(p);
             rec->segs[j].line  = ReadLE16(p + 2);
@@ -403,14 +458,14 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
     uint16_t lineOrderCount = ReadLE16(p); p += 2;
     if (lineOrderCount != s_LineCount) { CleanupInternal(); return 0; }
     s_LineOrders = (LineOrder_T*)METRO_MALLOC(s_LineCount * sizeof(LineOrder_T));
-    if (!s_LineOrders) { CleanupInternal(); return 0; }
+    if (s_LineOrders == NULL) { CleanupInternal(); return 0; }
     for (int i = 0; i < s_LineCount; i++) {
         if (p + 1 > ordEnd) { CleanupInternal(); return 0; }
         uint8_t dirCnt = *p; p += 1;
         s_LineOrders[i].lineId = i + 1;
         s_LineOrders[i].dirCount = dirCnt;
         s_LineOrders[i].dirs = (LineOrderDir_T*)METRO_MALLOC(dirCnt * sizeof(LineOrderDir_T));
-        if (!s_LineOrders[i].dirs) { CleanupInternal(); return 0; }
+        if (s_LineOrders[i].dirs == NULL) { CleanupInternal(); return 0; }
         for (int d = 0; d < dirCnt; d++) {
             if (p + 2 > ordEnd) { CleanupInternal(); return 0; }
             uint16_t dirNameLen = ReadLE16(p); p += 2;
@@ -424,7 +479,8 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
             s_LineOrders[i].dirs[d].stationCount = stCnt;
             s_LineOrders[i].dirs[d].stationIds = (int*)METRO_MALLOC(stCnt * sizeof(int));
             s_LineOrders[i].dirs[d].status = (unsigned char*)METRO_MALLOC(stCnt * sizeof(unsigned char));
-            if (!s_LineOrders[i].dirs[d].stationIds || !s_LineOrders[i].dirs[d].status) {
+            if (s_LineOrders[i].dirs[d].stationIds == NULL ||
+                s_LineOrders[i].dirs[d].status == NULL) {
                 CleanupInternal(); return 0;
             }
             for (int j = 0; j < stCnt; j++) {
@@ -443,6 +499,13 @@ static int LoadBinary(const uint8_t *data, size_t dataSize) {
 }
 
 /* ---------- 公开 API ---------- */
+
+/**
+ * @brief 初始化地铁系统，加载二进制数据
+ * @param data     二进制数据指针
+ * @param dataSize 数据大小
+ * @return 1 成功，0 失败
+ */
 int Metro_Init(const uint8_t *data, size_t dataSize) {
     if (s_Stations != NULL || s_Lines != NULL || s_Records != NULL)
         CleanupInternal();
@@ -450,28 +513,34 @@ int Metro_Init(const uint8_t *data, size_t dataSize) {
     if (ret == 0) CleanupInternal();
     return ret;
 }
+
+/**
+ * @brief 释放所有内部资源，恢复未初始化状态
+ */
 void Metro_Cleanup(void) { CleanupInternal(); }
 
 int Metro_GetStationCount(void) { return s_StationCount; }
-int Metro_GetLineCount(void) { return s_LineCount; }
+int Metro_GetLineCount(void)    { return s_LineCount; }
 int Metro_GetDirectionCount(void) { return s_DirCount; }
-int Metro_GetRecordCount(void) { return s_RecordCount; }
+int Metro_GetRecordCount(void)  { return s_RecordCount; }
 
 const Station_T* Metro_GetStation(int id) {
     if (id < 1 || id > s_StationCount) return NULL;
     return &s_Stations[id - 1];
 }
+
 const Line_T* Metro_GetLine(int id) {
     if (id < 1 || id > s_LineCount) return NULL;
     return &s_Lines[id - 1];
 }
+
 const Direction_T* Metro_GetDirection(int id) {
     if (id < 1 || id > s_DirCount) return NULL;
     return &s_Directions[id - 1];
 }
 
 int Metro_FindStationByName(const char *name) {
-    if (!name) return -1;
+    if (name == NULL) return -1;
     for (int i = 0; i < s_StationCount; i++) {
         if (strcmp(s_Stations[i].name, name) == 0)
             return s_Stations[i].id;
@@ -479,6 +548,13 @@ int Metro_FindStationByName(const char *name) {
     return -1;
 }
 
+/**
+ * @brief 不区分大小写的字符串前缀比较
+ * @param cmp0 字符串1
+ * @param cmp1 字符串2
+ * @param len  比较长度
+ * @return 0 相等，非0 不等（与strcmp语义一致）
+ */
 int Metro_StrCaseCmp(const char *cmp0, const char *cmp1, int len) {
     int n0 = strlen(cmp0);
     int n1 = strlen(cmp1);
@@ -494,12 +570,12 @@ int Metro_StrCaseCmp(const char *cmp0, const char *cmp1, int len) {
 int* Metro_FindStationsByPinyin(const char *prefix, int *count) {
     int *results = NULL;
     int found = 0;
-    if (!prefix) { if (count) *count = 0; return NULL; }
+    if (prefix == NULL) { if (count) *count = 0; return NULL; }
     int len = strlen(prefix);
     for (int i = 0; i < s_StationCount; i++) {
         if (Metro_StrCaseCmp(s_Stations[i].pinyin, prefix, len) == 0) {
             results = (int*)METRO_REALLOC(results, (found + 1) * sizeof(int));
-            if (!results) { if (count) *count = 0; return NULL; }
+            if (results == NULL) { if (count) *count = 0; return NULL; }
             results[found++] = s_Stations[i].id;
         }
     }
@@ -511,14 +587,14 @@ const RouteRecord_T* Metro_FindRoute(int startId, int endId) {
     RouteKey_T key = { startId, endId };
     RouteIndex_T *entry = NULL;
     HASH_FIND(hh, s_IndexMap, &key, sizeof(RouteKey_T), entry);
-    return entry ? entry->record : NULL;
+    return (entry != NULL) ? entry->record : NULL;
 }
 
 void Metro_PrintRoute(const RouteRecord_T *record) {
-    if (!record) { printf("未找到该路线！\n"); return; }
+    if (record == NULL) { printf("未找到该路线！\n"); return; }
     const Station_T *sStart = Metro_GetStation(record->start);
     const Station_T *sEnd   = Metro_GetStation(record->end);
-    if (!sStart || !sEnd) { printf("无效的站点ID\n"); return; }
+    if (sStart == NULL || sEnd == NULL) { printf("无效的站点ID\n"); return; }
     printf("[%s] -> [%s]\n", sStart->name, sEnd->name);
     printf("  距离: %.3f km\n", record->dist / 1000.0);
     printf("  时间: %.1f 分钟\n", record->time / 100.0);
@@ -531,7 +607,7 @@ void Metro_PrintRoute(const RouteRecord_T *record) {
         const Line_T *line = Metro_GetLine(seg->line);
         const Direction_T *dir = Metro_GetDirection(seg->dir);
         const Station_T *s2 = Metro_GetStation(seg->end);
-        if (!s1 || !line || !dir || !s2) {
+        if (s1 == NULL || line == NULL || dir == NULL || s2 == NULL) {
             printf("   第%d段: 数据无效\n", i+1);
             continue;
         }
@@ -554,7 +630,7 @@ void Metro_PrintAllLines(void) {
 }
 
 void Metro_PrintLineStations(const char *lineName) {
-    if (!lineName) return;
+    if (lineName == NULL) return;
     int lid = -1;
     for (int i = 0; i < s_LineCount; i++) {
         if (strcmp(s_Lines[i].name, lineName) == 0) {
@@ -588,7 +664,7 @@ void Metro_PrintLineStations(const char *lineName) {
         for (int i = 0; i < order->dirs[d].stationCount; i++) {
             int sid = order->dirs[d].stationIds[i];
             const Station_T *st = Metro_GetStation(sid);
-            if (!st) continue;
+            if (st == NULL) continue;
             printf("    %s", st->name);
             if (order->dirs[d].status[i] == 1)
                 printf(" [暂缓开通]");
@@ -600,11 +676,11 @@ void Metro_PrintLineStations(const char *lineName) {
 }
 
 void Metro_PrintStationDetail(const char *stationName) {
-    if (!stationName) { printf("站点名称无效\n"); return; }
+    if (stationName == NULL) { printf("站点名称无效\n"); return; }
     int stationId = Metro_FindStationByName(stationName);
     if (stationId == -1) { printf("未找到站点: %s\n", stationName); return; }
     const Station_T *st = Metro_GetStation(stationId);
-    if (!st) { printf("站点数据无效\n"); return; }
+    if (st == NULL) { printf("站点数据无效\n"); return; }
     printf("\n========== 站点详情 ==========\n");
     printf("名称: %s\n", st->name);
     printf("拼音: %s\n", st->pinyin);

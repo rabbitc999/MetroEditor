@@ -130,6 +130,16 @@ const Direction_T* Metro_GetDirection(int id);
 int Metro_FindStationByName(const char *name);
 
 /**
+ * @brief  不区分大小写的前缀比较（用于拼音匹配）
+ * @param  cmp0  第一个字符串
+ * @param  cmp1  第二个字符串
+ * @param  len   比较的最大字符数
+ * @retval 0 表示相等，非0表示差异（与strcmp语义一致）
+ * @note   仅比较前 len 个字符，且忽略大小写
+ */
+int Metro_StrCaseCmp(const char *cmp0, const char *cmp1, int len);
+
+/**
  * @brief  根据拼音前缀查找所有匹配站点
  * @param  prefix  拼音前缀（不区分大小写）
  * @param  count   输出匹配数量（可为NULL）
