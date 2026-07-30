@@ -735,6 +735,47 @@ namespace MetroEditor.MetroLang.Compiler
                     parser.ErrorList.Add($"站台 '{station}' 线路 '{lineId}' 的状态 '{status}' 无效");
                 }
             }
+
+            // 区域校验
+            var validTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "COMMERCIAL", "RESIDENTIAL", "CBD", "GOVERNMENT", "TOURIST",
+                "TRANSPORT_HUB", "EDUCATIONAL", "MEDICAL", "MIXED", "OTHER"
+            };
+
+            foreach (var kv in context.Zones)
+            {
+                var zoneId = kv.Key;
+                var zone = kv.Value;
+
+                // 必须名称和类型
+                if (string.IsNullOrEmpty(zone.Name))
+                    parser.ErrorList.Add($"区域 '{zoneId}' 缺少 NAME");
+
+                if (string.IsNullOrEmpty(zone.Type) || !validTypes.Contains(zone.Type))
+                    parser.ErrorList.Add($"区域 '{zoneId}' 的 TYPE 无效或缺失");
+
+                // 城市存在性（若指定）
+                if (!string.IsNullOrEmpty(zone.City) && !context.Cities.ContainsKey(zone.City))
+                    parser.ErrorList.Add($"区域 '{zoneId}' 引用的城市 '{zone.City}' 未定义");
+
+                // 检查定位方式：至少一个（CENTER+RADIUS 或 POLYGON）
+                bool hasCenter = zone.Center != null && zone.Center.Length == 2;
+                bool hasRadius = zone.Radius.HasValue;
+                bool hasPolygon = zone.Polygon != null && zone.Polygon.Count > 0;
+                if (!hasCenter && !hasPolygon)
+                    context.Warnings.Add($"区域 '{zoneId}' 未定义 CENTER/RADIUS 或 POLYGON，可能无法在地图上定位");
+
+                if (hasCenter != hasRadius) // 一个存在另一个缺失
+                    context.Warnings.Add($"区域 '{zoneId}' 的 CENTER 和 RADIUS 应同时使用");
+
+                // 检查关联车站是否存在
+                foreach (var station in zone.Stations)
+                {
+                    if (!context.Stations.ContainsKey(station))
+                        parser.ErrorList.Add($"区域 '{zoneId}' 引用了不存在的车站 '{station}'");
+                }
+            }
         }
     }
 }

@@ -193,6 +193,47 @@ void Metro_Free(void *ptr);
  */
 void Metro_PrintStationDetail(const char *stationName);
 
+/**
+ * @brief 获取指定线路的方向数量
+ * @param lineId 线路ID（1开始）
+ * @return 方向数量，无效则返回0
+ */
+int Metro_GetLineDirectionCount(int lineId);
+
+/**
+ * @brief 获取指定线路某个方向的名称
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引（0开始）
+ * @return 方向名称字符串，若无效则返回NULL
+ */
+const char* Metro_GetLineDirectionName(int lineId, int dirIdx);
+
+/**
+ * @brief 获取指定线路某个方向的车站总数
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @return 车站数量，无效返回0
+ */
+int Metro_GetLineDirectionStationCount(int lineId, int dirIdx);
+
+/**
+ * @brief 获取指定线路某个方向指定位置的车站ID
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @param idx     车站位置（0开始）
+ * @return 车站ID，无效返回-1
+ */
+int Metro_GetLineDirectionStationId(int lineId, int dirIdx, int idx);
+
+/**
+ * @brief 获取指定线路某个方向指定位置的车站状态
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @param idx     车站位置
+ * @return 1=暂缓开通，0=运营中，无效返回255
+ */
+unsigned char Metro_GetLineDirectionStationStatus(int lineId, int dirIdx, int idx);
+
 #ifdef __cplusplus
 }
 #endif

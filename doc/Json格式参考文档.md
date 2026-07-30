@@ -47,6 +47,7 @@
 | `speed_limits` | array | 区间限速，见 §5.6 |
 | `virtual_transfers` | array | 虚拟换乘，见 §5.7 |
 | `labels` | array | 文字标签，见 §5.8 |
+| `zones` | array of Zone | 城市功能区/区域定义列表 |
 
 ---
 
@@ -488,7 +489,47 @@
 | `end_time` | string | 时段结束时间 `HH:mm`（可选） |
 | `days` | string[] | 适用日期列表（可选），取值可为星期全称或 `"WORKDAY"`/`"WEEKEND"` |
 
-## 9. 扩展性
+# 9. Zone 对象结构：
+```json
+{
+  "id": "zone_zhujiang",
+  "name": "珠江新城",
+  "type": "CBD",
+  "city": "广州",
+  "color": "#FF6B6B",
+  "center": { "lon": 113.322, "lat": 23.118 },
+  "radius": null,
+  "polygon": [
+    { "lon": 113.312, "lat": 23.112 },
+    { "lon": 113.325, "lat": 23.110 },
+    { "lon": 113.330, "lat": 23.125 },
+    { "lon": 113.315, "lat": 23.130 }
+  ],
+  "stations": ["珠江新城", "猎德", "妇儿中心"],
+  "properties": {
+    "peak_hours": ["08:30-09:30", "18:00-19:30"],
+    "population_density": 3.5,
+    "avg_rent": 85.0
+  }
+}
+```
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `id` | string | 区域唯一标识（如 `zone_tianhe`） |
+| `name` | string | 显示名称 |
+| `type` | string | 类型枚举（见上表） |
+| `city` | string | 所属城市，默认继承 `key_city` |
+| `color` | string | 十六进制颜色值，含 `#`，用于前端渲染 |
+| `center` | object | 中心点坐标 `{ lon, lat }`（可选） |
+| `radius` | number | 圆形半径（米），与 `polygon` 互斥（可选） |
+| `polygon` | array of { lon, lat } | 多边形边界点集（可选），优先于 `center`/`radius` 用于面渲染 |
+| `stations` | array of string | 关联的站点名称列表，用于客流OD分析或“该区域最近站点”查询 |
+| `properties` | object | 扩展属性字典（可选），业务方可自定义内部字段 |
+
+---
+
+## 10. 扩展性
 
 该格式预留扩展能力，未来可能增加：
 - 站点 POI 数据

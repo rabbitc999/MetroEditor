@@ -170,6 +170,11 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public Dictionary<string, DirectionTemplate> DirectionTemplates { get; internal set; } = new();
 
+        /// <summary>
+        /// 区域定义字典：Key=区域ID, Value=区域详情
+        /// </summary>
+        public Dictionary<string, ZoneInfo> Zones { get; internal set; } = new();
+
         // ====================================================================
         // 9. 辅助映射
         // ====================================================================
@@ -354,6 +359,7 @@ namespace MetroEditor.MetroLang.Compiler
             data.UpdateDate = UpdateDate;
             data.CreateDate = CreateDate;
             data.OtherCities = Cities.Where(k => k.Key != MainCity).Select(k => k.Key).ToList();
+            data.Zones = new Dictionary<string, ZoneInfo>(this.Zones);
 
             return data;
         }
@@ -426,6 +432,24 @@ namespace MetroEditor.MetroLang.Compiler
             clone.PlatformCoords = new Dictionary<(string Station, string LineId), (double Lon, double Lat)>(this.PlatformCoords);
             //clone.Assertions = this.Assertions.Select(a => a.Clone()).ToList();
             //clone.EchoMessages = new List<string>(this.EchoMessages);
+            // 在 DeepClone 中适当位置添加
+            clone.Zones = CloneDictionary(this.Zones, z => new ZoneInfo
+            {
+                Name = z.Name,
+                Type = z.Type,
+                City = z.City,
+                Color = z.Color,
+                Center = z.Center?.ToArray(),
+                Radius = z.Radius,
+                Polygon = z.Polygon?.Select(p => p.ToArray()).ToList(),
+                Stations = new List<string>(z.Stations),
+                Attributes = new ZoneAttributes
+                {
+                    PeakHours = new List<string>(z.Attributes.PeakHours),
+                    PopulationDensity = z.Attributes.PopulationDensity,
+                    AvgRent = z.Attributes.AvgRent
+                }
+            });
 
             // ---- 11. 警告 ----
             clone.Warnings = new List<string>(this.Warnings);

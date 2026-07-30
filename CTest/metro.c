@@ -717,4 +717,83 @@ void Metro_PrintStationDetail(const char *stationName) {
     printf("================================\n");
 }
 
+/**
+ * @brief 获取指定线路的方向数量
+ * @param lineId 线路ID（1开始）
+ * @return 方向数量，无效则返回0
+ */
+int Metro_GetLineDirectionCount(int lineId) {
+    if (lineId < 1 || lineId > s_LineCount || s_LineOrders == NULL)
+        return 0;
+    return s_LineOrders[lineId - 1].dirCount;
+}
+
+/**
+ * @brief 获取指定线路某个方向的名称
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引（0开始）
+ * @return 方向名称字符串，若无效则返回NULL
+ */
+const char* Metro_GetLineDirectionName(int lineId, int dirIdx) {
+    if (lineId < 1 || lineId > s_LineCount || s_LineOrders == NULL)
+        return NULL;
+    LineOrder_T *order = &s_LineOrders[lineId - 1];
+    if (dirIdx < 0 || dirIdx >= order->dirCount)
+        return NULL;
+    return order->dirs[dirIdx].dirName;
+}
+
+/**
+ * @brief 获取指定线路某个方向的车站总数
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @return 车站数量，无效返回0
+ */
+int Metro_GetLineDirectionStationCount(int lineId, int dirIdx) {
+    if (lineId < 1 || lineId > s_LineCount || s_LineOrders == NULL)
+        return 0;
+    LineOrder_T *order = &s_LineOrders[lineId - 1];
+    if (dirIdx < 0 || dirIdx >= order->dirCount)
+        return 0;
+    return order->dirs[dirIdx].stationCount;
+}
+
+/**
+ * @brief 获取指定线路某个方向指定位置的车站ID
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @param idx     车站位置（0开始）
+ * @return 车站ID，无效返回-1
+ */
+int Metro_GetLineDirectionStationId(int lineId, int dirIdx, int idx) {
+    if (lineId < 1 || lineId > s_LineCount || s_LineOrders == NULL)
+        return -1;
+    LineOrder_T *order = &s_LineOrders[lineId - 1];
+    if (dirIdx < 0 || dirIdx >= order->dirCount)
+        return -1;
+    LineOrderDir_T *dir = &order->dirs[dirIdx];
+    if (idx < 0 || idx >= dir->stationCount)
+        return -1;
+    return dir->stationIds[idx];
+}
+
+/**
+ * @brief 获取指定线路某个方向指定位置的车站状态
+ * @param lineId  线路ID
+ * @param dirIdx  方向索引
+ * @param idx     车站位置
+ * @return 1=暂缓开通，0=运营中，无效返回255
+ */
+unsigned char Metro_GetLineDirectionStationStatus(int lineId, int dirIdx, int idx) {
+    if (lineId < 1 || lineId > s_LineCount || s_LineOrders == NULL)
+        return 255;
+    LineOrder_T *order = &s_LineOrders[lineId - 1];
+    if (dirIdx < 0 || dirIdx >= order->dirCount)
+        return 255;
+    LineOrderDir_T *dir = &order->dirs[dirIdx];
+    if (idx < 0 || idx >= dir->stationCount)
+        return 255;
+    return dir->status[idx];
+}
+
 void Metro_Free(void *ptr) { METRO_FREE(ptr); }

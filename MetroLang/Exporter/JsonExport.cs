@@ -141,7 +141,28 @@ namespace MetroEditor.MetroLang.Exporter
                     ? context.Promotions.Select(MapToJsonPromotionPolicy).ToList()
                     : null,
 
-                LanguageOrder = context.LanguageOrder.Any() ? context.LanguageOrder : null
+                LanguageOrder = context.LanguageOrder.Any() ? context.LanguageOrder : null,
+
+                Zones = context.Zones.Any()
+                    ? context.Zones.Select(kv => new JsonZone
+                    {
+                        Id = kv.Key,
+                        Name = kv.Value.Name,
+                        Type = kv.Value.Type,
+                        City = kv.Value.City,
+                        Color = kv.Value.Color,
+                        Center = kv.Value.Center,
+                        Radius = kv.Value.Radius,
+                        Polygon = kv.Value.Polygon,
+                        Stations = kv.Value.Stations,
+                        Attributes = kv.Value.Attributes != null ? new JsonZoneAttributes
+                        {
+                            PeakHours = kv.Value.Attributes.PeakHours,
+                            PopulationDensity = kv.Value.Attributes.PopulationDensity,
+                            AvgRent = kv.Value.Attributes.AvgRent
+                        } : null
+                    }).ToList()
+                    : null,
             };
 
             // 补充 ViaDirections 到 Direction 对象

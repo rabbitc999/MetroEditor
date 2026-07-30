@@ -68,6 +68,7 @@ namespace MetroEditor.MetroLang.Compiler.Compiler
 
             command["PLATFORM_COORD"] = new PlatformCoord();
             command["GEN_TRANSFER"] = new GenTransfer();
+            command["ZONE_DEFINE"] = new ZoneDefine();
 
             return command;
         }

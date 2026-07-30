@@ -123,6 +123,9 @@ namespace MetroEditor.MetroLang.DataModel
 
         public List<PromotionPolicy> Promotions { get; set; } = new();
 
+        /// <summary>区域定义</summary>
+        public Dictionary<string, ZoneInfo> Zones { get; set; } = new();
+
 
 
         /// <summary>

@@ -554,7 +554,7 @@ ECHO "方向总数：{DIRECTION_COUNT}"
 ---
 ## 28. 平台坐标与自动换乘时间
 
-### 29.1 平台坐标（单行命令）
+### 28.1 平台坐标（单行命令）
 `PLATFORM_COORD` 用于为特定线路上的车站设置独立的站台坐标（平台坐标），以精确表示不同线路在同一车站的不同站台位置，从而优化换乘时间计算和线路绘制。
 ```metro
 PLATFORM_COORD '站名' '线路ID' COORD 经度, 纬度
@@ -564,7 +564,7 @@ PLATFORM_COORD '站名' '线路ID' COORD 经度, 纬度
 - 若已存在相同站名+线路的平台坐标，则覆盖。
 - 该坐标仅影响路径绘制（优先使用）和换乘时间计算，不影响全局站点坐标。
 
-### 29.2 自动换乘时间生成（单行命令）
+### 28.2 自动换乘时间生成（单行命令）
 `GEN_TRANSFER` 基于平台坐标（若未定义则回退到全局坐标）自动计算并更新换乘规则中的时间。
 
 ```metro
@@ -591,9 +591,74 @@ END_DEFINE
 GEN_TRANSFER WALK_SPEED 5.0 UPDATE_EXISTING
 ```
 
+基于你提供的 MetroLang 体系，目前确实没有专门定义“商业区/住宅区”等城市功能区（Zone/District）的字段。为了保持风格统一且扩展性强，我建议新增一个 **`ZONE_DEFINE`**（DSL）和 **`zones`**（JSON）顶层结构。
+
+以下是我为你设计的完整格式方案，既兼容现有的地理坐标体系，也便于前端渲染热力图或客流分析。
+
 ---
 
-## 29. 完整示例
+## 29. 区域定义（`ZONE_DEFINE` 块）
+
+```metro
+ZONE_DEFINE 区域ID
+    NAME '区域显示名称'                # 必填，如 '天河中央商务区'
+    TYPE 类型代码                      # 必填，见下方类型枚举
+    CITY '城市名'                     # 可选，默认继承 PROGRAM 的 KEY_CITY
+    COLOR '#RRGGBB'                   # 可选，前端热力图/区域着色
+    CENTER 经度, 纬度                  # 可选，区域中心点坐标
+    RADIUS 米数                        # 可选，配合 CENTER 生成圆形缓冲区
+    POLYGON [ [经度,纬度], [经度,纬度], ... ]  # 可选，精确多边形边界（推荐）
+    STATIONS ['站名1', '站名2', ...]   # 可选，关联的站点列表（用于客流换乘分析）
+    ATTRIBUTES                        # 可选，附加业务属性块
+        PEAK_HOURS ['08:00-09:00', '18:00-19:00']
+        POPULATION_DENSITY 数值       # 万人/km²
+        AVG_RENT 数值                 # 平均租金（元/月）
+    END_ATTRIBUTES
+END_DEFINE
+```
+
+**类型枚举（`TYPE`）**：
+
+| 类型代码 | 说明 |
+| :--- | :--- |
+| `COMMERCIAL` | 商业区/商圈 |
+| `RESIDENTIAL` | 大型居住区/住宅区 |
+| `CBD` | 中央商务区/写字楼集群 |
+| `GOVERNMENT` | 行政办公区 |
+| `TOURIST` | 旅游景区/文化地标 |
+| `TRANSPORT_HUB` | 交通枢纽（机场/火车站辐射区） |
+| `EDUCATIONAL` | 大学城/教育园区 |
+| `MEDICAL` | 大型医院/医疗园区 |
+| `MIXED` | 综合功能区 |
+| `OTHER` | 其他 |
+
+**DSL 使用示例**：
+```metro
+ZONE_DEFINE zone_zhujiang
+    NAME '珠江新城'
+    TYPE CBD
+    CITY '广州'
+    COLOR '#FF6B6B'
+    POLYGON [ [113.312, 23.112], [113.325, 23.110], [113.330, 23.125], [113.315, 23.130] ]
+    STATIONS ['珠江新城', '猎德', '妇儿中心']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '18:00-19:30']
+        POPULATION_DENSITY 3.5
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE zone_tianhe_bei
+    NAME '天河北住宅区'
+    TYPE RESIDENTIAL
+    CENTER 113.340, 23.145
+    RADIUS 800
+    STATIONS ['体育中心', '林和西']
+END_DEFINE
+```
+
+---
+
+## 30. 完整示例
 
 ```metro
 %DEFINE CITY_BJ

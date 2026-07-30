@@ -136,5 +136,9 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("language_order")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<string>? LanguageOrder { get; set; }
+
+        [JsonPropertyName("zones")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<JsonZone>? Zones { get; set; }
     }
 }
