@@ -6,8 +6,19 @@ using System.Threading.Tasks;
 
 namespace MetroEditor.MetroLang
 {
+    /// <summary>
+    /// MetroLang 语法引用集合，为编辑器提供语法补全和帮助提示所需的数据。
+    /// <para>包含两类数据：</para>
+    /// <list type="bullet">
+    /// <item><see cref="SyntaxReferences"/>：语法命令的格式模板和示例</item>
+    /// <item><see cref="KeyWords"/>：所有关键字及其中文说明</item>
+    /// </list>
+    /// </summary>
     public static class SyntaxUsage
     {
+        /// <summary>
+        /// 语法命令引用的完整列表，每条记录包含命令格式、示例和插入模板。
+        /// </summary>
         public static List<SyntaxReferenceItem> SyntaxReferences = new List<SyntaxReferenceItem>
         {
             // ---------- 全局与城市 ----------
@@ -384,6 +395,9 @@ namespace MetroEditor.MetroLang
             },
         };
 
+        /// <summary>
+        /// MetroLang 关键字字典，Key 为关键字文本，Value 为中文说明。
+        /// </summary>
         public static List<KeyValuePair<string, string>> KeyWords = new()
         {
             // ----- 全局与城市 -----
@@ -580,11 +594,21 @@ namespace MetroEditor.MetroLang
 
 
 
+        /// <summary>
+        /// 语法引用条目，描述一条 MetroLang 命令的格式和使用方式。
+        /// </summary>
         public class SyntaxReferenceItem
         {
+            /// <summary>命令名称</summary>
             public string Command { get; set; }
+
+            /// <summary>命令完整格式</summary>
             public string Format { get; set; }
+
+            /// <summary>使用示例</summary>
             public string Example { get; set; }
+
+            /// <summary>编辑器插入模板</summary>
             public string InsertTemplate { get; set; }
         }
     }

@@ -26,6 +26,9 @@
         /// <summary>换乘类型标识（用于模板匹配）</summary>
         public string TransferType { get; set; } = string.Empty;
 
+        /// <summary>
+        /// 深拷贝当前换乘规则，返回一个独立的副本。
+        /// </summary>
         public TransferRule Clone()
         {
             return new TransferRule

@@ -281,6 +281,12 @@ namespace MetroEditor.MetroLang.Exporter
         }
 
         // ------------------ 辅助方法 ------------------
+        /// <summary>
+        /// 从乘车指引文本中提取分段信息（方向名、线路名、站数、到站）。
+        /// </summary>
+        /// <param name="guide">乘车指引文本，格式如"开往X方向的Y线，坐N站...【Z站】"</param>
+        /// <param name="startStation">分段起始站点</param>
+        /// <returns>解析出的分段信息列表</returns>
         private static List<SegmentInfo> ExtractSegments(string guide, string startStation)
         {
             var pattern = new Regex(@"开往(.*?)方向的(.*?)，坐(\d+)站.*?【(.*?)】");
@@ -306,6 +312,9 @@ namespace MetroEditor.MetroLang.Exporter
             return result;
         }
 
+        /// <summary>
+        /// 乘车指引分段信息
+        /// </summary>
         private class SegmentInfo
         {
             public string FromStation { get; set; }
@@ -321,27 +330,35 @@ namespace MetroEditor.MetroLang.Exporter
     /// </summary>
     public class CsvRecord
     {
+        /// <summary>起点站名</summary>
         [Name("起点站")]
         public string StartStation { get; set; }
 
+        /// <summary>终点站名</summary>
         [Name("终点站")]
         public string EndStation { get; set; }
 
+        /// <summary>距离（千米）</summary>
         [Name("距离(km)")]
         public string DistanceKm { get; set; }
 
+        /// <summary>预估耗时（分钟）</summary>
         [Name("时间(分钟)")]
         public string TimeMinutes { get; set; }
 
+        /// <summary>票价（元）</summary>
         [Name("票价(元)")]
         public string FareYuan { get; set; }
 
+        /// <summary>换乘次数</summary>
         [Name("换乘次数")]
         public string TransferCount { get; set; }
 
+        /// <summary>途经站数</summary>
         [Name("站数")]
         public string StopCount { get; set; }
 
+        /// <summary>乘车指引文本</summary>
         [Name("乘车指引")]
         public string Guide { get; set; }
     }
@@ -351,6 +368,12 @@ namespace MetroEditor.MetroLang.Exporter
     /// </summary>
     public static class PinyinHelper
     {
+        /// <summary>
+        /// 获取中文文本的拼音首字母大写序列。
+        /// 非汉字字符（字母、数字、标点）保留原样，无法转换的汉字也保留原样。
+        /// </summary>
+        /// <param name="text">输入文本</param>
+        /// <returns>拼音首字母序列</returns>
         public static string GetPinyinInitial(string text)
         {
             if (string.IsNullOrEmpty(text))

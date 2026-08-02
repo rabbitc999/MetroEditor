@@ -10,6 +10,13 @@ namespace MetroEditor.Simulator.Utils
     /// </summary>
     public static class SimStationUtils
     {
+        /// <summary>
+        /// 获取车站在指定线路上的运营状态。
+        /// </summary>
+        /// <param name="cache">仿真数据缓存</param>
+        /// <param name="station">车站名称</param>
+        /// <param name="lineId">线路ID</param>
+        /// <returns>状态字符串（如 "operating", "pending"）</returns>
         public static string GetStationLineStatus(SimDataCache cache, string station, string lineId)
         {
             if (cache.StationLineStatusMap.TryGetValue(station, out var lineMap))
@@ -19,16 +26,30 @@ namespace MetroEditor.Simulator.Utils
             return "operating";
         }
 
+        /// <summary>
+        /// 判断状态码是否表示站点关闭。
+        /// </summary>
         public static bool IsClosed(string status)
         {
             return !(status == null || status == "operating" || status == "out_station");
         }
 
+        /// <summary>
+        /// 判断是否为出站换乘状态。
+        /// </summary>
         public static bool IsOutStation(string status)
         {
             return status == "out_station";
         }
 
+        /// <summary>
+        /// 获取两个方向在指定站点的换乘状态。
+        /// </summary>
+        /// <param name="cache">仿真数据缓存</param>
+        /// <param name="station">车站名称</param>
+        /// <param name="dirKey1">第一个方向键</param>
+        /// <param name="dirKey2">第二个方向键</param>
+        /// <returns>换乘状态字符串</returns>
         public static string GetTransferStatus(SimDataCache cache, string station, string dirKey1, string dirKey2)
         {
             if (!cache.TransferStatusMap.TryGetValue(station, out var transferMap))
@@ -43,6 +64,14 @@ namespace MetroEditor.Simulator.Utils
             return transferMap.TryGetValue(key, out string? status) ? status : "operating";
         }
 
+        /// <summary>
+        /// 获取车站在两条指定线路之间的换乘状态。
+        /// </summary>
+        /// <param name="cache">仿真数据缓存</param>
+        /// <param name="stationName">车站名称</param>
+        /// <param name="lineA">第一条线路ID</param>
+        /// <param name="lineB">第二条线路ID</param>
+        /// <returns>换乘状态字符串</returns>
         public static string GetTransferStatusForStation(SimDataCache cache, string stationName, string lineA, string lineB)
         {
             if (!cache.TransferStatusMap.TryGetValue(stationName, out var transferMap))
@@ -52,6 +81,9 @@ namespace MetroEditor.Simulator.Utils
             return transferMap.TryGetValue(key, out string? status) ? status : "operating";
         }
 
+        /// <summary>
+        /// 判断方向键是否对应特殊线路。
+        /// </summary>
         public static bool IsSpecialDirKey(SimDataCache cache, string dirKey)
         {
             string? lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey);
@@ -59,6 +91,12 @@ namespace MetroEditor.Simulator.Utils
             return cache.LineSpecialMap.TryGetValue(lineId, out bool isSpecial) && isSpecial;
         }
 
+        /// <summary>
+        /// 过滤掉特殊线路的方向键，保留普通线路方向。
+        /// </summary>
+        /// <param name="cache">仿真数据缓存</param>
+        /// <param name="dirKeys">方向键集合</param>
+        /// <returns>过滤后的方向键集合</returns>
         public static HashSet<string> FilterOutSpecialDirs(SimDataCache cache, HashSet<string> dirKeys)
         {
             if (dirKeys == null || dirKeys.Count == 0)
@@ -73,6 +111,14 @@ namespace MetroEditor.Simulator.Utils
             return result;
         }
 
+        /// <summary>
+        /// 获取在两个方向之间换乘的时间，会优先查找自定义换乘时间。
+        /// </summary>
+        /// <param name="cache">仿真数据缓存</param>
+        /// <param name="station">换乘站名称</param>
+        /// <param name="dirKey1">第一个方向键</param>
+        /// <param name="dirKey2">第二个方向键</param>
+        /// <returns>换乘耗时（秒）</returns>
         public static double GetTransferTime(SimDataCache cache, string station, string dirKey1, string dirKey2)
         {
             string? line1 = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey1);
@@ -96,6 +142,9 @@ namespace MetroEditor.Simulator.Utils
                 return cache.AvgTransferTime;
         }
 
+        /// <summary>
+        /// 获取所有车站名称列表（按名称排序）。
+        /// </summary>
         public static List<string> GetStationList(SimDataCache cache)
         {
             var list = new List<string>(cache.StationCoords.Keys);
@@ -103,6 +152,9 @@ namespace MetroEditor.Simulator.Utils
             return list;
         }
 
+        /// <summary>
+        /// 判断车站是否为远期规划站点（所有方向均为未来方向或状态均为 pending）。
+        /// </summary>
         public static bool IsFutureStation(SimDataCache cache, string station)
         {
             var dirStations = cache.DirStations;

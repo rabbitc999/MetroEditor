@@ -9,19 +9,42 @@ using static MetroEditor.MetroLang.Compiler.Context;
 namespace MetroEditor.MetroLang.Compiler
 {
     /// <summary>
-    ///  编译后处理流程
+    /// 编译后处理器，在语法解析完成后执行一系列语义优化和校验。
+    /// <para>处理流程（按执行顺序）：</para>
+    /// <list type="number">
+    /// <item><see cref="MarkFutureOnlyStations"/>：标记仅出现在远期方向中的车站为待开通状态</item>
+    /// <item><see cref="ApplyPendingTransfers"/>：为待开通车站自动生成换乘规则</item>
+    /// <item><see cref="RemoveDuplicateDirections"/>：去重具有相同站点序列的冗余方向</item>
+    /// <item><see cref="RemoveSingleStationDirections"/>：移除站点数不足2个的无效方向</item>
+    /// <item><see cref="InferStationCities"/>：推断未显式定义城市的车站归属</item>
+    /// <item><see cref="FinalChecks"/>：执行特殊线路票价、主城市等最终校验</item>
+    /// <item><see cref="ExpandTransferTemplates"/>：展开换乘模板为具体换乘规则</item>
+    /// <item><see cref="EvaluateAssertions"/>：执行编译时断言</item>
+    /// <item><see cref="ProcessEchoMessages"/>：处理 ECHO 调试输出</item>
+    /// <item><see cref="FormatStationKeys"/>：统一站点键格式（添加城市后缀）</item>
+    /// </list>
     /// </summary>
     internal class PostProcessor
     {
+        /// <summary>语法解析器实例</summary>
         Parser parser;
+        /// <summary>编译数据上下文</summary>
         Context context;
 
+        /// <summary>
+        /// 创建后处理器实例。
+        /// </summary>
+        /// <param name="parser">语法解析器，用于获取/添加错误和警告</param>
+        /// <param name="context">编译数据上下文，包含所有已解析的数据</param>
         public PostProcessor(Parser parser, Context context)
         {
             this.parser = parser;
             this.context = context;
         }
 
+        /// <summary>
+        /// 执行完整的后处理流程。
+        /// </summary>
         public void DoProcess()
         {
             MarkFutureOnlyStations();

@@ -34,6 +34,9 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>特殊线路票价规则列表</summary>
         public List<SpecialLine> SpecialLines { get; set; } = new();
 
+        /// <summary>
+        /// 深拷贝当前票价配置，返回一个独立的副本。
+        /// </summary>
         public PriceConfig Clone()
         {
             return new PriceConfig

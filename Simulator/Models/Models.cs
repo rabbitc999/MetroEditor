@@ -1,5 +1,6 @@
 ﻿namespace MetroEditor.Simulator.Models
 {
+    /// <summary>票价分段信息（方向、线路、站点列表和距离）</summary>
     public class SimFareSegmentInfo
     {
         public string DirKey { get; set; } = string.Empty;
@@ -8,6 +9,7 @@
         public double Distance { get; set; }
     }
 
+    /// <summary>收藏路线信息</summary>
     public class SimFavoriteRoute
     {
         public string KeyCity { get; set; } = string.Empty;
@@ -25,6 +27,7 @@
         }
     }
 
+    /// <summary>线路方向信息（起讫站、站点序列、别名颜色等）</summary>
     public class SimLineDirection
     {
         public string Start { get; set; } = string.Empty;
@@ -49,6 +52,7 @@
         }
     }
 
+    /// <summary>线路图例项（线路名、颜色列表、标签、里程）</summary>
     public class SimLineLegendItem
     {
         public string LineId { get; set; } = string.Empty;
@@ -69,6 +73,7 @@
         }
     }
 
+    /// <summary>地图文件信息（文件名、是否内置、文件大小）</summary>
     public class SimMapFileInfo
     {
         public string FileName { get; set; } = string.Empty;
@@ -84,6 +89,11 @@
         }
     }
 
+    /// <summary>
+    /// 路径搜索结果。
+    /// <para>包含换乘次数、总代价、路径节点列表和票价信息。
+    /// <c>Transfers</c> 为 -1 表示未找到路径。</para>
+    /// </summary>
     public class SimPathResult
     {
         public int Transfers { get; set; } = -1;
@@ -101,6 +111,7 @@
         }
     }
 
+    /// <summary>行程分段信息（起讫站、线路、方向、站数、是否支线等）</summary>
     public class SimRouteSegment
     {
         public string StartStation { get; set; } = string.Empty;
@@ -133,6 +144,11 @@
         }
     }
 
+    /// <summary>
+    /// 路径搜索权重配置。
+    /// <para>各权重维度：距离、换乘、票价、时间、站点数、拥挤度。
+    /// 通过不同权重组合实现「最快」「最少换乘」「最便宜」等多种搜索策略。</para>
+    /// </summary>
     public class SimSearchWeight
     {
         public double DistanceWeight { get; }
@@ -157,6 +173,7 @@
             => new SimSearchWeight(1, 0, 0, 0, 0);
     }
 
+    /// <summary>通勤分析站点指标（距离、换乘次数、综合得分、票价、时间等）</summary>
     public class SimStationValue
     {
         public string Station { get; set; } = string.Empty;
@@ -186,6 +203,7 @@
         }
     }
 
+    /// <summary>换乘线路信息（线路ID、显示名、颜色、状态）</summary>
     public class SimTransferLineInfo
     {
         public string LineId { get; set; } = string.Empty;
@@ -203,6 +221,7 @@
         }
     }
 
+    /// <summary>UI 显示项（标题或站点，用于线路详情等界面渲染）</summary>
     public class SimDisplayItem
     {
         public string NickName { get; set; } = string.Empty;
@@ -233,6 +252,7 @@
         }
     }
 
+    /// <summary>票价分段明细（线路、起讫站、距离、基础票价、附加费、总票价）</summary>
     public class SimFareSegmentDetail
     {
         public string LineId { get; set; } = string.Empty;
@@ -253,6 +273,7 @@
         }
     }
 
+    /// <summary>阶梯票价区间（起止里程和对应票价）</summary>
     public class SimFareSegment
     {
         public double RangeStart { get; set; }
@@ -260,6 +281,7 @@
         public double Fare { get; set; }
     }
 
+    /// <summary>线性扩展票价规则（超出门槛后的每公里加收）</summary>
     public class SimLinearExtension
     {
         public double Threshold { get; set; }
@@ -267,6 +289,7 @@
         public double RatePerKm { get; set; }
     }
 
+    /// <summary>区间附加费项（起讫站和附加金额）</summary>
     public class SimSurcharge
     {
         public string Node_a { get; set; } = string.Empty;
@@ -274,6 +297,7 @@
         public double Price { get; set; }
     }
 
+    /// <summary>特殊线路票价规则（统一票价/区间附加费/独立分段计价）</summary>
     public class SimSpecialLineRule
     {
         public string LineId { get; set; } = string.Empty;

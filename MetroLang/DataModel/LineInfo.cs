@@ -35,6 +35,9 @@
         /// <summary>图片Base64编码</summary>
         public string ImageBase64 { get; set; }
 
+        /// <summary>
+        /// 深拷贝当前线路信息，返回一个独立的副本。
+        /// </summary>
         public LineInfo Clone()
         {
             return new LineInfo

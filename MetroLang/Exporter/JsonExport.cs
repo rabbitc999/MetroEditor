@@ -4,10 +4,18 @@ using MetroEditor.MetroLang.JsonModel;
 
 namespace MetroEditor.MetroLang.Exporter
 {
+    /// <summary>
+    /// JSON 导出器，将编译后的内部数据模型 <see cref="Context"/> 映射为标准 <see cref="JsonRoot"/> 结构。
+    /// <para>核心职责：整合坐标、线路归属、换乘规则、城市推断等信息，生成可序列化的 JSON 路网数据。</para>
+    /// </summary>
     public class JsonExporter
     {
         private Context context;
 
+        /// <summary>
+        /// 初始化导出器实例。
+        /// </summary>
+        /// <param name="context">编译后的上下文数据容器。</param>
         public JsonExporter(Context context)
         {
             this.context = context;

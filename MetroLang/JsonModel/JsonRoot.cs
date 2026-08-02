@@ -131,12 +131,15 @@ namespace MetroEditor.MetroLang.JsonModel
         public List<JsonPromotionPolicy>? Promotions { get; set; }
 
         /// <summary>
-        /// 优惠策略列表（如学生票、老人票）。
+        /// 语言显示顺序列表（如 ["zh-Hans", "en"]）。
         /// </summary>
         [JsonPropertyName("language_order")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<string>? LanguageOrder { get; set; }
 
+        /// <summary>
+        /// 区域定义列表（如行政区划、商圈）。
+        /// </summary>
         [JsonPropertyName("zones")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<JsonZone>? Zones { get; set; }

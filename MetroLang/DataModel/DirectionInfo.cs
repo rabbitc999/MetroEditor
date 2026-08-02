@@ -32,6 +32,9 @@
         /// <summary>经由的其他方向 ID 列表（用于复杂交路）</summary>
         public List<string> ViaDirections { get; set; } = new();
 
+        /// <summary>
+        /// 深拷贝当前方向信息，返回一个独立的副本。
+        /// </summary>
         public DirectionInfo Clone()
         {
             return new DirectionInfo

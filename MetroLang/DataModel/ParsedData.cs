@@ -16,19 +16,19 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>主城市标识</summary>
         public string MainCity { get; set; } = string.Empty;
 
-        /// <summary>主城市标识</summary>
+        /// <summary>数据版本号</summary>
         public string Version { get; set; } = string.Empty;
 
-        /// <summary>主城市标识</summary>
+        /// <summary>数据创建日期</summary>
         public string CreateDate { get; set; } = string.Empty;
 
-        /// <summary>主城市标识</summary>
+        /// <summary>其他城市列表</summary>
         public List<string> OtherCities { get; set; } = new();
 
-        /// <summary>主城市标识</summary>
+        /// <summary>数据最近更新日期</summary>
         public string UpdateDate { get; set; } = string.Empty;
 
-        /// <summary>主城市标识</summary>
+        /// <summary>数据作者</summary>
         public string Author { get; set; } = string.Empty;
 
         /// <summary>城市信息字典（Key: 城市ID, Value: 城市属性字典）</summary>
@@ -115,12 +115,16 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>默认上车时间（秒），用于模拟计算</summary>
         public double DefaultBoardTime { get; set; } = 3.0;
 
+        /// <summary>语言显示顺序列表</summary>
         public List<string> LanguageOrder { get; set; } = new();
 
+        /// <summary>车站别名/其他名称字典（Key: 车站ID, Value: 别名列表）</summary>
         public Dictionary<string, List<string>> StationOtherNames { get; set; } = new();
 
+        /// <summary>车站设施信息字典（Key: 车站ID）</summary>
         public Dictionary<string, StationFacilities> Facilities { get; set; } = new();
 
+        /// <summary>票价优惠策略列表</summary>
         public List<PromotionPolicy> Promotions { get; set; } = new();
 
         /// <summary>区域定义</summary>
@@ -133,6 +137,10 @@ namespace MetroEditor.MetroLang.DataModel
         /// </summary>
         public Dictionary<(string Station, string LineId), (double Lon, double Lat)> PlatformCoords { get; set; } = new();
 
+        /// <summary>
+        /// 深拷贝当前解析数据，返回一个独立的副本。
+        /// </summary>
+        /// <returns>新的 <see cref="ParsedData"/> 实例，所有字段均为深拷贝。</returns>
         public ParsedData Clone()
         {
             return new ParsedData

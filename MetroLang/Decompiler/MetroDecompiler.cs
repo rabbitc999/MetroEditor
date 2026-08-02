@@ -25,6 +25,11 @@ namespace MetroEditor.MetroLang.Decompiler
         // Value: "LineId_Index" (如 "LINE1_0")
         private readonly Dictionary<string, string> _externalToInternalDirectionMap = new();
 
+        /// <summary>
+        /// 初始化反编译器实例。
+        /// </summary>
+        /// <param name="root">路网数据根对象。</param>
+        /// <exception cref="ArgumentNullException"><paramref name="root"/> 为 <c>null</c> 时抛出。</exception>
         public MetroDecompiler(JsonRoot root)
         {
             _root = root ?? throw new ArgumentNullException(nameof(root));

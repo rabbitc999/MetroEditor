@@ -7,11 +7,28 @@ using MetroEditor.Simulator.Utils;
 namespace MetroEditor.Simulator.Algorithms
 {
     /// <summary>
-    /// 时间计算工具类（从 Android TimeCalculator 转换）
+    /// 时间计算工具类。
+    /// <para>负责计算路径的总出行时间，包括：</para>
+    /// <list type="bullet">
+    /// <item>列车行驶时间（基于物理模型的区间运行时间）</item>
+    /// <item>换乘时间（步行换乘 + 候车等待）</item>
+    /// <item>停站时间（默认或自定义停站时间）</item>
+    /// <item>进出站时间</item>
+    /// </list>
+    /// <para>换乘等待时间公式：<c>T/2 + t + (C-1)*T</c>，其中 T 为发车间隔，t 为上车时间，C 为拥挤度系数。</para>
+    /// <para>该类从 Android 版 TimeCalculator 移植。</para>
     /// </summary>
     public static class SimTimeCalculator
     {
-        // ---------- 公共API：总时间计算 ----------
+        /// <summary>
+        /// 计算路径的总出行时间（秒），包含行驶、换乘、停站、进出站和首站候车时间。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="metroGraph">地铁图实例</param>
+        /// <param name="weight">搜索权重（仅用于判断是否计算拥挤度）</param>
+        /// <param name="travelTimeMillis">出行时间戳（毫秒）</param>
+        /// <returns>总出行时间（秒）</returns>
         public static double ComputeTotalTime(SimDataCache cache, List<string> path, SimMetroGraph metroGraph,
                                               SimSearchWeight weight, long travelTimeMillis)
         {
@@ -98,7 +115,13 @@ namespace MetroEditor.Simulator.Algorithms
             return cache.LineMaxSpeedMap.TryGetValue(lineId, out int speed) ? speed : 80;
         }
 
-        // ---------- 换乘时间 ----------
+        /// <summary>
+        /// 计算路径中的总换乘时间（步行换乘时间 + 候车等待时间）。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="travelTimeMillis">出行时间戳（毫秒）</param>
+        /// <returns>总换乘时间（秒）</returns>
         public static double ComputeTotalTransferTime(SimDataCache cache, List<string> path, long travelTimeMillis)
         {
             double total = 0.0;
@@ -172,7 +195,13 @@ namespace MetroEditor.Simulator.Algorithms
             return 120;
         }
 
-        // ---------- 辅助：拥挤度因子 ----------
+        /// <summary>
+        /// 查找指定方向在给定时间点的拥挤度因子。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="dirKey">方向键</param>
+        /// <param name="travelTimeMillis">出行时间戳（毫秒）</param>
+        /// <returns>拥挤度因子，默认 1.0（无拥挤）</returns>
         public static double FindCrowdFactor(SimDataCache cache, string dirKey, long travelTimeMillis)
         {
             var rules = cache.CrowdRules;
@@ -205,8 +234,15 @@ namespace MetroEditor.Simulator.Algorithms
         }
 
         /// <summary>
-        /// 计算在换乘站等待下一趟车的时间（秒）
+        /// 计算在换乘站等待下一趟车的时间（秒）。
+        /// <para>公式：<c>T/2 + t + (C-1)*T</c></para>
+        /// <para>其中 T = 发车间隔，t = 上车时间，C = 拥挤度因子。</para>
+        /// <para>拥挤度 > 1 时，乘客可能需要等待多趟车才能上车，等待时间相应增加。</para>
         /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="targetDirKey">目标方向键</param>
+        /// <param name="travelTimeMillis">出行时间戳（毫秒）</param>
+        /// <returns>候车等待时间（秒）</returns>
         public static double ComputeTransferWaitTime(SimDataCache cache, string targetDirKey, long travelTimeMillis)
         {
             string targetLineId = SimGraphKeyUtils.GetLineIdFromDirKey(targetDirKey)!;

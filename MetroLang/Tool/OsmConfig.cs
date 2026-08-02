@@ -9,28 +9,67 @@ namespace MetroEditor.MetroLang.Tool
     // ========================================================================
     // OSM 配置类
     // ========================================================================
+    /// <summary>
+    /// OSM 导入配置类。
+    /// <para>
+    /// 包含网络到城市的映射、网络前缀映射、特殊线路映射、
+    /// 默认时间配置以及票价规则。用户可以通过 JSON 配置文件覆盖这些默认值。
+    /// </para>
+    /// </summary>
     public class OsmConfig
     {
+        /// <summary>网络名到城市名的映射（如 "广州地铁" -> "广州"）</summary>
         public Dictionary<string, string> NetworkCityMap { get; set; } = new();
+
+        /// <summary>网络名到线路前缀的映射（如 "广州地铁" -> "G"）</summary>
         public Dictionary<string, string> NetworkPrefixMap { get; set; } = new();
+
+        /// <summary>特殊线路名到线路ID的映射（如 "广佛线" -> "GF"）</summary>
         public Dictionary<string, string> SpecialLineMap { get; set; } = new();
+
+        /// <summary>默认时间配置</summary>
         public DefaultTimesConfig DefaultTimes { get; set; } = new();
+
+        /// <summary>票价规则列表</summary>
         public List<FareRule> FareRules { get; set; } = new();
 
+        /// <summary>
+        /// 默认时间配置（单位：分钟）。
+        /// </summary>
         public class DefaultTimesConfig
         {
+            /// <summary>默认站内换乘时间（分钟）</summary>
             public double InStation { get; set; } = 8.0;
+
+            /// <summary>默认出站换乘时间（分钟）</summary>
             public double OutStation { get; set; } = 10.0;
+
+            /// <summary>默认停站时间（分钟）</summary>
             public double Stop { get; set; } = 0.75;
         }
 
+        /// <summary>
+        /// 票价规则定义。
+        /// Type 取值：start（起步价）、segment（分段）、calc（线性续价）。
+        /// </summary>
         public class FareRule
         {
+            /// <summary>规则类型（start/segment/calc）</summary>
             public string Type { get; set; }
+
+            /// <summary>票价金额（元）</summary>
             public double Price { get; set; }
+
+            /// <summary>分段：里程起始（km）</summary>
             public double Start { get; set; }
+
+            /// <summary>分段：里程结束（km）</summary>
             public double End { get; set; }
+
+            /// <summary>calc：续价里程步长（km）</summary>
             public double DistSegment { get; set; }
+
+            /// <summary>calc：每步长附加票价（元）</summary>
             public double AddPrice { get; set; }
         }
     }
@@ -38,44 +77,63 @@ namespace MetroEditor.MetroLang.Tool
     // ========================================================================
     // OSM 数据模型
     // ========================================================================
+    /// <summary>
+    /// OSM JSON 数据的根对象。
+    /// </summary>
     public class OsmRoot
     {
         [JsonPropertyName("elements")]
         public List<OsmElement> Elements { get; set; }
     }
 
+    /// <summary>
+    /// OSM 元素（节点/路径/关系）。
+    /// </summary>
     public class OsmElement
     {
+        /// <summary>元素类型（node/way/relation）</summary>
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
+        /// <summary>元素 ID</summary>
         [JsonPropertyName("id")]
         public JsonElement Id { get; set; }
 
+        /// <summary>纬度（仅对 node 有效）</summary>
         [JsonPropertyName("lat")]
         public double Lat { get; set; }
 
+        /// <summary>经度（仅对 node 有效）</summary>
         [JsonPropertyName("lon")]
         public double Lon { get; set; }
 
+        /// <summary>标签键值对</summary>
         [JsonPropertyName("tags")]
         public Dictionary<string, string> Tags { get; set; }
 
+        /// <summary>子成员列表（仅对 relation 有效）</summary>
         [JsonPropertyName("members")]
         public List<OsmMember> Members { get; set; }
 
+        /// <summary>扩展数据（存储 tags 之外的未知属性）</summary>
         [JsonExtensionData]
         public Dictionary<string, object> ExtensionData { get; set; }
     }
 
+    /// <summary>
+    /// OSM 关系的成员元素。
+    /// </summary>
     public class OsmMember
     {
+        /// <summary>成员类型（node/way/relation）</summary>
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
+        /// <summary>引用的元素 ID</summary>
         [JsonPropertyName("ref")]
         public JsonElement Ref { get; set; }
 
+        /// <summary>成员在关系中的角色（如 "stop", "platform"）</summary>
         [JsonPropertyName("role")]
         public string Role { get; set; }
     }
@@ -120,6 +178,18 @@ namespace MetroEditor.MetroLang.Tool
     // OSM 地铁数据提取器（完整重构版）
     // 职责：OSM JSON → MetroJsonRoot（标准中间数据）
     // ========================================================================
+    /// <summary>
+    /// OSM 地铁数据提取器，将 OSM JSON 数据转换为标准 <see cref="JsonRoot"/> 路网数据。
+    /// <remarks>
+    /// 工作流程：
+    /// <list type="number">
+    /// <item>缓存所有车站节点（node）</item>
+    /// <item>收集地铁线路关系（relation）</item>
+    /// <item>逐条处理线路方向</item>
+    /// <item>构建最终的 JsonRoot 对象</item>
+    /// </list>
+    /// </remarks>
+    /// </summary>
     public class OsmMetroExtractor
     {
         private const string RailwayKey = "railway";
@@ -145,6 +215,11 @@ namespace MetroEditor.MetroLang.Tool
         private readonly Dictionary<string, string> _lineCityMap = new();
         private string _keyCity = "广州";
 
+        /// <summary>
+        /// 初始化提取器实例。
+        /// </summary>
+        /// <param name="config">OSM 导入配置（若为 null 则使用默认配置）</param>
+        /// <param name="metadata">线路元数据字典（若为 null 则使用空字典）</param>
         public OsmMetroExtractor(OsmConfig config, Dictionary<string, LineMetadata> metadata)
         {
             _config = config ?? new OsmConfig();
@@ -154,6 +229,12 @@ namespace MetroEditor.MetroLang.Tool
         // ====================================================================
         // 公开入口：OSM → MetroJsonRoot
         // ====================================================================
+        /// <summary>
+        /// 从 OSM 数据中提取地铁路网信息，构建标准 JsonRoot 对象。
+        /// </summary>
+        /// <param name="osmData">已解析的 OSM JSON 根对象</param>
+        /// <param name="keyCity">主城市标识，默认为"广州"</param>
+        /// <returns>包含完整路网数据的 JsonRoot 对象</returns>
         public JsonRoot ExtractToRoot(OsmRoot osmData, string keyCity = "广州")
         {
             _keyCity = keyCity;
@@ -644,8 +725,20 @@ namespace MetroEditor.MetroLang.Tool
     // ========================================================================
     // 配置加载器
     // ========================================================================
+    /// <summary>
+    /// 配置加载器，负责读取和合并 OSM 导入配置文件。
+    /// <para>
+    /// 如果用户提供了配置文件，则将其中的值覆盖到默认配置；
+    /// 否则返回内置的默认配置。
+    /// </para>
+    /// </summary>
     public static class ConfigLoader
     {
+        /// <summary>
+        /// 加载 OSM 配置，支持用户自定义 JSON 文件覆盖默认值。
+        /// </summary>
+        /// <param name="configPath">用户配置文件路径</param>
+        /// <returns>合并后的 OsmConfig 实例</returns>
         public static OsmConfig LoadConfig(string configPath)
         {
             var defaultConfig = CreateDefaultConfig();
@@ -672,6 +765,11 @@ namespace MetroEditor.MetroLang.Tool
             return defaultConfig;
         }
 
+        /// <summary>
+        /// 加载线路元数据 JSON 文件。
+        /// </summary>
+        /// <param name="metaPath">元数据文件路径</param>
+        /// <returns>线路ID到 LineMetadata 的映射字典</returns>
         public static Dictionary<string, LineMetadata> LoadMetadata(string metaPath)
         {
             var result = new Dictionary<string, LineMetadata>();

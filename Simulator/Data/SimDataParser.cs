@@ -15,6 +15,20 @@ namespace MetroEditor.Simulator.Data
     /// </summary>
     public static class SimDataParser
     {
+        /// <summary>
+        /// 将 <see cref="JsonRoot"/> 路网数据解析为仿真内部缓存 <see cref="SimDataCache"/>。
+        /// <para>解析过程包含：</para>
+        /// <list type="number">
+        /// <item>提取基础信息和运营参数</item>
+        /// <item>解析站点坐标、状态和换乘规则</item>
+        /// <item>解析线路属性、方向、距离和速度限制</item>
+        /// <item>识别线路分段运营标记</item>
+        /// <item>解析票价规则</item>
+        /// <item>转换发车间隔、拥挤度、运营时间等其他规则</item>
+        /// </list>
+        /// </summary>
+        /// <param name="root">JSON 路网数据根对象</param>
+        /// <returns>填充完成的数据缓存对象</returns>
         public static SimDataCache Parse(JsonRoot root)
         {
             SimDataCache cache = new SimDataCache();

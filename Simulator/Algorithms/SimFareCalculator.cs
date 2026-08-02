@@ -7,11 +7,21 @@ using MetroEditor.Simulator.Utils;
 namespace MetroEditor.Simulator.Algorithms
 {
     /// <summary>
-    /// 票价计算工具类（从 Android FareCalculator 转换）
+    /// 票价计算工具类。
+    /// <para>支持普通里程计费（起步价 + 分段票价 + 线性扩展）和特殊线路票价
+    /// （统一票价、区间附加费、独立分段计价），可处理 <c>UseLines</c> 线路组。</para>
+    /// <para>计算流程：将路径按方向分段 → 区分普通段和特殊段 → 分别计算票价 → 汇总。</para>
+    /// <para>该类从 Android 版 FareCalculator 移植。</para>
     /// </summary>
     public static class SimFareCalculator
     {
-        // ---------- 公共入口 ----------
+        /// <summary>
+        /// 计算路径总票价（含特殊线路票价）。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="metroGraph">地铁图实例</param>
+        /// <returns>(总票价, 特殊线路票价部分)</returns>
         public static (double Total, double Special) CalculateFareWithSpecial(
             SimDataCache cache, List<string> path, SimMetroGraph metroGraph)
         {
@@ -31,6 +41,13 @@ namespace MetroEditor.Simulator.Algorithms
             return (total, special);
         }
 
+        /// <summary>
+        /// 计算路径总票价（排除特殊线路，仅计算普通里程票价）。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="metroGraph">地铁图实例</param>
+        /// <returns>(总票价, 0)</returns>
         public static (double Total, double Special) CalculateFareWithoutSpecial(
             SimDataCache cache, List<string> path, SimMetroGraph metroGraph)
         {
@@ -44,6 +61,14 @@ namespace MetroEditor.Simulator.Algorithms
             return (total, 0.0);
         }
 
+        /// <summary>
+        /// 计算路径的详细票价分段信息，区分普通段和特殊段。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="metroGraph">地铁图实例</param>
+        /// <param name="excludeSpecial">是否排除特殊线路</param>
+        /// <returns>每段的票价明细列表</returns>
         public static List<SimFareSegmentDetail> CalculateFareDetails(
             SimDataCache cache, List<string> path, SimMetroGraph metroGraph, bool excludeSpecial)
         {
@@ -224,7 +249,12 @@ namespace MetroEditor.Simulator.Algorithms
             return 0.0;
         }
 
-        // ---------- 分段构建 ----------
+        /// <summary>
+        /// 将路径节点列表按方向分段，每段包含方向键、站点列表、线路 ID 和累计距离。
+        /// </summary>
+        /// <param name="path">路径节点列表</param>
+        /// <param name="metroGraph">地铁图实例</param>
+        /// <returns>票价分段信息列表</returns>
         public static List<SimFareSegmentInfo> BuildSegments(List<string> path, SimMetroGraph metroGraph)
         {
             var segments = new List<SimFareSegmentInfo>();
@@ -279,7 +309,12 @@ namespace MetroEditor.Simulator.Algorithms
             return seg;
         }
 
-        // ---------- 基础票价计算 ----------
+        /// <summary>
+        /// 计算基础里程票价：先查阶梯区间，再用线性扩展公式计算超出部分。
+        /// </summary>
+        /// <param name="cache">数据缓存</param>
+        /// <param name="distance">行驶距离（公里）</param>
+        /// <returns>基础票价</returns>
         public static double CalcBaseFare(SimDataCache cache, double distance)
         {
             if (distance <= 0) return 0.0;

@@ -8,14 +8,26 @@ using System.Threading.Tasks;
 
 namespace MetroEditor.MetroLang.Compiler
 {
+    /// <summary>
+    /// 编译器工具类，提供路网数据操作、地理距离计算、通配符匹配等通用辅助方法。
+    /// <para>主要职责包括：</para>
+    /// <list type="bullet">
+    /// <item>站间距离计算（Catmull-Rom 样条 + Haversine 公式）</item>
+    /// <item>线路/方向/车站的复制、重命名、删除、合并、拆分等批量操作</item>
+    /// <item>方向键格式转换（内部 ID ↔ 外部 LineId|Start|End 格式）</item>
+    /// <item>通配符模式匹配（支持 <c>*</c> 通配符）</item>
+    /// <item>线路/方向模板继承解析</item>
+    /// </list>
+    /// </summary>
     public class Utils
     {
 
-        // ====================================================================
-        // 距离列表反转工具方法
-        // 环线：直接反转列表
-        // 非环线：去掉末尾 NIL，反转后再补回 NIL
-        // ====================================================================
+        /// <summary>
+        /// 反转距离列表。环线直接反转；非环线去掉末尾 NIL 标记后反转再补回。
+        /// </summary>
+        /// <param name="distances">原始距离列表</param>
+        /// <param name="isLoop">是否为环线</param>
+        /// <returns>反转后的距离列表</returns>
         public static List<double> ReverseDistanceList(List<double> distances, bool isLoop)
         {
             if (distances == null || distances.Count == 0)
@@ -38,11 +50,13 @@ namespace MetroEditor.MetroLang.Compiler
             }
         }
 
-        // ====================================================================
-        // 自动计算站间距：使用 Catmull-Rom 样条曲线估算地理距离
-        // 参数：did - 方向标识符
-        // 逻辑：基于车站坐标，通过样条插值计算平滑路径的长度
-        // ====================================================================
+        /// <summary>
+        /// 使用 Catmull-Rom 样条曲线自动计算方向中相邻站间的地理距离。
+        /// <para>基于车站经纬度坐标，通过样条插值生成平滑路径并累加球面距离。
+        /// 环线方向会额外计算首尾站间的闭合距离。</para>
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="directionId">方向标识符</param>
         public static void CalcAutoDistances(Context context, string directionId)
         {
             var direction = context.Directions[directionId];
@@ -93,12 +107,15 @@ namespace MetroEditor.MetroLang.Compiler
             context.Distances[directionId] = dists;
         }
 
-        // ====================================================================
-        // Catmull-Rom 样条曲线弧长计算
-        // 参数：p0-p3 - 四个控制点，samples - 采样点数
-        // 返回：曲线段的近似弧长（公里）
-        // 算法：通过参数方程采样，累加相邻采样点的球面距离
-        // ====================================================================
+        /// <summary>
+        /// 使用 Catmull-Rom 样条曲线计算四控制点间曲线段的近似弧长（公里）。
+        /// </summary>
+        /// <param name="p0">第一个控制点（前驱）</param>
+        /// <param name="p1">第二个控制点（起点）</param>
+        /// <param name="p2">第三个控制点（终点）</param>
+        /// <param name="p3">第四个控制点（后继）</param>
+        /// <param name="samples">采样点数，默认 40</param>
+        /// <returns>曲线段的近似弧长（公里）</returns>
         private static double CatmullRomArcLength(
             (double Lon, double Lat) p0, (double Lon, double Lat) p1,
             (double Lon, double Lat) p2, (double Lon, double Lat) p3,
@@ -134,12 +151,14 @@ namespace MetroEditor.MetroLang.Compiler
             return totalLength;
         }
 
-        // ====================================================================
-        // 哈弗辛公式：计算球面上两点间的大圆距离
-        // 参数：lat1, lon1 - 第一点经纬度；lat2, lon2 - 第二点经纬度
-        // 返回：两点间的距离（公里）
-        // 算法：基于球面三角学，考虑了地球曲率
-        // ====================================================================
+        /// <summary>
+        /// 使用哈弗辛（Haversine）公式计算球面上两点间的大圆距离。
+        /// </summary>
+        /// <param name="lat1">第一点纬度</param>
+        /// <param name="lon1">第一点经度</param>
+        /// <param name="lat2">第二点纬度</param>
+        /// <param name="lon2">第二点经度</param>
+        /// <returns>两点间距离（公里），基于地球平均半径 6371km</returns>
         public static double Haversine(double lat1, double lon1, double lat2, double lon2)
         {
             const double EarthRadius = 6371.0; // 地球平均半径（公里）
@@ -157,9 +176,15 @@ namespace MetroEditor.MetroLang.Compiler
             return EarthRadius * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
         }
 
-        // ====================================================================
-        // 特殊票价规则添加辅助方法
-        // ====================================================================
+        /// <summary>
+        /// 向指定线路添加特殊票价规则（统一票价或区间附加费）。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="lineId">线路 ID</param>
+        /// <param name="type">票价类型：<c>"all"</c> 为统一票价，<c>"segment"</c> 为区间附加费</param>
+        /// <param name="price">票价金额</param>
+        /// <param name="stationA">区间起点站（仅 type=segment 时使用）</param>
+        /// <param name="stationB">区间终点站（仅 type=segment 时使用）</param>
         public static void AddSpecialFare(Context context, string lineId, string type, double price, string? stationA = null, string? stationB = null)
         {
             var config = context.PriceConfig;
@@ -218,6 +243,15 @@ namespace MetroEditor.MetroLang.Compiler
             return internalDirKey;
         }
 
+        /// <summary>
+        /// 合并两个方向（首尾相接），返回合并后的站点列表和距离列表。
+        /// </summary>
+        /// <param name="dirA">第一个方向</param>
+        /// <param name="dirB">第二个方向</param>
+        /// <param name="distA">第一个方向的距离列表</param>
+        /// <param name="distB">第二个方向的距离列表</param>
+        /// <returns>合并后的 (站点列表, 距离列表)</returns>
+        /// <exception cref="InvalidOperationException">方向为环线或无公共站点时抛出</exception>
         public static (List<string> stations, List<double> distances) MergeDirections(
             DirectionInfo dirA, DirectionInfo dirB,
             List<double> distA, List<double> distB)
@@ -262,12 +296,20 @@ namespace MetroEditor.MetroLang.Compiler
             return (mergedStations, mergedDist);
         }
 
+        /// <summary>
+        /// 构建外部方向键格式：<c>LineId|Start|End</c>
+        /// </summary>
         public static string BuildExternalKey(string lineId, string start, string end)
         {
             return $"{lineId}|{start}|{end}";
         }
 
-        // Utils 中添加
+        /// <summary>
+        /// 通配符匹配：支持单个 <c>*</c> 通配符，匹配任意字符串。
+        /// </summary>
+        /// <param name="pattern">匹配模式（可含一个 *）</param>
+        /// <param name="input">待匹配的输入字符串</param>
+        /// <returns>(是否匹配, 通配符捕获的内容)</returns>
         public static (bool matches, string captured) MatchWildcard(string pattern, string input)
         {
             // 支持一个 '*'，匹配任意字符串
@@ -285,11 +327,20 @@ namespace MetroEditor.MetroLang.Compiler
             return (true, captured);
         }
 
+        /// <summary>
+        /// 将通配符模式中的 <c>*</c> 替换为捕获内容。
+        /// </summary>
         public static string ApplyWildcard(string pattern, string capture)
         {
             return pattern.Replace("*", capture);
         }
 
+        /// <summary>
+        /// 深度复制一条线路及其所有关联数据（方向、距离、票价、发车间隔、运营时间、车辆段等）。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="sourceLineId">源线路 ID</param>
+        /// <param name="targetLineId">目标线路 ID</param>
         public static void CopyLine(Context context, string sourceLineId, string targetLineId)
         {
             if (!context.Lines.TryGetValue(sourceLineId, out var sourceLine))
@@ -416,6 +467,11 @@ namespace MetroEditor.MetroLang.Compiler
             }
         }
 
+        /// <summary>
+        /// 删除一条线路及其所有关联数据。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="lineId">要删除的线路 ID</param>
         public static void DeleteLine(Context context, string lineId)
         {
             if (!context.Lines.ContainsKey(lineId))
@@ -457,6 +513,12 @@ namespace MetroEditor.MetroLang.Compiler
                 context.StationStatus.Remove(key);
         }
 
+        /// <summary>
+        /// 重命名线路 ID，同步更新所有引用该线路的关联数据。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="oldId">旧线路 ID</param>
+        /// <param name="newId">新线路 ID</param>
         public static void RenameLine(Context context, string oldId, string newId)
         {
             if (!context.Lines.ContainsKey(oldId))
@@ -634,6 +696,13 @@ namespace MetroEditor.MetroLang.Compiler
             context.VirtualTransfers.RemoveAll(v => v.StationA == stationName || v.StationB == stationName);
         }
 
+        /// <summary>
+        /// 合并多条线路为一条新线路，处理方向 ID 冲突并同步更新所有关联数据。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="sourceLineIds">源线路 ID 列表（至少两条）</param>
+        /// <param name="targetLineId">目标线路 ID</param>
+        /// <param name="keepOriginals">是否保留源线路</param>
         public static void MergeLines(Context context, List<string> sourceLineIds, string targetLineId, bool keepOriginals)
         {
             if (sourceLineIds.Count < 2)
@@ -785,6 +854,15 @@ namespace MetroEditor.MetroLang.Compiler
             }
         }
 
+        /// <summary>
+        /// 拆分一条线路为多条新线路，按方向映射分配，处理 ID 冲突并同步更新关联数据。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="sourceLineId">源线路 ID</param>
+        /// <param name="targetLineIds">目标线路 ID 列表</param>
+        /// <param name="dirMapping">方向 ID 到目标线路的映射</param>
+        /// <param name="remainingTarget">未映射方向的默认目标线路</param>
+        /// <param name="keepOriginal">是否保留源线路</param>
         public static void SplitLine(Context context, string sourceLineId, List<string> targetLineIds,
             Dictionary<string, string> dirMapping, string remainingTarget, bool keepOriginal)
         {
@@ -980,6 +1058,13 @@ namespace MetroEditor.MetroLang.Compiler
                 DeleteLine(context, sourceLineId);
         }
 
+        /// <summary>
+        /// 解析线路模板（支持多级继承），返回合并后的模板属性。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="templateId">模板 ID</param>
+        /// <param name="visited">已访问的模板 ID 集合（用于循环检测）</param>
+        /// <returns>解析后的线路模板</returns>
         public static LineTemplate ResolveLineTemplate(Context context, string templateId, HashSet<string> visited = null)
         {
             visited ??= new HashSet<string>();
@@ -1018,6 +1103,13 @@ namespace MetroEditor.MetroLang.Compiler
             if (source.IsSpecial.HasValue) target.IsSpecial = source.IsSpecial;
         }
 
+        /// <summary>
+        /// 解析方向模板（支持多级继承），返回合并后的模板属性。
+        /// </summary>
+        /// <param name="context">编译上下文</param>
+        /// <param name="templateId">模板 ID</param>
+        /// <param name="visited">已访问的模板 ID 集合（用于循环检测）</param>
+        /// <returns>解析后的方向模板</returns>
         public static DirectionTemplate ResolveDirectionTemplate(Context context, string templateId, HashSet<string> visited = null)
         {
             visited ??= new HashSet<string>();

@@ -69,6 +69,7 @@ local.properties
 [Rr]elease/
 x64/
 x86/
+.workbuddy/
 
 # ========== ²âÊÔ½á¹û ==========
 [Tt]est[Rr]esult*/

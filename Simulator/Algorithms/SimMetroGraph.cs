@@ -10,8 +10,12 @@ using MetroEditor.Simulator.Utils;
 namespace MetroEditor.Simulator.Algorithms
 {
     /// <summary>
-    /// 地铁线路图核心数据结构与路径规划算法（从 Android MetroGraph 转换）
-    /// 改造：将内部 Dijkstra 升级为 A*，利用地理距离估算启发式加速搜索。
+    /// 地铁线路图核心数据结构与路径规划算法。
+    /// <para>该类负责将 <see cref="JsonRoot"/> 路网数据构建为图结构，并在此基础上执行路径搜索。
+    /// 图的节点为「方向+车站」的组合，边分为运行边（同方向相邻站间）和换乘边（同站跨方向）。</para>
+    /// <para>路径搜索采用 A* 算法，利用地理距离估算启发式加速搜索。支持多目标加权搜索
+    /// （距离、换乘、时间、票价、站点数、拥挤度），以及随机路径和最长路径搜索。</para>
+    /// <para>该类从 Android 版 MetroGraph 移植，核心逻辑保持一致，但将内部 Dijkstra 升级为 A*。</para>
     /// </summary>
     public class SimMetroGraph
     {
@@ -43,7 +47,10 @@ namespace MetroEditor.Simulator.Algorithms
             BuildGraphs();
         }
 
-        // ==================== 构建图 ====================
+        /// <summary>
+        /// 构建图结构：解析线路方向、站点信息和换乘关系。
+        /// </summary>
+        /// <returns>图中所有站点名称集合</returns>
         public HashSet<string> BuildGraphs()
         {
             JsonRoot metroData = _cache.JsonData;
@@ -326,7 +333,20 @@ namespace MetroEditor.Simulator.Algorithms
             _transferGraph[n2].Add(new SimEdge(n1, weight));
         }
 
-        // ==================== 路径查找（公共入口） ====================
+        /// <summary>
+        /// 路径搜索公共入口。并行执行三路搜索后择优返回：
+        /// <list type="number">
+        /// <item>用户权重 + 排除特殊线路</item>
+        /// <item>用户权重 + 包含特殊线路</item>
+        /// <item>最短距离权重 + 排除特殊线路（作为基准）</item>
+        /// </list>
+        /// 结果经过前缀去重和票价计算，选择综合代价最小的路径。
+        /// </summary>
+        /// <param name="start">起点站名</param>
+        /// <param name="end">终点站名</param>
+        /// <param name="weight">搜索权重配置</param>
+        /// <param name="travelTimeMillis">出行时间戳（毫秒），用于计算拥挤度和发车间隔</param>
+        /// <returns>路径搜索结果，包含换乘次数、总代价、路径节点列表和票价</returns>
         public SimPathResult FindTransferPath(string start, string end, SimSearchWeight weight, long travelTimeMillis)
         {
             var shortestWeight = SimSearchWeight.GetShortestWeight();
@@ -372,10 +392,11 @@ namespace MetroEditor.Simulator.Algorithms
             return cost1 < cost2 ? result1 : result2;
         }
 
+        /// <summary>
+        /// 路径搜索公共入口（使用当前时间作为出行时间戳）。
+        /// </summary>
+        /// <inheritdoc cref="FindTransferPath(string, string, SimSearchWeight, long)"/>
         public SimPathResult FindTransferPath(string start, string end, SimSearchWeight weight)
-        {
-            return FindTransferPath(start, end, weight, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-        }
 
         // ==================== 内部 A* 路径搜索 ====================
         private SimPathResult FindTransferPathInternal(string start, string end, SimSearchWeight weight,
@@ -618,7 +639,11 @@ namespace MetroEditor.Simulator.Algorithms
             return transfers;
         }
 
-        // ==================== 路径信息查询（与原相同） ====================
+        /// <summary>
+        /// 计算路径的总行驶距离（米）。仅累加同方向相邻站间的距离，不含换乘。
+        /// </summary>
+        /// <param name="path">路径节点列表</param>
+        /// <returns>总行驶距离（米）</returns>
         public double ComputePathDistance(List<string> path)
         {
             double total = 0.0;
@@ -638,6 +663,11 @@ namespace MetroEditor.Simulator.Algorithms
             return total;
         }
 
+        /// <summary>
+        /// 计算路径中不重复的站点数量。
+        /// </summary>
+        /// <param name="path">路径节点列表</param>
+        /// <returns>唯一站点数</returns>
         public int GetUniqueStationCount(List<string> path)
         {
             if (path == null || path.Count == 0) return 0;
@@ -647,6 +677,13 @@ namespace MetroEditor.Simulator.Algorithms
             return stationSet.Count;
         }
 
+        /// <summary>
+        /// 获取指定方向中相邻两站间的距离。
+        /// </summary>
+        /// <param name="dirKey">方向键</param>
+        /// <param name="from">起点站名</param>
+        /// <param name="to">终点站名</param>
+        /// <returns>站间距离（米），未找到返回 -1</returns>
         public double GetDistanceInDirection(string dirKey, string from, string to)
         {
             if (!_lineAdjDist.TryGetValue(dirKey, out var adj)) return -1;
@@ -684,7 +721,11 @@ namespace MetroEditor.Simulator.Algorithms
             return false;
         }
 
-        // ==================== 获取行程分段（与原相同） ====================
+        /// <summary>
+        /// 将路径节点列表转换为行程分段列表，包含每段的线路名、方向、起讫站、站数、是否支线等信息。
+        /// </summary>
+        /// <param name="path">路径节点列表</param>
+        /// <returns>行程分段列表</returns>
         public List<SimRouteSegment> GetRouteSegments(List<string> path)
         {
             var segments = new List<SimRouteSegment>();
@@ -841,7 +882,11 @@ namespace MetroEditor.Simulator.Algorithms
             }
         }
 
-        // ==================== 格式化乘车指引（与原相同） ====================
+        /// <summary>
+        /// 将路径格式化为自然语言乘车指引文本。
+        /// </summary>
+        /// <param name="path">路径节点列表</param>
+        /// <returns>格式化的乘车指引字符串</returns>
         public string FormatRouteWithDirection(List<string> path)
         {
             var segments = GetRouteSegments(path);
@@ -878,7 +923,15 @@ namespace MetroEditor.Simulator.Algorithms
             return string.Join("；", clauses) + "。";
         }
 
-        // ==================== 随机路径（与原相同，未改造为A*） ====================
+        /// <summary>
+        /// 随机路径搜索：在最优路径的基础上引入随机扰动，生成多样化的可选路径。
+        /// 使用 Box-Muller 正态分布生成站点随机权重，通过随机化 Dijkstra 探索不同路径。
+        /// </summary>
+        /// <param name="start">起点站名</param>
+        /// <param name="end">终点站名</param>
+        /// <param name="weight">搜索权重配置</param>
+        /// <param name="maxAttempts">最大尝试次数</param>
+        /// <returns>满足时间约束的随机路径，或最优路径作为兜底</returns>
         public SimPathResult FindRandomPath(string start, string end, SimSearchWeight weight, int maxAttempts)
         {
             var shortest = FindTransferPath(start, end, SimSearchWeight.GetShortestWeight());
@@ -913,6 +966,14 @@ namespace MetroEditor.Simulator.Algorithms
             return shortest;
         }
 
+        /// <summary>
+        /// 最长路径搜索：并行尝试多条随机路径，返回满足时间约束的最长路径。
+        /// </summary>
+        /// <param name="start">起点站名</param>
+        /// <param name="end">终点站名</param>
+        /// <param name="weight">搜索权重配置</param>
+        /// <param name="maxAttempts">最大并行尝试次数</param>
+        /// <returns>满足时间约束的最长路径</returns>
         public SimPathResult FindLongestPath(string start, string end, SimSearchWeight weight, int maxAttempts)
         {
             var longest = FindTransferPath(start, end, SimSearchWeight.GetShortestWeight());
@@ -1073,7 +1134,10 @@ namespace MetroEditor.Simulator.Algorithms
             return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
         }
 
-        // ==================== 访问器 ====================
+        /// <summary>
+        /// 获取图中所有站点名称集合。
+        /// </summary>
+        /// <returns>站点名称集合的副本</returns>
         public HashSet<string> GetAllStations() => new(_stationLines.Keys);
     }
 }

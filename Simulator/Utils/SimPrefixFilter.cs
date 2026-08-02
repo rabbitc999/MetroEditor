@@ -7,11 +7,22 @@ namespace MetroEditor.Simulator.Utils
     /// </summary>
     public static class SimPrefixFilter
     {
+        /// <summary>
+        /// 前缀过滤结果，包含过滤后的列表和被移除的元素数量。
+        /// </summary>
         public class FilterResult
         {
+            /// <summary>过滤后的列表</summary>
             public List<string> FilteredList { get; }
+
+            /// <summary>被移除的元素数量</summary>
             public int RemovedCount { get; }
 
+            /// <summary>
+            /// 创建过滤结果实例。
+            /// </summary>
+            /// <param name="filteredList">过滤后的列表</param>
+            /// <param name="removedCount">被移除的元素数量</param>
             public FilterResult(List<string> filteredList, int removedCount)
             {
                 FilteredList = filteredList;

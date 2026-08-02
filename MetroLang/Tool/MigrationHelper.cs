@@ -18,6 +18,7 @@ namespace MetroEditor.MetroLang.Tool
         /// 将旧语法源文件字符串迁移为新语法字符串。
         /// </summary>
         /// <param name="legacySourceCode">旧语法源文本</param>
+        /// <param name="filePath">源文件路径（用于错误报告和相对引用解析）</param>
         /// <param name="errors">输出错误列表（仅在 throwOnError 为 false 时有效）</param>
         /// <param name="throwOnError">
         /// 为 true 时遇到编译错误直接抛出异常；

@@ -13,15 +13,29 @@ using System.Xml;
 namespace MetroEditor
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// 应用程序入口类，负责应用程序启动流程和命令行模式支持。
+    /// <para>支持两种启动模式：</para>
+    /// <list type="bullet">
+    /// <item><b>GUI 模式</b>（默认）：启动 WPF 主窗口，提供完整的图形化编辑功能。</item>
+    /// <item><b>无头模式</b>：通过命令行参数 <c>--compile</c> 或 <c>--decompile</c> 执行批量编译/反编译，
+    /// 适用于自动化构建脚本或 CI/CD 流水线。</item>
+    /// </list>
     /// </summary>
     public partial class App : Application
     {
-        // 导入附加控制台的 Win32 API
+        /// <summary>
+        /// Win32 API：将当前进程附加到父进程的控制台，使无头模式可以输出到控制台。
+        /// </summary>
         [DllImport("kernel32.dll")]
         private static extern bool AttachConsole(int dwProcessId);
+
+        /// <summary>Win32 常量：表示附加到父进程</summary>
         private const int ATTACH_PARENT_PROCESS = -1;
 
+        /// <summary>
+        /// 应用程序启动入口，根据命令行参数决定启动模式。
+        /// </summary>
+        /// <param name="e">启动事件参数，包含命令行参数</param>
         protected override void OnStartup(StartupEventArgs e)
         {
             var args = e.Args;
@@ -44,6 +58,10 @@ namespace MetroEditor
             base.OnStartup(e);
         }
 
+        /// <summary>
+        /// 处理命令行反编译模式：将 <c>.bmetro</c> 或 <c>.json</c> 文件反编译为 <c>.metro</c> 源码。
+        /// </summary>
+        /// <param name="args">命令行参数，需包含 <c>--input</c> 和可选的 <c>--output</c></param>
         private void HandleDecompile(string[] args)
         {
             try
@@ -110,6 +128,10 @@ namespace MetroEditor
             }
         }
 
+        /// <summary>
+        /// 处理命令行编译模式：将 <c>.metro</c> 源码编译为 <c>.bmetro</c> 二进制或 <c>.json</c> 格式。
+        /// </summary>
+        /// <param name="args">命令行参数，需包含 <c>--input</c> 和可选的 <c>--output</c></param>
         private void HandleCompile(string[] args)
         {
             try
