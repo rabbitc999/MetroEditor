@@ -65,7 +65,7 @@ namespace MetroEditor.Windows.Controls.Style
                 
                 // 方向属性
                 "STATIONS", "NICK_NAME", "NICK_COLOR", "REVERSE",
-                "LOOP", "BRANCH", "FAST", "INNER", "OUTER", "FUTURE",
+                "LOOP", "FAST", "INNER", "OUTER", "FUTURE",
                 "SPEED_LIMIT", "CROWD", "HEADWAY", "MERGE",
                 
                 // 运营参数

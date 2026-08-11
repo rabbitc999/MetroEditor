@@ -243,7 +243,6 @@ namespace MetroEditor.Simulator.Data
 
                 if (line.Direction != null && line.Direction.Any())
                 {
-                    bool hasBranch = false;
                     bool hasLoop = false;
                     bool hasFast = false;
                     bool hasFuture = false;
@@ -269,12 +268,6 @@ namespace MetroEditor.Simulator.Data
                         else allFuture = false;
                         cache.DirFutureMap[dirKey] = dir.IsFuture;
 
-                        if (!string.IsNullOrEmpty(dir.NickName))
-                            cache.DirNickNameMap[dirKey] = dir.NickName;
-                        if (!string.IsNullOrEmpty(dir.NickColor))
-                            cache.DirNickColorMap[dirKey] = dir.NickColor;
-
-                        if (dir.IsBranch) hasBranch = true;
                         if (dir.IsLoop)
                         {
                             hasLoop = true;
@@ -333,7 +326,6 @@ namespace MetroEditor.Simulator.Data
                         cache.DirStations[dirKey] = stationNames;
                     }
 
-                    cache.HasBranchMap[lineId] = hasBranch;
                     cache.HasLoopMap[lineId] = hasLoop;
                     cache.LineHasFastMap[lineId] = hasFast;
                     cache.AllFutureMap[lineId] = allFuture;

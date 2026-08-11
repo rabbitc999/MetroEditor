@@ -55,8 +55,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 LineId = sourceDir.LineId,
                 Stations = new List<string>(sourceDir.Stations),
                 Attrs = new HashSet<string>(sourceDir.Attrs),
-                Alias = sourceDir.Alias,
-                AliasColor = sourceDir.AliasColor,
                 DirectionType = sourceDir.DirectionType,
                 IsFuture = sourceDir.IsFuture,
                 ConnectStation = sourceDir.ConnectStation,

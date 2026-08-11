@@ -7,7 +7,6 @@
     <Window.Resources>
         <!-- 转换器 -->
         <local:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
-        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
 
         <!-- 标签样式 -->
         <Style x:Key="TagStyle" TargetType="Border">
@@ -29,10 +28,6 @@
                     <Border Background="#4CAF50" CornerRadius="4" Padding="4,1" Margin="4,0,0,0"
                             Visibility="{Binding IsMain, Converter={StaticResource BoolToVisibility}}">
                         <TextBlock Text="主线" FontSize="10" Foreground="White"/>
-                    </Border>
-                    <Border Background="#9C27B0" CornerRadius="4" Padding="4,1" Margin="4,0,0,0"
-                            Visibility="{Binding IsMain, Converter={StaticResource InverseBoolToVisibility}}">
-                        <TextBlock Text="支线" FontSize="10" Foreground="White"/>
                     </Border>
                 </StackPanel>
             </Border>

@@ -93,8 +93,8 @@ namespace MetroEditor.MetroLang
             {
                 Command = "DIRECTION_TEMPLATE",
                 Format = "DIRECTION_TEMPLATE <模板ID> [INHERITS 父模板] ... END_TEMPLATE",
-                Example = "DIRECTION_TEMPLATE MAIN NICK_NAME '主线' BRANCH END_TEMPLATE",
-                InsertTemplate = "DIRECTION_TEMPLATE <模板ID>\n    NICK_NAME '<别名>'\n    BRANCH\n    LOOP INNER\nEND_TEMPLATE"
+                Example = "DIRECTION_TEMPLATE MAIN FAST END_TEMPLATE",
+                InsertTemplate = "DIRECTION_TEMPLATE <模板ID>\n    LOOP INNER\nEND_TEMPLATE"
             },
 
             // ---------- 线路 ----------
@@ -130,7 +130,7 @@ namespace MetroEditor.MetroLang
             {
                 Command = "LINE_MERGE",
                 Format = "LINE_MERGE <线路1> <线路2> ... INTO <新线路> [KEEP_ORIGINAL]",
-                Example = "LINE_MERGE GZ1 GZ1_BRANCH INTO GZ1_NEW",
+                Example = "LINE_MERGE GZ1 GZ1_EXT INTO GZ1_NEW",
                 InsertTemplate = "LINE_MERGE <线路1> <线路2> INTO <新线路>\n    KEEP_ORIGINAL"
             },
             new SyntaxReferenceItem
@@ -147,7 +147,7 @@ namespace MetroEditor.MetroLang
                 Command = "DIRECTION_DEFINE",
                 Format = "DIRECTION_DEFINE <方向ID> [线路ID] [INHERITS 模板] ... END_DEFINE",
                 Example = "DIRECTION_DEFINE GZ1_0 GZ1 STATIONS ['广州东站', '体育中心'] END_DEFINE",
-                InsertTemplate = "DIRECTION_DEFINE <方向ID> <线路ID>\n    STATIONS ['<站1>', '<站2>']\n    DISTANCE AUTO\n    NICK_NAME '<别名>'\nEND_DEFINE"
+                InsertTemplate = "DIRECTION_DEFINE <方向ID> <线路ID>\n    STATIONS ['<站1>', '<站2>']\n    DISTANCE AUTO\n\nEND_DEFINE"
             },
             new SyntaxReferenceItem
             {
@@ -174,7 +174,7 @@ namespace MetroEditor.MetroLang
             {
                 Command = "DIRECTION_SPLIT",
                 Format = "DIRECTION_SPLIT <方向ID> AT '<站名>' INTO <新方向1> <新方向2>",
-                Example = "DIRECTION_SPLIT GZ1_0 AT '体育中心' INTO GZ1_MAIN GZ1_BRANCH",
+                Example = "DIRECTION_SPLIT GZ1_0 AT '体育中心' INTO GZ1_MAIN GZ1_EXT",
                 InsertTemplate = "DIRECTION_SPLIT <方向ID> AT '<站名>' INTO <新方向1> <新方向2>"
             },
             new SyntaxReferenceItem
@@ -188,8 +188,8 @@ namespace MetroEditor.MetroLang
             {
                 Command = "DIRECTION_MODIFY",
                 Format = "DIRECTION_MODIFY <方向ID> ... END_DEFINE",
-                Example = "DIRECTION_MODIFY GZ1_0 ADD FAST SET NICK_NAME '快车' END_DEFINE",
-                InsertTemplate = "DIRECTION_MODIFY <方向ID>\n    ADD BRANCH\n    REMOVE FAST\n    SET NICK_NAME '<别名>'\nEND_DEFINE"
+                Example = "DIRECTION_MODIFY GZ1_0 ADD FAST END_DEFINE",
+                InsertTemplate = "DIRECTION_MODIFY <方向ID>\n    ADD FAST\n    REMOVE FAST\n\nEND_DEFINE"
             },
 
             // ---------- 换乘 ----------
@@ -434,10 +434,7 @@ namespace MetroEditor.MetroLang
             // ----- 方向定义（含子命令） -----
             new("DIRECTION_DEFINE", "方向定义块"),
             new("STATIONS", "方向站点列表"),
-            new("NICK_NAME", "方向别名"),
-            new("NICK_COLOR", "方向别名颜色"),
             new("LOOP", "环线"),
-            new("BRANCH", "支线"),
             new("FAST", "快车"),
             new("INNER", "内环"),
             new("OUTER", "外环"),

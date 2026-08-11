@@ -12,9 +12,9 @@ namespace MetroEditor.Windows
     /// 线路详情查看窗口
     /// 功能：展示单条线路的完整信息，包括基本信息、属性标签和站点序列
     /// 核心特性：
-    /// 1. 智能分组显示：主线、支线、未来线路分开展示
-    /// 2. 属性标签化：环线、支线、快车、特殊计费等直观标识
-    /// 3. 精确里程计算：仅统计主线方向，排除支线和快车干扰
+    /// 1. 智能分组显示：主线、未来线路分开展示
+    /// 2. 属性标签化：环线、快车、特殊计费等直观标识
+    /// 3. 精确里程计算：仅统计主线方向，排除快车干扰
     /// </summary>
     /// <remarks>
     /// 设计模式：
@@ -53,8 +53,6 @@ namespace MetroEditor.Windows
 
             if (dirs.Any(d => d.Attrs.Contains("LOOP")))
                 tags.Add(new TagItem { Text = "环线", Color = "#4CAF50" });
-            if (dirs.Any(d => d.Attrs.Contains("BRANCH")))
-                tags.Add(new TagItem { Text = "带支线", Color = "#9C27B0" });
             if (dirs.Any(d => d.Attrs.Contains("FAST")))
                 tags.Add(new TagItem { Text = "有快车", Color = "#2196F3" });
             if (data.SpecialLineIds?.Contains(lineId) == true)
@@ -81,35 +79,24 @@ namespace MetroEditor.Windows
             var dirs = data.Directions.Values.Where(d => d.LineId == lineId && !d.Attrs.Contains("FAST")).ToList();
 
             // 分类方向定义
-            var mainDirs = dirs.Where(d => !d.Attrs.Contains("BRANCH") && !d.IsFuture).ToList();
-            var branchDirs = dirs.Where(d => d.Attrs.Contains("BRANCH") && !d.IsFuture).ToList();
+            var mainDirs = dirs.Where(d => !d.IsFuture).ToList();
             var futureDirs = dirs.Where(d => d.IsFuture).ToList();
 
             // 1. 主线方向
             int mainIndex = 1;
             foreach (var dir in mainDirs)
             {
-                string title = dir.Alias ?? $"{data.Lines[lineId].Name} 主线{mainIndex++}";
+                string title = $"{data.Lines[lineId].Name} 主线{mainIndex++}";
                 if (dir.Attrs.Contains("LOOP")) title += " (环线)";
                 items.Add(new HeaderItem { Title = title });
                 items.AddRange(dir.Stations.Select(s => new StationDisplayItem { Name = s, IsMain = true }));
             }
 
-            // 2. 支线方向
-            int branchIndex = 1;
-            foreach (var dir in branchDirs)
-            {
-                string title = dir.Alias ?? $"{data.Lines[lineId].Name} 支线{branchIndex++}";
-                if (dir.Attrs.Contains("LOOP")) title += " (环线)";
-                items.Add(new HeaderItem { Title = title });
-                items.AddRange(dir.Stations.Select(s => new StationDisplayItem { Name = s, IsMain = false }));
-            }
-
-            // 3. 未来线路方向
+            // 2. 未来线路方向
             int futureIndex = 1;
             foreach (var dir in futureDirs)
             {
-                string title = dir.Alias ?? $"{data.Lines[lineId].Name} 规划线路{futureIndex++}";
+                string title = $"{data.Lines[lineId].Name} 规划线路{futureIndex++}";
                 if (dir.Attrs.Contains("LOOP")) title += " (环线)";
                 items.Add(new HeaderItem { Title = title });
                 items.AddRange(dir.Stations.Select(s => new StationDisplayItem { Name = s, IsFuture = true }));
@@ -122,8 +109,7 @@ namespace MetroEditor.Windows
         /// 计算线路实际长度（静态方法，可供外部调用）
         /// 计算策略：
         /// 1. 排除未来线路和快车线路
-        /// 2. 优先计算主线（非支线），若无主线则取任意方向
-        /// 3. 对同一线路的多方向取最长距离（避免支线拉低平均值）
+        /// 2. 对同一线路的多方向取最长距离
         /// </summary>
         public static double GetLineLength(ParsedData data, string lineId)
         {
@@ -131,11 +117,8 @@ namespace MetroEditor.Windows
             var activeDirs = dirs.Where(d => !d.IsFuture && !d.Attrs.Contains("FAST")).ToList();
             if (!activeDirs.Any()) return 0;
 
-            var mainDirs = activeDirs.Where(d => !d.Attrs.Contains("BRANCH")).ToList();
-            var targetDirs = mainDirs.Any() ? mainDirs : activeDirs.Take(1).ToList();
-
             double maxLength = 0;
-            foreach (var dir in targetDirs)
+            foreach (var dir in activeDirs)
             {
                 // 查找对应的方向键
                 var dirKey = data.Directions.FirstOrDefault(kv => kv.Value == dir).Key;
@@ -220,19 +203,5 @@ namespace MetroEditor.Windows
         }
     }
 
-    /// <summary>
-    /// 布尔值取反转换器（用于隐藏/显示未来线路相关元素）
-    /// </summary>
-    public class InverseBoolToVisibilityConverter : System.Windows.Data.IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return (value is bool b && !b) ? Visibility.Visible : Visibility.Collapsed;
-        }
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
     #endregion
 }

@@ -495,9 +495,8 @@ namespace MetroEditor.MetroLang.Compiler
                 {
                     var direction = keyValuePair.Value;
                     bool isFuture = direction.IsFuture;
-                    bool hasNickColor = !string.IsNullOrEmpty(direction.AliasColor);
                     // 降序排列：false（非远期）排前面，false（无别名颜色）排前面
-                    return (isFuture ? 1 : 0, hasNickColor ? 1 : 0);
+                    return isFuture;
                 }).ThenBy(keyValuePair => keyValuePair.Key) // 优先级相同时按方向ID字典序
                 .ToList();
 

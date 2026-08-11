@@ -24,12 +24,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     case "INHERITS":
                         template.Inherits = parser.ParseId();
                         break;
-                    case "NICK_NAME":
-                        template.Alias = parser.ParseString();
-                        break;
-                    case "NICK_COLOR":
-                        template.AliasColor = parser.ParseString();
-                        break;
                     case "IS_FUTURE":
                         string val = parser.ParseId().ToUpperInvariant();
                         template.IsFuture = (val == "TRUE");
@@ -48,9 +42,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                             else
                                 throw new SyntaxException($"LOOP 类型必须是 INNER 或 OUTER", parser.Peek());
                         }
-                        break;
-                    case "BRANCH":
-                        template.Attrs.Add("BRANCH");
                         break;
                     case "FAST":
                         template.Attrs.Add("FAST");

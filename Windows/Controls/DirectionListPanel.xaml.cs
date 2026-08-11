@@ -64,7 +64,6 @@ namespace MetroEditor.Windows.Controls
             var attrDisplayMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["LOOP"] = "环线",
-                ["BRANCH"] = "支线",
                 ["FAST"] = "快车",
                 ["INNER"] = "内环",
                 ["OUTER"] = "外环"
@@ -89,8 +88,6 @@ namespace MetroEditor.Windows.Controls
                     else
                         displayAttrs.Add("环线");
                 }
-                if (dir.Attrs.Contains("BRANCH"))
-                    displayAttrs.Add("支线");
                 if (dir.Attrs.Contains("FAST"))
                     displayAttrs.Add("快车");
                 if (dir.IsFuture)

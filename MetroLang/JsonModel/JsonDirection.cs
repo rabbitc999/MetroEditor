@@ -8,13 +8,6 @@ namespace MetroEditor.MetroLang.JsonModel
     public class JsonDirection
     {
         /// <summary>
-        /// 是否为支线/存车线。
-        /// </summary>
-        [JsonPropertyName("is_branch")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool IsBranch { get; set; }
-
-        /// <summary>
         /// 是否为快车/大站快车。
         /// </summary>
         [JsonPropertyName("is_fast")]
@@ -46,20 +39,6 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("direction_type")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? DirectionType { get; set; }
-
-        /// <summary>
-        /// 方向别名（如 "往市区方向", "往机场方向"）。
-        /// </summary>
-        [JsonPropertyName("nick_name")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? NickName { get; set; }
-
-        /// <summary>
-        /// 别名显示颜色。
-        /// </summary>
-        [JsonPropertyName("nick_color")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? NickColor { get; set; }
 
         /// <summary>
         /// 该方向依次经过的车站列表。

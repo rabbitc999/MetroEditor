@@ -470,12 +470,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 distances[distances.Count - 1] = "NIL"; // 非环线终点距离设为 NIL
             WriteLine($"{Indent}{Indent}DISTANCE [{string.Join(", ", distances)}]");
 
-            // Attributes
-            if (!string.IsNullOrEmpty(direction.NickName))
-                WriteLine($"{Indent}{Indent}NICK_NAME '{direction.NickName}'");
-            if (!string.IsNullOrEmpty(direction.NickColor))
-                WriteLine($"{Indent}{Indent}NICK_COLOR '{direction.NickColor}'");
-
             if (direction.IsLoop)
             {
                 var loopLine = "LOOP";
@@ -484,7 +478,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 WriteLine($"{Indent}{Indent}{loopLine}");
             }
 
-            if (direction.IsBranch) WriteLine($"{Indent}{Indent}BRANCH");
             if (direction.IsFast) WriteLine($"{Indent}{Indent}FAST");
             if (direction.IsFuture) WriteLine($"{Indent}{Indent}FUTURE");
 

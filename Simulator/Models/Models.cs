@@ -35,19 +35,17 @@
         public List<string> Stations { get; set; } = new();
         public string NickColor { get; set; } = string.Empty;
         public bool IsFuture { get; set; }
-        public bool IsBranch { get; set; }
         public string LineID { get; set; } = string.Empty;
 
         public SimLineDirection() { }
         public SimLineDirection(string lineId, string start, string end, List<string> stations,
-                                string nickColor, bool isBranch, bool isFuture)
+                                string nickColor, bool isFuture)
         {
             LineID = lineId;
             Start = start;
             End = end;
             Stations = stations;
             NickColor = nickColor;
-            IsBranch = isBranch;
             IsFuture = isFuture;
         }
     }
@@ -111,7 +109,7 @@
         }
     }
 
-    /// <summary>行程分段信息（起讫站、线路、方向、站数、是否支线等）</summary>
+    /// <summary>行程分段信息（起讫站、线路、方向、站数等）</summary>
     public class SimRouteSegment
     {
         public string StartStation { get; set; } = string.Empty;
@@ -120,7 +118,6 @@
         public string Direction { get; set; } = string.Empty;
         public string EndStation { get; set; } = string.Empty;
         public int StationCount { get; set; }
-        public bool IsBranch { get; set; }
         public string NickColor { get; set; } = string.Empty;
         public string DirKey { get; set; } = string.Empty;
         public bool IsOutStationTransfer { get; set; }
@@ -128,7 +125,7 @@
         public SimRouteSegment() { }
         public SimRouteSegment(string startStation, string lineId, string lineName,
                                string direction, string endStation, int stationCount,
-                               bool isBranch, string nickColor, bool isOutStationTransfer,
+                               string nickColor, bool isOutStationTransfer,
                                string dirKey)
         {
             StartStation = startStation;
@@ -137,7 +134,6 @@
             Direction = direction;
             EndStation = endStation;
             StationCount = stationCount;
-            IsBranch = isBranch;
             NickColor = nickColor;
             IsOutStationTransfer = isOutStationTransfer;
             DirKey = dirKey;

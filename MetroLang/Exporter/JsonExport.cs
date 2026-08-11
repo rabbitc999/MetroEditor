@@ -543,13 +543,10 @@ namespace MetroEditor.MetroLang.Exporter
                     // 创建方向对象
                     var direction = new JsonDirection
                     {
-                        IsBranch = directionInfo.Attrs.Contains("BRANCH"),
                         IsFast = directionInfo.Attrs.Contains("FAST"),
                         IsLoop = directionInfo.Attrs.Contains("LOOP"),
                         // 环线需要指定内外环类型
                         DirectionType = directionInfo.Attrs.Contains("LOOP") ? directionInfo.DirectionType : null,
-                        NickName = directionInfo.Alias,
-                        NickColor = directionInfo.AliasColor,
                         Station = new List<JsonDirectionStation>(),
                         IsFuture = directionInfo.IsFuture,
                         ConnectStation = directionInfo.ConnectStation

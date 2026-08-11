@@ -26,7 +26,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     case "ADD":
                         string addAttr = parser.ParseId().ToUpperInvariant();
                         if (!IsValidAttribute(addAttr))
-                            throw new SyntaxException($"无效的属性名 '{addAttr}'，允许：BRANCH, FAST, LOOP", parser.Peek());
+                            throw new SyntaxException($"无效的属性名 '{addAttr}'，允许：FAST, LOOP", parser.Peek());
                         dirInfo.Attrs.Add(addAttr);
                         // 如果添加了 LOOP，需确保 DIRECTION_TYPE 已设置
                         if (addAttr == "LOOP" && string.IsNullOrEmpty(dirInfo.DirectionType))
@@ -36,7 +36,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     case "REMOVE":
                         string removeAttr = parser.ParseId().ToUpperInvariant();
                         if (!IsValidAttribute(removeAttr))
-                            throw new SyntaxException($"无效的属性名 '{removeAttr}'，允许：BRANCH, FAST, LOOP", parser.Peek());
+                            throw new SyntaxException($"无效的属性名 '{removeAttr}'，允许：FAST, LOOP", parser.Peek());
                         dirInfo.Attrs.Remove(removeAttr);
                         // 如果移除了 LOOP，清空 DIRECTION_TYPE
                         if (removeAttr == "LOOP")
@@ -47,12 +47,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         string field = parser.ParseId().ToUpperInvariant();
                         switch (field)
                         {
-                            case "NICK_NAME":
-                                dirInfo.Alias = parser.ParseString();
-                                break;
-                            case "NICK_COLOR":
-                                dirInfo.AliasColor = parser.ParseString();
-                                break;
                             case "CONNECT_STATION":
                                 dirInfo.ConnectStation = parser.ParseString();
                                 break;
@@ -85,7 +79,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
         private bool IsValidAttribute(string attr)
         {
-            return attr == "BRANCH" || attr == "FAST" || attr == "LOOP";
+            return attr == "FAST" || attr == "LOOP";
         }
     }
 }

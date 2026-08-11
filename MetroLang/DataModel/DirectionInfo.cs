@@ -11,14 +11,8 @@
         /// <summary>依次经过的车站 ID 列表</summary>
         public List<string> Stations { get; set; } = new();
 
-        /// <summary>方向属性集合（如 LOOP, FAST, BRANCH 等）</summary>
+        /// <summary>方向属性集合（如 LOOP, FAST 等）</summary>
         public HashSet<string> Attrs { get; set; } = new();
-
-        /// <summary>方向别名（如 "往市区方向"）</summary>
-        public string? Alias { get; set; }
-
-        /// <summary>别名显示颜色</summary>
-        public string? AliasColor { get; set; }
 
         /// <summary>方向类型（主要用于环线区分 inner/outer）</summary>
         public string DirectionType { get; set; } = string.Empty;
@@ -42,8 +36,6 @@
                 LineId = this.LineId,
                 Stations = new List<string>(this.Stations),
                 Attrs = new HashSet<string>(this.Attrs),
-                Alias = this.Alias,
-                AliasColor = this.AliasColor,
                 DirectionType = this.DirectionType,
                 IsFuture = this.IsFuture,
                 ConnectStation = this.ConnectStation,

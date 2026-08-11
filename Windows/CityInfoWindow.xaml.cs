@@ -15,7 +15,7 @@ namespace MetroEditor.Windows
     /// 设计特点：
     /// - 只读展示，不支持编辑
     /// - 自动计算总里程（仅统计主线方向）
-    /// - 可视化展示线路属性（支线、环线、快车、特殊线路）
+    /// - 可视化展示线路属性（环线、快车、特殊线路）
     /// </summary>
     public partial class CityInfoWindow : Window
     {
@@ -38,8 +38,7 @@ namespace MetroEditor.Windows
         /// <remarks>
         /// 计算策略：
         /// 1. 排除未来线路（IsFuture）和快车线路（FAST）
-        /// 2. 优先计算主线（非BRANCH），若无主线则取任意方向
-        /// 3. 对同一线路的多方向取最长距离（避免支线拉低平均值）
+        /// 2. 对同一线路的多方向取最长距离
         /// </remarks>
         public static double GetLineLength(ParsedData data, string lineId)
         {
@@ -47,12 +46,8 @@ namespace MetroEditor.Windows
             var activeDirs = dirs.Where(d => !d.IsFuture && !d.Attrs.Contains("FAST")).ToList();
             if (!activeDirs.Any()) return 0;
 
-            // 优先取主线（非支线）
-            var mainDirs = activeDirs.Where(d => !d.Attrs.Contains("BRANCH")).ToList();
-            var targetDirs = mainDirs.Any() ? mainDirs : activeDirs.Take(1).ToList();
-
             double maxLength = 0;
-            foreach (var dir in targetDirs)
+            foreach (var dir in activeDirs)
             {
                 // 查找对应的方向键（Dictionary的Key）
                 var dirKey = data.Directions.FirstOrDefault(kv => kv.Value == dir).Key;
@@ -172,7 +167,6 @@ namespace MetroEditor.Windows
                 var color = TryParseColor(lineInfo.Color) ?? Brushes.Gray;
 
                 // 检测线路特性
-                bool hasBranch = dirs.Any(d => d.Attrs.Contains("BRANCH")); // 是否有支线
                 bool hasLoop = dirs.Any(d => d.Attrs.Contains("LOOP"));     // 是否环线
                 bool hasFast = dirs.Any(d => d.Attrs.Contains("FAST"));     // 是否有快车
                 bool isSpecial = _data.SpecialLineIds?.Contains(lineId) ?? false; // 是否特殊线路
@@ -182,7 +176,6 @@ namespace MetroEditor.Windows
                     Name = lineInfo.Name,
                     Color = color,
                     Length = length,
-                    HasBranch = hasBranch,
                     HasLoop = hasLoop,
                     HasFast = hasFast,
                     IsSpecial = isSpecial
@@ -223,7 +216,6 @@ namespace MetroEditor.Windows
             public string Name { get; set; }
             public SolidColorBrush Color { get; set; }
             public double Length { get; set; }
-            public bool HasBranch { get; set; }
             public bool HasLoop { get; set; }
             public bool HasFast { get; set; }
             public bool IsSpecial { get; set; }

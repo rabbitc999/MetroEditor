@@ -376,8 +376,6 @@ namespace MetroEditor.MetroLang.Compiler
                     LineId = targetLineId,
                     Stations = new List<string>(dirInfo.Stations),
                     Attrs = new HashSet<string>(dirInfo.Attrs),
-                    Alias = dirInfo.Alias,
-                    AliasColor = dirInfo.AliasColor,
                     DirectionType = dirInfo.DirectionType,
                     IsFuture = dirInfo.IsFuture,
                     ConnectStation = dirInfo.ConnectStation,
@@ -756,8 +754,6 @@ namespace MetroEditor.MetroLang.Compiler
                         LineId = targetLineId,
                         Stations = new List<string>(dirInfo.Stations),
                         Attrs = new HashSet<string>(dirInfo.Attrs),
-                        Alias = dirInfo.Alias,
-                        AliasColor = dirInfo.AliasColor,
                         DirectionType = dirInfo.DirectionType,
                         IsFuture = dirInfo.IsFuture,
                         ConnectStation = dirInfo.ConnectStation,
@@ -954,8 +950,6 @@ namespace MetroEditor.MetroLang.Compiler
                         LineId = targetId,
                         Stations = new List<string>(dirInfo.Stations),
                         Attrs = new HashSet<string>(dirInfo.Attrs),
-                        Alias = dirInfo.Alias,
-                        AliasColor = dirInfo.AliasColor,
                         DirectionType = dirInfo.DirectionType,
                         IsFuture = dirInfo.IsFuture,
                         ConnectStation = dirInfo.ConnectStation,
@@ -1132,8 +1126,6 @@ namespace MetroEditor.MetroLang.Compiler
 
         private static void CopyDirectionTemplateProperties(DirectionTemplate source, DirectionTemplate target)
         {
-            if (source.Alias != null) target.Alias = source.Alias;
-            if (source.AliasColor != null) target.AliasColor = source.AliasColor;
             if (source.IsFuture.HasValue) target.IsFuture = source.IsFuture;
             if (source.ConnectStation != null) target.ConnectStation = source.ConnectStation;
             if (source.DirectionType != null) target.DirectionType = source.DirectionType;

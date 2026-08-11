@@ -32,11 +32,6 @@ namespace MetroEditor.Simulator.Algorithms
         private readonly Dictionary<string, string> _dirDisplayNameMap = new();
         private string _keyCity = string.Empty;
 
-        // ==================== 主支线相关映射 ====================
-        private readonly Dictionary<string, bool> _dirIsBranchMap = new();
-        private readonly Dictionary<string, HashSet<string>> _lineMainStationsMap = new();
-        private readonly Dictionary<string, HashSet<string>> _lineBranchOnlyStationsMap = new();
-        private readonly Dictionary<string, List<string>> _lineBranchEndsMap = new();
         private readonly SimDataCache _cache = new();
 
         public SimDataCache Cache { get { return _cache; } }
@@ -93,10 +88,8 @@ namespace MetroEditor.Simulator.Algorithms
                     string start = dir.Start;
                     string end = dir.End;
                     bool isLoop = dir.IsLoop;
-                    bool isBranch = dir.IsBranch;
                     string dirKey = SimGraphKeyUtils.MakeDirKey(lineId, start, end);
                     _hasLoopMap[lineId] = isLoop;
-                    _dirIsBranchMap[dirKey] = isBranch;
 
                     var stationList = dir.Station;
                     if (stationList == null || stationList.Count == 0) continue;
@@ -205,97 +198,15 @@ namespace MetroEditor.Simulator.Algorithms
             }
         }
 
-        // ==================== 后处理：主线/支线辅助映射 ====================
+        // ==================== 后处理：方向显示名称 ====================
         private void BuildDirDisplayNames()
         {
-            // 1. 分组
-            var lineMainDirs = new Dictionary<string, List<string>>();
-            var lineBranchDirs = new Dictionary<string, List<string>>();
-            foreach (var kv in _dirIsBranchMap)
-            {
-                string dirKey = kv.Key;
-                bool isBranch = kv.Value;
-                string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey)!;
-                if (isBranch)
-                {
-                    if (!lineBranchDirs.ContainsKey(lineId)) lineBranchDirs[lineId] = new();
-                    lineBranchDirs[lineId].Add(dirKey);
-                }
-                else
-                {
-                    if (!lineMainDirs.ContainsKey(lineId)) lineMainDirs[lineId] = new();
-                    lineMainDirs[lineId].Add(dirKey);
-                }
-            }
-
-            // 2. 主线站点集合
-            _lineMainStationsMap.Clear();
-            foreach (var kv in lineMainDirs)
-            {
-                string lineId = kv.Key;
-                var mainStations = new HashSet<string>();
-                foreach (string dk in kv.Value)
-                {
-                    if (_dirStations.TryGetValue(dk, out var sts))
-                        mainStations.UnionWith(sts);
-                }
-                _lineMainStationsMap[lineId] = mainStations;
-            }
-
-            // 3. 支线站点集合
-            var lineBranchStationsMap = new Dictionary<string, HashSet<string>>();
-            foreach (var kv in lineBranchDirs)
-            {
-                string lineId = kv.Key;
-                var branchStations = new HashSet<string>();
-                foreach (string dk in kv.Value)
-                {
-                    if (_dirStations.TryGetValue(dk, out var sts))
-                        branchStations.UnionWith(sts);
-                }
-                lineBranchStationsMap[lineId] = branchStations;
-            }
-
-            // 4. 支线独有站点
-            _lineBranchOnlyStationsMap.Clear();
-            foreach (var lineId in lineMainDirs.Keys)
-            {
-                var main = _lineMainStationsMap.TryGetValue(lineId, out var m) ? m : new HashSet<string>();
-                var branch = lineBranchStationsMap.TryGetValue(lineId, out var b) ? b : new HashSet<string>();
-                var branchOnly = new HashSet<string>(branch);
-                branchOnly.ExceptWith(main);
-                _lineBranchOnlyStationsMap[lineId] = branchOnly;
-            }
-
-            // 5. 支线终点
-            _lineBranchEndsMap.Clear();
-            foreach (var kv in lineBranchDirs)
-            {
-                string lineId = kv.Key;
-                var ends = new HashSet<string>();
-                foreach (string dk in kv.Value)
-                {
-                    string[] parts = SimGraphKeyUtils.ParseDirKey(dk);
-                    if (parts.Length >= 3)
-                        ends.Add(parts[2]);
-                }
-                _lineBranchEndsMap[lineId] = ends.ToList();
-            }
-
-            // 6. 方向显示名称
             var dirNickNameMap = _cache.DirNickNameMap;
             foreach (string dirKey in _dirStations.Keys)
             {
                 if (dirNickNameMap.TryGetValue(dirKey, out string? nick) && !string.IsNullOrEmpty(nick))
                 {
                     _dirDisplayNameMap[dirKey] = nick;
-                }
-                else if (_dirIsBranchMap.TryGetValue(dirKey, out bool isBranch) && isBranch)
-                {
-                    string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey)!;
-                    string city = _lineCityMap[lineId];
-                    string lineName = _lineNameMap[lineId];
-                    _dirDisplayNameMap[dirKey] = BuildDisplayName(city, lineName) + "(支线)";
                 }
                 else
                 {
@@ -397,6 +308,9 @@ namespace MetroEditor.Simulator.Algorithms
         /// </summary>
         /// <inheritdoc cref="FindTransferPath(string, string, SimSearchWeight, long)"/>
         public SimPathResult FindTransferPath(string start, string end, SimSearchWeight weight)
+        {
+            return FindTransferPath(start, end, weight, new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds());
+        }
 
         // ==================== 内部 A* 路径搜索 ====================
         private SimPathResult FindTransferPathInternal(string start, string end, SimSearchWeight weight,
@@ -722,7 +636,7 @@ namespace MetroEditor.Simulator.Algorithms
         }
 
         /// <summary>
-        /// 将路径节点列表转换为行程分段列表，包含每段的线路名、方向、起讫站、站数、是否支线等信息。
+        /// 将路径节点列表转换为行程分段列表，包含每段的线路名、方向、起讫站、站数等信息。
         /// </summary>
         /// <param name="path">路径节点列表</param>
         /// <returns>行程分段列表</returns>
@@ -789,20 +703,7 @@ namespace MetroEditor.Simulator.Algorithms
                         actualEnd = idxFirst < idxLast ? end : start;
                 }
 
-                bool isBranchSegment = false;
-                if (_lineBranchOnlyStationsMap.TryGetValue(lineId, out var branchOnly))
-                {
-                    foreach (string station in stations)
-                    {
-                        if (branchOnly.Contains(station))
-                        {
-                            isBranchSegment = true;
-                            break;
-                        }
-                    }
-                }
-
-                string directionDisplay = BuildDirectionDisplay(lineId, dirKey, stations, actualEnd, isBranchSegment);
+                string directionDisplay = BuildDirectionDisplay(lineId, dirKey, stations, actualEnd);
                 string lineName = _dirDisplayNameMap.TryGetValue(dirKey, out string? name) ? name : lineId;
                 int stationCount = stations.Count - 1;
                 dirNickColorMap.TryGetValue(dirKey, out string? nickColor);
@@ -810,7 +711,7 @@ namespace MetroEditor.Simulator.Algorithms
                 segments.Add(new SimRouteSegment(
                     startStation, lineId, lineName,
                     directionDisplay, endStation, stationCount,
-                    isBranchSegment, nickColor, isOutStationTransfer, dirKey
+                    nickColor, isOutStationTransfer, dirKey
                 ));
             }
 
@@ -818,7 +719,7 @@ namespace MetroEditor.Simulator.Algorithms
         }
 
         private string BuildDirectionDisplay(string lineId, string dirKey, List<string> stations,
-                                             string actualEnd, bool isBranchSegment)
+                                             string actualEnd)
         {
             if (_hasLoopMap.TryGetValue(lineId, out bool isLoop) && isLoop)
             {
@@ -830,14 +731,9 @@ namespace MetroEditor.Simulator.Algorithms
                 else
                     return actualEnd;
             }
-            else if (isBranchSegment)
-            {
-                return actualEnd;
-            }
             else
             {
-                var branchEnds = _lineBranchEndsMap.TryGetValue(lineId, out var ends) ? ends : new List<string>();
-                var allEnds = new List<string>(branchEnds) { actualEnd };
+                var allEnds = new List<string> { actualEnd };
                 var uniqueEnds = allEnds.Distinct()
                     .Where(e => IsActualEndOfSegment(_cache, stations[0], stations[^1], e))
                     .ToList();

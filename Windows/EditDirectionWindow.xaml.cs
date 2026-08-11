@@ -12,7 +12,7 @@ namespace MetroEditor.Windows
     /// 功能：新建或修改 DIRECTION_DEFINE 代码块
     /// 支持特性：
     /// - 站点顺序拖拽调整
-    /// - 环线/支线/快车/未来线路标记
+    /// - 环线/快车/未来线路标记
     /// - 内环/外环方向定义
     /// - 批量添加站点
     /// </summary>
@@ -87,7 +87,6 @@ namespace MetroEditor.Windows
             if (attrs != null)
             {
                 LoopCheckBox.IsChecked = attrs.Contains("LOOP");
-                BranchCheckBox.IsChecked = attrs.Contains("BRANCH");
                 FastCheckBox.IsChecked = attrs.Contains("FAST");
                 FutureCheckBox.IsChecked = attrs.Contains("FUTURE");
 
@@ -270,7 +269,6 @@ namespace MetroEditor.Windows
             var attrs = new List<string>();
 
             if (LoopCheckBox.IsChecked == true) attrs.Add("LOOP");
-            if (BranchCheckBox.IsChecked == true) attrs.Add("BRANCH");
             if (FastCheckBox.IsChecked == true) attrs.Add("FAST");
             if (FutureCheckBox.IsChecked == true) attrs.Add("FUTURE");
 
@@ -295,7 +293,6 @@ namespace MetroEditor.Windows
                 if (!string.IsNullOrEmpty(dirType)) loopLine += $" {dirType}";
                 lines.Add(loopLine);
             }
-            if (attrs.Contains("BRANCH")) lines.Add("    BRANCH");
             if (attrs.Contains("FAST")) lines.Add("    FAST");
             if (attrs.Contains("FUTURE")) lines.Add("    FUTURE");
             lines.Add("    DISTANCE AUTO");

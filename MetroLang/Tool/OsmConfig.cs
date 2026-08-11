@@ -385,9 +385,6 @@ namespace MetroEditor.MetroLang.Tool
                 }
             }
 
-            var mainStations = items[0].StationSet;
-            int mainCount = mainStations.Count;
-
             // 处理每个方向
             for (int idx = 0; idx < n; idx++)
             {
@@ -399,8 +396,6 @@ namespace MetroEditor.MetroLang.Tool
                 var (start, end) = ParseStartEnd(relTags, item.Ordered);
 
                 bool isFast = isExpress[idx];
-                bool isBranch = !isFast && item.Ordered.Count < mainCount &&
-                                item.StationSet.Any(s => mainStations.Contains(s));
 
                 string first = item.Ordered.First().Name;
                 string last = item.Ordered.Last().Name;
@@ -421,7 +416,6 @@ namespace MetroEditor.MetroLang.Tool
                     Start = start,
                     End = end,
                     IsFast = isFast,
-                    IsBranch = isBranch,
                     IsLoop = isLoop
                 };
 
@@ -626,7 +620,6 @@ namespace MetroEditor.MetroLang.Tool
                 Start = dir.StationNext.First().Station,
                 End = dir.StationNext.Last().Station,
                 IsLoop = dir.IsLoop,
-                IsBranch = dir.IsBranch,
                 IsFast = dir.IsFast,
                 Station = dir.StationNext.Select((s, idx) => new JsonDirectionStation
                 {
@@ -710,7 +703,6 @@ namespace MetroEditor.MetroLang.Tool
             public string Start { get; set; }
             public string End { get; set; }
             public bool IsFast { get; set; }
-            public bool IsBranch { get; set; }
             public bool IsLoop { get; set; }
         }
 

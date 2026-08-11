@@ -16,7 +16,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
         private static class Attr
         {
             public const string Loop = "LOOP";
-            public const string Branch = "BRANCH";
             public const string Fast = "FAST";
             public const string Future = "FUTURE";
             public const string Inner = "INNER";
@@ -55,7 +54,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
         }
 
         // ====================================================================
-        // 解析方向主体（STATIONS / LOOP / BRANCH / ...）
+        // 解析方向主体（STATIONS / LOOP / ...）
         // 这是原来重复的核心循环，现在只写一次
         // ====================================================================
         private static void ParseBody(
@@ -115,20 +114,8 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         hasAutoDistance = ParseDistance(parser, context, dirId);
                         break;
 
-                    case "NICK_NAME":
-                        dirInfo.Alias = parser.ParseString();
-                        break;
-
-                    case "NICK_COLOR":
-                        dirInfo.AliasColor = parser.ParseString();
-                        break;
-
                     case "LOOP":
                         ParseLoop(parser, dirInfo);
-                        break;
-
-                    case "BRANCH":
-                        dirInfo.Attrs.Add(Attr.Branch);
                         break;
 
                     case "FAST":
@@ -214,8 +201,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
         private static void ApplyDirectionTemplate(DirectionInfo dir, DirectionTemplate template)
         {
-            if (template.Alias != null) dir.Alias = template.Alias;
-            if (template.AliasColor != null) dir.AliasColor = template.AliasColor;
             if (template.IsFuture.HasValue) dir.IsFuture = template.IsFuture.Value;
             if (template.ConnectStation != null) dir.ConnectStation = template.ConnectStation;
             if (template.DirectionType != null) dir.DirectionType = template.DirectionType;
@@ -241,8 +226,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
             dirInfo.Stations = new List<string>(originalDir.Stations);
             dirInfo.Stations.Reverse();
             dirInfo.Attrs = new HashSet<string>(originalDir.Attrs);
-            dirInfo.Alias = originalDir.Alias;
-            dirInfo.AliasColor = originalDir.AliasColor;
             dirInfo.DirectionType = originalDir.Attrs.Contains(Attr.Loop)
                 ? originalDir.DirectionType == "inner" ? "outer" : "inner"
                 : originalDir.DirectionType;
@@ -294,9 +277,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
         private static void ParseFuture(Parser parser, Context context, DirectionInfo dirInfo, string lineId)
         {
             dirInfo.IsFuture = true;
-            dirInfo.AliasColor = "#808080";
-            if (string.IsNullOrEmpty(dirInfo.Alias) && context.Lines.TryGetValue(lineId, out var line))
-                dirInfo.Alias = line.Name;
         }
 
         /// <summary>处理 SPEED_LIMIT 子命令</summary>
@@ -430,8 +410,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 LineId = original.LineId,
                 Stations = reversedStations,
                 Attrs = new HashSet<string>(original.Attrs),
-                Alias = original.Alias,
-                AliasColor = original.AliasColor,
                 DirectionType = original.Attrs.Contains(Attr.Loop)
                     ? original.DirectionType == "inner" ? "outer" : "inner"
                     : original.DirectionType,

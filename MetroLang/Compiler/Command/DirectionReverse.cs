@@ -53,8 +53,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     LineId = sourceDir.LineId,
                     Stations = reversedStations,
                     Attrs = newAttrs,
-                    Alias = sourceDir.Alias,
-                    AliasColor = sourceDir.AliasColor,
                     DirectionType = newDirectionType,
                     IsFuture = sourceDir.IsFuture,
                     ConnectStation = sourceDir.ConnectStation,

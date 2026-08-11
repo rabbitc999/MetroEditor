@@ -92,9 +92,6 @@ namespace MetroEditor.Simulator.Data
         /// <summary>线路是否包含环线（Key: 线路ID）</summary>
         public ConcurrentDictionary<string, bool> HasLoopMap { get; } = new();
 
-        /// <summary>线路是否包含支线（Key: 线路ID）</summary>
-        public ConcurrentDictionary<string, bool> HasBranchMap { get; } = new();
-
         /// <summary>线路总长度（Key: 线路ID, Value: 公里）</summary>
         public ConcurrentDictionary<string, double> LineTotalLengthMap { get; } = new();
 
@@ -189,7 +186,6 @@ namespace MetroEditor.Simulator.Data
             LineColorMap.Clear();
             LineCityMap.Clear();
             HasLoopMap.Clear();
-            HasBranchMap.Clear();
             LineTotalLengthMap.Clear();
             LineSpecialMap.Clear();
             LineHasFastMap.Clear();

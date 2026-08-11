@@ -24,7 +24,6 @@
             <TextBox x:Name="DirectionIdTextBox" Width="100" Margin="0,0,5,0"/>
             <Label Content="属性:"/>
             <CheckBox x:Name="LoopCheckBox" Content="环线" Margin="0,6,5,0"/>
-            <CheckBox x:Name="BranchCheckBox" Content="支线" Margin="0,6,5,0"/>
             <CheckBox x:Name="FastCheckBox" Content="快车" Margin="0,6,5,0"/>
             <CheckBox x:Name="FutureCheckBox" Content="建设中/规划中" Margin="0,6,5,0"/>
             <Label Content="环线方向:"/>
