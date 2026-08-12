@@ -130,6 +130,9 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>区域定义</summary>
         public Dictionary<string, ZoneInfo> Zones { get; set; } = new();
 
+        /// <summary>运营公司定义（Key: 公司ID, Value: 公司详情）</summary>
+        public Dictionary<string, OperatorCompanyInfo> OperatorCompanies { get; set; } = new();
+
 
 
         /// <summary>

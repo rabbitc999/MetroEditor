@@ -175,6 +175,11 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public Dictionary<string, ZoneInfo> Zones { get; internal set; } = new();
 
+        /// <summary>
+        /// 运营公司定义字典：Key=公司ID, Value=公司详情
+        /// </summary>
+        public Dictionary<string, OperatorCompanyInfo> OperatorCompanies { get; internal set; } = new();
+
         // ====================================================================
         // 9. 辅助映射
         // ====================================================================
@@ -360,6 +365,7 @@ namespace MetroEditor.MetroLang.Compiler
             data.CreateDate = CreateDate;
             data.OtherCities = Cities.Where(k => k.Key != MainCity).Select(k => k.Key).ToList();
             data.Zones = new Dictionary<string, ZoneInfo>(this.Zones);
+            data.OperatorCompanies = new Dictionary<string, OperatorCompanyInfo>(this.OperatorCompanies);
 
             return data;
         }
@@ -450,6 +456,8 @@ namespace MetroEditor.MetroLang.Compiler
                     AvgRent = z.Attributes.AvgRent
                 }
             });
+
+            clone.OperatorCompanies = CloneDictionary(this.OperatorCompanies, c => c.Clone());
 
             // ---- 11. 警告 ----
             clone.Warnings = new List<string>(this.Warnings);

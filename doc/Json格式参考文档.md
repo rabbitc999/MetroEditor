@@ -48,6 +48,7 @@
 | `virtual_transfers` | array | 虚拟换乘，见 §5.7 |
 | `labels` | array | 文字标签，见 §5.8 |
 | `zones` | array of Zone | 城市功能区/区域定义列表 |
+| `operator_companies` | array of OperatorCompany | 运营公司定义列表 |
 
 ---
 
@@ -529,7 +530,43 @@
 
 ---
 
-## 10. 扩展性
+# 10. OperatorCompany 对象结构（`operator_companies`）
+
+```json
+{
+  "id": "gz_metro",
+  "name": "广州地铁集团有限公司",
+  "short_name": "广州地铁",
+  "en_name": "Guangzhou Metro Group",
+  "country": "中国",
+  "city": "广州",
+  "founded": 1992,
+  "website": "https://www.gzmtr.com",
+  "hotline": "020-96891",
+  "description": "负责广州城市轨道交通的建设与运营",
+  "logo_base64": "data:image/png;base64,....",
+  "lines": ["LINE1", "LINE2", "LINE3"]
+}
+```
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `id` | string | 运营公司唯一标识（如 `gz_metro`） |
+| `name` | string | 公司显示名称（必填） |
+| `short_name` | string | 公司简称（可选） |
+| `en_name` | string | 英文名称（可选） |
+| `country` | string | 国家/地区（可选） |
+| `city` | string | 总部所在城市（可选，默认继承 `key_city`） |
+| `founded` | number | 成立年份（可选） |
+| `website` | string | 官方网站 URL（可选） |
+| `hotline` | string | 客服热线/联系电话（可选） |
+| `description` | string | 公司简介（可选） |
+| `logo_base64` | string | 公司 LOGO 的 Base64 编码（可选，仅前端展示） |
+| `lines` | array of string | 该公司运营的线路 ID 列表（可选） |
+
+---
+
+## 11. 扩展性
 
 该格式预留扩展能力，未来可能增加：
 - 站点 POI 数据

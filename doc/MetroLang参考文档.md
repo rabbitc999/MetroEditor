@@ -658,7 +658,53 @@ END_DEFINE
 
 ---
 
-## 30. 完整示例
+## 30. 运营公司定义（`OPERATOR_DEFINE` 块）
+
+描述一家运营公司的基础信息及其运营的线路，用于前端展示与查询（如运营主体归属、公司介绍、客服联系方式等），**不参与路径规划或票价计算**。
+
+```metro
+OPERATOR_DEFINE 公司ID
+    NAME '公司全称'                    # 必填，如 '广州地铁集团有限公司'
+    SHORT_NAME '公司简称'              # 可选，如 '广州地铁'
+    EN_NAME 'English Name'             # 可选，英文名称
+    COUNTRY '国家/地区'                # 可选，默认 '中国'
+    CITY '总部城市'                    # 可选，默认继承 PROGRAM 的 KEY_CITY
+    FOUNDED 年份                        # 可选，成立年份
+    WEBSITE '官网URL'                   # 可选，官方网站
+    HOTLINE '客服热线'                  # 可选，客服电话/热线
+    DESCRIPTION '公司简介'              # 可选，简要介绍
+    LOGO '图片路径'                    # 可选，公司 LOGO（相对/绝对路径，自动转 Base64）
+    LINES ['线路ID1', '线路ID2']       # 可选，运营的线路列表
+END_DEFINE
+```
+
+**DSL 使用示例**：
+```metro
+OPERATOR_DEFINE gz_metro
+    NAME '广州地铁集团有限公司'
+    SHORT_NAME '广州地铁'
+    EN_NAME 'Guangzhou Metro Group'
+    COUNTRY '中国'
+    CITY '广州'
+    FOUNDED 1992
+    WEBSITE 'https://www.gzmtr.com'
+    HOTLINE '020-96891'
+    DESCRIPTION '负责广州城市轨道交通的建设与运营'
+    LINES ['LINE1', 'LINE2', 'LINE3']
+END_DEFINE
+
+OPERATOR_DEFINE gz_gf
+    NAME '广东城际铁路运营有限公司'
+    SHORT_NAME '广东城际'
+    CITY '广州'
+    FOUNDED 2020
+    LINES ['LINE18', 'LINE22']
+END_DEFINE
+```
+
+---
+
+## 31. 完整示例
 
 ```metro
 %DEFINE CITY_BJ

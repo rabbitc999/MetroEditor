@@ -701,6 +701,79 @@
                 });
             }
 
+            // ---- 区域图层（Zones，置于最底层） ----
+            const zones = data.zones || [];
+            const zoneGroup = g.insert("g", ":first-child").attr("class", "zones");
+            if (zones.length > 0) {
+                const metersPerDegLat = 111320;
+                const zoneLabelBase = 11;
+
+                zones.forEach(zone => {
+                    const fillColor = zone.Color || '#3388ff';
+                    const label = zone.Name || zone.Id || '';
+
+                    // 圆形区域（CENTER + RADIUS，半径单位为米）
+                    if (zone.Center && Array.isArray(zone.Center) && zone.Center.length >= 2 && zone.Radius) {
+                        const cx = xScale(zone.Center[0]);
+                        const cy = yScale(zone.Center[1]);
+                        const metersPerDegLon = metersPerDegLat * Math.cos(zone.Center[1] * Math.PI / 180);
+                        const rPx = Math.max(zone.Radius / metersPerDegLon * scale, 4);
+                        zoneGroup.append("circle")
+                            .attr("class", "zone-circle")
+                            .attr("cx", cx)
+                            .attr("cy", cy)
+                            .attr("r", rPx)
+                            .attr("fill", fillColor)
+                            .attr("fill-opacity", 0.18)
+                            .attr("stroke", fillColor)
+                            .attr("stroke-width", 1.2)
+                            .attr("stroke-dasharray", "4,3")
+                            .attr("stroke-opacity", 0.75)
+                            .attr("pointer-events", "none");
+                        zoneGroup.append("text")
+                            .attr("class", "zone-label")
+                            .attr("x", cx)
+                            .attr("y", cy)
+                            .attr("text-anchor", "middle")
+                            .attr("dominant-baseline", "middle")
+                            .attr("font-size", zoneLabelBase + "px")
+                            .attr("fill", fillColor)
+                            .style("font-weight", "bold")
+                            .style("pointer-events", "none")
+                            .text(label);
+                    }
+
+                    // 多边形区域（POLYGON）
+                    if (zone.Polygon && Array.isArray(zone.Polygon) && zone.Polygon.length >= 3) {
+                        const pts = zone.Polygon.map(p => [xScale(p[0]), yScale(p[1])]);
+                        const d = "M" + pts.map(p => p[0] + "," + p[1]).join("L") + "Z";
+                        zoneGroup.append("path")
+                            .attr("class", "zone-polygon")
+                            .attr("d", d)
+                            .attr("fill", fillColor)
+                            .attr("fill-opacity", 0.18)
+                            .attr("stroke", fillColor)
+                            .attr("stroke-width", 1.2)
+                            .attr("stroke-dasharray", "4,3")
+                            .attr("stroke-opacity", 0.75)
+                            .attr("pointer-events", "none");
+                        const ccx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+                        const ccy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+                        zoneGroup.append("text")
+                            .attr("class", "zone-label")
+                            .attr("x", ccx)
+                            .attr("y", ccy)
+                            .attr("text-anchor", "middle")
+                            .attr("dominant-baseline", "middle")
+                            .attr("font-size", zoneLabelBase + "px")
+                            .attr("fill", fillColor)
+                            .style("font-weight", "bold")
+                            .style("pointer-events", "none")
+                            .text(label);
+                    }
+                });
+            }
+
             const pathGroup = g.append("g").attr("class", "paths");
             const pathElements = pathGroup.selectAll(".line-path")
                 .data(pathData)
@@ -994,6 +1067,12 @@
                 platformCircles
                     .attr("r", Math.min(Math.max(3 / k, 0.8), 4))
                     .attr("stroke-width", Math.min(Math.max(1.5 / k, 0.5), 2));
+
+                // 区域描边与标签随缩放保持屏幕尺寸稳定
+                zoneGroup.selectAll(".zone-circle, .zone-polygon")
+                    .attr("stroke-width", Math.min(Math.max(1.2 / k, 0.6), 2.5));
+                zoneGroup.selectAll(".zone-label")
+                    .attr("font-size", Math.min(Math.max(11 / k, 6), 14) + "px");
 
                 tempLineGroup.selectAll(".temp-line")
                     .attr("stroke-width", Math.min(Math.max(3 / k, 0.8), 5));

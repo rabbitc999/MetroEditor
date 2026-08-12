@@ -798,6 +798,28 @@ namespace MetroEditor.MetroLang.Compiler
                         parser.ErrorList.Add($"区域 '{zoneId}' 引用了不存在的车站 '{station}'");
                 }
             }
+
+            // 运营公司校验
+            foreach (var kv in context.OperatorCompanies)
+            {
+                var companyId = kv.Key;
+                var company = kv.Value;
+
+                // 必须名称
+                if (string.IsNullOrEmpty(company.Name))
+                    parser.ErrorList.Add($"运营公司 '{companyId}' 缺少 NAME");
+
+                // 城市存在性（若指定）
+                if (!string.IsNullOrEmpty(company.City) && !context.Cities.ContainsKey(company.City))
+                    parser.ErrorList.Add($"运营公司 '{companyId}' 引用的城市 '{company.City}' 未定义");
+
+                // 检查运营的线路是否存在
+                foreach (var lineId in company.Lines)
+                {
+                    if (!context.Lines.ContainsKey(lineId))
+                        parser.ErrorList.Add($"运营公司 '{companyId}' 引用了不存在的线路 '{lineId}'");
+                }
+            }
         }
     }
 }

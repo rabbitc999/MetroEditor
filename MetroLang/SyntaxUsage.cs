@@ -342,6 +342,13 @@ namespace MetroEditor.MetroLang
                 Example = "LABEL_DEFINE NODE '广州东站' COORD 113.332 23.156 END_DEFINE",
                 InsertTemplate = "LABEL_DEFINE\n    NODE '<标签文本>' COORD <经度> <纬度>\nEND_DEFINE"
             },
+            new SyntaxReferenceItem
+            {
+                Command = "OPERATOR_DEFINE",
+                Format = "OPERATOR_DEFINE <公司ID> ... END_DEFINE",
+                Example = "OPERATOR_DEFINE gz_metro NAME '广州地铁集团有限公司' CITY '广州' FOUNDED 1992 END_DEFINE",
+                InsertTemplate = "OPERATOR_DEFINE <公司ID>\n    NAME '<公司全称>'\n    SHORT_NAME '<公司简称>'\n    EN_NAME '<English Name>'\n    COUNTRY '<国家>'\n    CITY '<城市>'\n    FOUNDED <年份>\n    WEBSITE '<官网URL>'\n    HOTLINE '<客服热线>'\n    DESCRIPTION '<简介>'\n    LINES [<线路ID>, ...]\nEND_DEFINE"
+            },
 
             // ---------- 条件编译（预处理） ----------
             new SyntaxReferenceItem
@@ -540,8 +547,7 @@ namespace MetroEditor.MetroLang
             new("DEPOT", "车辆段"),
             new("OPEN_TIME", "运营时间"),
             new("LABEL_DEFINE", "文字标签定义块"),
-            new("COORD", "坐标"),
-            new("AUTO", "自动计算"),
+            new("COORD", "坐标"),            new("AUTO", "自动计算"),
             new("NIL", "空值"),
             new("ALL", "全部"),
             new("SURCHARGE", "附加费"),
@@ -587,6 +593,18 @@ namespace MetroEditor.MetroLang
             // ----- 值关键字 -----
             new("TIME_MINUTES", "时间(分钟)"),
             new("TIME", "时间(秒)"),
+
+            // ----- 运营公司 -----
+            new("OPERATOR_DEFINE", "运营公司定义块"),
+            new("SHORT_NAME", "公司简称"),
+            new("EN_NAME", "英文名称"),
+            new("COUNTRY", "国家/地区"),
+            new("FOUNDED", "成立年份"),
+            new("WEBSITE", "官方网站"),
+            new("HOTLINE", "客服热线"),
+            new("DESCRIPTION", "简介/描述"),
+            new("LOGO", "公司LOGO图片"),
+            new("LINES", "运营线路列表"),
         };
 
 

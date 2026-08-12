@@ -177,6 +177,14 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
+            // REGION: 运营公司
+            if (_root.OperatorCompanies?.Any() == true)
+            {
+                AddRegion("运营公司");
+                GenerateOperatorCompanies();
+                EndRegion();
+            }
+
             WriteFileFooter();
             return string.Join("\n", _outputLines);
         }
@@ -944,6 +952,40 @@ namespace MetroEditor.MetroLang.Decompiler
 
             WriteLine("END_DEFINE");
             AddBlankLine();
+        }
+
+        /// <summary>
+        /// 生成运营公司定义（OPERATOR_DEFINE 块）。
+        /// </summary>
+        private void GenerateOperatorCompanies()
+        {
+            if (_root.OperatorCompanies == null || !_root.OperatorCompanies.Any()) return;
+
+            foreach (var company in _root.OperatorCompanies.OrderBy(c => c.Id))
+            {
+                WriteLine($"OPERATOR_DEFINE {company.Id}");
+                WriteLine($"{Indent}NAME '{company.Name}'");
+                if (!string.IsNullOrEmpty(company.ShortName))
+                    WriteLine($"{Indent}SHORT_NAME '{company.ShortName}'");
+                if (!string.IsNullOrEmpty(company.EnName))
+                    WriteLine($"{Indent}EN_NAME '{company.EnName}'");
+                if (!string.IsNullOrEmpty(company.Country))
+                    WriteLine($"{Indent}COUNTRY '{company.Country}'");
+                if (!string.IsNullOrEmpty(company.City))
+                    WriteLine($"{Indent}CITY '{company.City}'");
+                if (company.Founded.HasValue)
+                    WriteLine($"{Indent}FOUNDED {company.Founded.Value}");
+                if (!string.IsNullOrEmpty(company.Website))
+                    WriteLine($"{Indent}WEBSITE '{company.Website}'");
+                if (!string.IsNullOrEmpty(company.Hotline))
+                    WriteLine($"{Indent}HOTLINE '{company.Hotline}'");
+                if (!string.IsNullOrEmpty(company.Description))
+                    WriteLine($"{Indent}DESCRIPTION '{company.Description}'");
+                if (company.Lines?.Any() == true)
+                    WriteLine($"{Indent}LINES [{string.Join(", ", company.Lines)}]");
+                WriteLine("END_DEFINE");
+                AddBlankLine();
+            }
         }
 
         /// <summary>

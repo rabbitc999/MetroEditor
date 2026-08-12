@@ -143,5 +143,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("zones")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<JsonZone>? Zones { get; set; }
+
+        /// <summary>
+        /// 运营公司定义列表（如广州地铁集团有限公司）。
+        /// </summary>
+        [JsonPropertyName("operator_companies")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<JsonOperatorCompany>? OperatorCompanies { get; set; }
     }
 }

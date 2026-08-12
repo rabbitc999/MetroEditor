@@ -171,6 +171,24 @@ namespace MetroEditor.MetroLang.Exporter
                         } : null
                     }).ToList()
                     : null,
+
+                OperatorCompanies = context.OperatorCompanies.Any()
+                    ? context.OperatorCompanies.Select(kv => new JsonOperatorCompany
+                    {
+                        Id = kv.Key,
+                        Name = kv.Value.Name,
+                        ShortName = kv.Value.ShortName,
+                        EnName = kv.Value.EnName,
+                        Country = kv.Value.Country,
+                        City = kv.Value.City,
+                        Founded = kv.Value.Founded,
+                        Website = kv.Value.Website,
+                        Hotline = kv.Value.Hotline,
+                        Description = kv.Value.Description,
+                        LogoBase64 = kv.Value.LogoBase64,
+                        Lines = kv.Value.Lines
+                    }).ToList()
+                    : null,
             };
 
             // 补充 ViaDirections 到 Direction 对象
