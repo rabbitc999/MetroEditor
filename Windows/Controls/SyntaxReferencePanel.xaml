@@ -6,16 +6,25 @@
              xmlns:local="clr-namespace:MetroEditor.Windows.Controls"
              mc:Ignorable="d" 
              xmlns:metrolang="clr-namespace:MetroEditor.MetroLang">
-    <ListView ItemsSource="{x:Static metrolang:SyntaxUsage.SyntaxReferences}"
-              MouseDoubleClick="SyntaxReferenceList_MouseDoubleClick"
-              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-              ScrollViewer.VerticalScrollBarVisibility="Auto">
-        <ListView.View>
-            <GridView>
-                <GridViewColumn Header="命令" Width="160" DisplayMemberBinding="{Binding Command}" />
-                <GridViewColumn Header="格式" Width="450" DisplayMemberBinding="{Binding Format}" />
-                <GridViewColumn Header="示例" Width="450" DisplayMemberBinding="{Binding Example}" />
-            </GridView>
-        </ListView.View>
-    </ListView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" x:Name="SearchBox" Margin="0,0,0,4" Padding="4,2"
+                 ToolTip="输入关键字搜索命令、格式或示例"
+                 TextChanged="SearchBox_TextChanged" />
+        <ListView Grid.Row="1" x:Name="SyntaxList"
+                  MouseDoubleClick="SyntaxReferenceList_MouseDoubleClick"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="命令" Width="160" DisplayMemberBinding="{Binding Command}" />
+                    <GridViewColumn Header="格式" Width="450" DisplayMemberBinding="{Binding Format}" />
+                    <GridViewColumn Header="示例" Width="450" DisplayMemberBinding="{Binding Example}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
 </UserControl>

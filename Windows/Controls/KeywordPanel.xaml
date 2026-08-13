@@ -6,28 +6,37 @@
              xmlns:local="clr-namespace:MetroEditor.Windows.Controls"
              mc:Ignorable="d" 
              xmlns:metrolang="clr-namespace:MetroEditor.MetroLang">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Border BorderBrush="#888" BorderThickness="0,0,0,1" Padding="4,2">
-            <ItemsControl ItemsSource="{x:Static metrolang:SyntaxUsage.KeyWords}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Margin="2,1" Padding="6,2" FontFamily="Consolas" FontSize="12"
-                                Background="Transparent" BorderBrush="#AAA" BorderThickness="1"
-                                Cursor="Hand" Click="KeywordButton_Click" Tag="{Binding Key}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Key}" FontWeight="Bold" TextDecorations="Underline" />
-                                <TextBlock Text=" " />
-                                <TextBlock Text="{Binding Value}" Foreground="Gray" FontSize="11" />
-                            </StackPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
-    </ScrollViewer>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" x:Name="SearchBox" Margin="0,0,0,4" Padding="4,2"
+                 ToolTip="输入关键字或说明文字进行搜索"
+                 TextChanged="SearchBox_TextChanged" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Border BorderBrush="#888" BorderThickness="0,0,0,1" Padding="4,2">
+                <ItemsControl x:Name="KeywordList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Margin="2,1" Padding="6,2" FontFamily="Consolas" FontSize="12"
+                                    Background="Transparent" BorderBrush="#AAA" BorderThickness="1"
+                                    Cursor="Hand" Click="KeywordButton_Click" Tag="{Binding Key}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Key}" FontWeight="Bold" TextDecorations="Underline" />
+                                    <TextBlock Text=" " />
+                                    <TextBlock Text="{Binding Value}" Foreground="Gray" FontSize="11" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

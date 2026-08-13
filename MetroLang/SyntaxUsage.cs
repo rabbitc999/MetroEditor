@@ -661,6 +661,30 @@ namespace MetroEditor.MetroLang
             new("ELEVATED", "高架段"),
             new("UNDERGROUND", "地下段"),
             new("GROUND", "地面段"),
+
+            // ----- 区域定义 -----
+            new("ZONE_DEFINE", "区域定义块"),
+            new("CENTER", "区域中心坐标"),
+            new("RADIUS", "区域半径(米)"),
+            new("POLYGON", "区域多边形顶点"),
+            new("ATTRIBUTES", "区域属性块"),
+            new("PEAK_HOURS", "高峰时段"),
+            new("POPULATION_DENSITY", "人口密度"),
+            new("AVG_RENT", "平均租金"),
+            new("END_ATTRIBUTES", "区域属性结束"),
+            new("CBD", "区域类型: 中央商务区"),
+            new("COMMERCIAL", "区域类型: 商业区"),
+            new("RESIDENTIAL", "区域类型: 住宅区"),
+            new("GOVERNMENT", "区域类型: 行政区"),
+            new("TOURIST", "区域类型: 旅游区"),
+            new("TRANSPORT_HUB", "区域类型: 交通枢纽"),
+            new("EDUCATIONAL", "区域类型: 文教区"),
+            new("MEDICAL", "区域类型: 医疗区"),
+            new("MIXED", "区域类型: 混合区"),
+
+            // ----- 其他语言名称 -----
+            new("OTHER_NAME", "站点其他语言名称(STATION_DEFINE内)"),
+            new("OTHER_NAMES", "站点其他语言名称(STATION_MODIFY内)"),
         };
 
 

@@ -41,7 +41,7 @@ namespace MetroEditor.Windows.Controls.Style
             string[] primaryKeywords = [
                 // 程序元数据
                 "KEY_CITY", "PROGRAM_DEFINE", "OTHER_CITY", "VERSION", "UPDATE_DATE", "CITY",
-                "AUTHOR", "CREATE_DATE", "OTHER_NAME", "OTHER_NAME",
+                "AUTHOR", "CREATE_DATE", "OTHER_NAME", "OTHER_NAMES",
                 
                 // 核心定义块
                 "LINE_DEFINE", "DIRECTION_DEFINE", "STATION_DEFINE", "PRICE_DEFINE",
@@ -118,7 +118,13 @@ namespace MetroEditor.Windows.Controls.Style
                 "INTO", "AT", "ADD", "REMOVE", "SET", "KEEP_ORIGINAL",
 
                 // 背景图片
-                "BACKGROUND_DEFINE", "BOUNDS", "OPACITY"
+                "BACKGROUND_DEFINE", "BOUNDS", "OPACITY",
+
+                // 区域定义
+                "ZONE_DEFINE", "CENTER", "RADIUS", "POLYGON",
+                "ATTRIBUTES", "PEAK_HOURS", "POPULATION_DENSITY", "AVG_RENT", "END_ATTRIBUTES",
+                "CBD", "COMMERCIAL", "RESIDENTIAL", "GOVERNMENT", "TOURIST",
+                "TRANSPORT_HUB", "EDUCATIONAL", "MEDICAL", "MIXED"
             ];
 
             string pattern = @"\b(" + string.Join("|", primaryKeywords) + @")\b";
