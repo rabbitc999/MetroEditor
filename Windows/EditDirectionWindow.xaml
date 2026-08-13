@@ -17,20 +17,25 @@
         </Grid.ColumnDefinitions>
 
         <!-- 控制行 -->
-        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,5">
-            <Label Content="线路ID:"/>
-            <ComboBox x:Name="LineIdComboBox" Width="100" IsEditable="True" Margin="0,0,15,0"/>
-            <Label Content="方向ID:"/>
-            <TextBox x:Name="DirectionIdTextBox" Width="100" Margin="0,0,5,0"/>
-            <Label Content="属性:"/>
-            <CheckBox x:Name="LoopCheckBox" Content="环线" Margin="0,6,5,0"/>
-            <CheckBox x:Name="FastCheckBox" Content="快车" Margin="0,6,5,0"/>
-            <CheckBox x:Name="FutureCheckBox" Content="建设中/规划中" Margin="0,6,5,0"/>
-            <Label Content="环线方向:"/>
-            <ComboBox x:Name="DirectionTypeComboBox" Width="65" IsEnabled="False">
-                <ComboBoxItem Content="内环"/>
-                <ComboBoxItem Content="外环"/>
-            </ComboBox>
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,5">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="线路ID:"/>
+                <ComboBox x:Name="LineIdComboBox" Width="100" IsEditable="True" Margin="0,0,15,0"/>
+                <Label Content="方向ID:"/>
+                <TextBox x:Name="DirectionIdTextBox" Width="100" Margin="0,0,5,0"/>
+                <Label Content="属性:"/>
+                <CheckBox x:Name="LoopCheckBox" Content="环线" Margin="0,6,5,0"/>
+                <CheckBox x:Name="FutureCheckBox" Content="建设中/规划中" Margin="0,6,5,0"/>
+                <Label Content="环线方向:"/>
+                <ComboBox x:Name="DirectionTypeComboBox" Width="65" IsEnabled="False">
+                    <ComboBoxItem Content="内环"/>
+                    <ComboBoxItem Content="外环"/>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <Label Content="快车停靠站 (逗号分隔, 留空=无快车):"/>
+                <TextBox x:Name="ExpressStopsTextBox" Width="420" VerticalContentAlignment="Center"/>
+            </StackPanel>
         </StackPanel>
 
         <!-- 左侧：搜索 + 所有站点 -->

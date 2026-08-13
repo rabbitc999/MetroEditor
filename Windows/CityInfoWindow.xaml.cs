@@ -37,13 +37,13 @@ namespace MetroEditor.Windows
         /// <returns>线路长度（千米）</returns>
         /// <remarks>
         /// 计算策略：
-        /// 1. 排除未来线路（IsFuture）和快车线路（FAST）
+        /// 1. 排除未来线路（IsFuture）
         /// 2. 对同一线路的多方向取最长距离
         /// </remarks>
         public static double GetLineLength(ParsedData data, string lineId)
         {
             var dirs = data.Directions.Values.Where(d => d.LineId == lineId).ToList();
-            var activeDirs = dirs.Where(d => !d.IsFuture && !d.Attrs.Contains("FAST")).ToList();
+            var activeDirs = dirs.Where(d => !d.IsFuture).ToList();
             if (!activeDirs.Any()) return 0;
 
             double maxLength = 0;
@@ -168,7 +168,7 @@ namespace MetroEditor.Windows
 
                 // 检测线路特性
                 bool hasLoop = dirs.Any(d => d.Attrs.Contains("LOOP"));     // 是否环线
-                bool hasFast = dirs.Any(d => d.Attrs.Contains("FAST"));     // 是否有快车
+                bool hasFast = dirs.Any(d => d.ExpressStops.Count > 0);     // 是否有快车
                 bool isSpecial = _data.SpecialLineIds?.Contains(lineId) ?? false; // 是否特殊线路
 
                 lines.Add(new LineDisplayItem

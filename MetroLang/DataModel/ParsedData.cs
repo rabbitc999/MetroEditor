@@ -133,6 +133,9 @@ namespace MetroEditor.MetroLang.DataModel
         /// <summary>运营公司定义（Key: 公司ID, Value: 公司详情）</summary>
         public Dictionary<string, OperatorCompanyInfo> OperatorCompanies { get; set; } = new();
 
+        /// <summary>背景图片定义（Key: 背景ID, Value: 背景详情）</summary>
+        public Dictionary<string, BackgroundInfo> Backgrounds { get; set; } = new();
+
 
 
         /// <summary>
@@ -185,7 +188,8 @@ namespace MetroEditor.MetroLang.DataModel
                 DefaultBoardTime = this.DefaultBoardTime,
                 LanguageOrder = new List<string>(this.LanguageOrder),
                 StationOtherNames = new Dictionary<string, List<string>>(this.StationOtherNames.Select(kv => new KeyValuePair<string, List<string>>(kv.Key, new List<string>(kv.Value)))),
-                PlatformCoords = new Dictionary<(string, string), (double, double)>(this.PlatformCoords)
+                PlatformCoords = new Dictionary<(string, string), (double, double)>(this.PlatformCoords),
+                Backgrounds = new Dictionary<string, BackgroundInfo>(this.Backgrounds.Select(kv => new KeyValuePair<string, BackgroundInfo>(kv.Key, kv.Value.Clone())))
             };
         }
     }

@@ -161,7 +161,8 @@ namespace MetroEditor.Windows
                 direction.DirId,
                 dirInfo.Stations,
                 dirInfo.Attrs.ToList(),
-                dirInfo.DirectionType
+                dirInfo.DirectionType,
+                dirInfo.ExpressStops
             );
             dialog.Show();
             RefreshGrids();
@@ -393,7 +394,39 @@ namespace MetroEditor.Windows
             var tab = new MetroEditorTab();
             tab.RequestSaveAs += (s, ev) => SaveAsForTab(tab);
             tab.CompilationCompleted += OnTabCompilationCompleted;
+            tab.SetInitialText(CreateNewFileTemplate()); // 新建时给出 PROGRAM_DEFINE 模板
             documentWorkspace.AddTab(tab);   // 替换原来的 _tabs.Add 和 SelectedItem
+        }
+
+        /// <summary>
+        /// 生成新建文件的初始模板：包含 PROGRAM_DEFINE 程序信息字段，保证新建后可直接编译
+        /// </summary>
+        private static string CreateNewFileTemplate()
+        {
+            string today = DateTime.Now.ToString("yyyy-MM-dd");
+            return $"""
+                # ===== 程序定义 =====
+                PROGRAM_DEFINE
+                    KEY_CITY '广州'
+                    OTHER_CITY ['佛山']
+                    VERSION 'V1.0'
+                    CREATE_DATE '{today}'
+                    UPDATE_DATE '{today}'
+                    AUTHOR '匿名'
+                    LANGUAGE_ORDER ['zh-Hans']
+                END_DEFINE
+
+                # ===== 站点定义 =====
+                # STATION_DEFINE
+                #     NODE '示例站' COORD 113.2644, 23.1291
+                # END_DEFINE
+
+                # ===== 线路定义 =====
+                # LINE_DEFINE L1
+                #     NAME '示例线'
+                #     COLOR '#00629B'
+                # END_DEFINE
+                """;
         }
 
         private void OpenFile_Click(object sender, EventArgs e)
@@ -721,6 +754,33 @@ namespace MetroEditor.Windows
             OpenStationManager();   // 调用已有的方法
         }
 
+        /// <summary>
+        /// 打开程序信息编辑窗口（PROGRAM_DEFINE）
+        /// </summary>
+        private void ProgramInfo_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new ProgramInfoWindow(documentWorkspace.CurrentTab?.ParsedData, DefaultCity);
+            win.Show();
+        }
+
+        /// <summary>
+        /// 打开区域管理窗口（ZONE_DEFINE）
+        /// </summary>
+        private void ZoneManager_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new ZoneManagerWindow(documentWorkspace.CurrentTab?.ParsedData);
+            win.Show();
+        }
+
+        /// <summary>
+        /// 打开运营公司管理窗口（OPERATOR_DEFINE）
+        /// </summary>
+        private void OperatorManager_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new OperatorManagerWindow(documentWorkspace.CurrentTab?.ParsedData);
+            win.Show();
+        }
+
         private void RefreshGrids()
         {
             if (documentWorkspace.CurrentTab?.ParsedData != null)
@@ -739,7 +799,8 @@ namespace MetroEditor.Windows
                         City = documentWorkspace.CurrentTab?.ParsedData.StationCities.GetValueOrDefault(item.Key, documentWorkspace.CurrentTab?.ParsedData?.MainCity ?? DefaultCity),
                         Name = item.Key,
                         Lat = item.Value.Lat,
-                        Lon = item.Value.Lon
+                        Lon = item.Value.Lon,
+                        OtherNames = documentWorkspace.CurrentTab?.ParsedData.StationOtherNames.GetValueOrDefault(item.Key) ?? new List<string>()
                     });
                 }
             }

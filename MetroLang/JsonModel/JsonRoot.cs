@@ -150,5 +150,12 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("operator_companies")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<JsonOperatorCompany>? OperatorCompanies { get; set; }
+
+        /// <summary>
+        /// 背景图片定义列表（支持 SVG 或固定像素图片）。
+        /// </summary>
+        [JsonPropertyName("backgrounds")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<JsonBackground>? Backgrounds { get; set; }
     }
 }

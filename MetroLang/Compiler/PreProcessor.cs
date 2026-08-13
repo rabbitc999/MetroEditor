@@ -322,7 +322,7 @@ namespace MetroEditor.MetroLang.Compiler
 
                 // 解析表头
                 var header = ParseCsvLine(lines[0]);
-                int nameIdx = -1, lonIdx = -1, latIdx = -1, cityIdx = -1;
+                int nameIdx = -1, lonIdx = -1, latIdx = -1, cityIdx = -1, otherNamesIdx = -1;
                 for (int j = 0; j < header.Length; j++)
                 {
                     string h = header[j].Trim().ToUpperInvariant();
@@ -330,6 +330,7 @@ namespace MetroEditor.MetroLang.Compiler
                     else if (h == "经度" || h == "LON") lonIdx = j;
                     else if (h == "纬度" || h == "LAT") latIdx = j;
                     else if (h == "城市" || h == "CITY") cityIdx = j;
+                    else if (h == "其他语言名称" || h == "英文名" || h == "OTHER_NAMES" || h == "EN_NAME") otherNamesIdx = j;
                 }
                 if (nameIdx == -1 || lonIdx == -1 || latIdx == -1)
                     throw new InvalidOperationException("CSV 必须包含 '站名', '经度', '纬度' 列");
@@ -359,6 +360,28 @@ namespace MetroEditor.MetroLang.Compiler
                     {
                         tokens.Add(new Token(TokenType.Id, "CITY", 0));
                         tokens.Add(new Token(TokenType.String, $"\"{cols[cityIdx].Trim()}\"", 0));
+                    }
+
+                    // 可选的"其他语言名称"列：一个或多个名称，用分号/竖线分隔 → OTHER_NAME ['a', 'b']
+                    if (otherNamesIdx != -1 && otherNamesIdx < cols.Length && !string.IsNullOrWhiteSpace(cols[otherNamesIdx]))
+                    {
+                        var names = cols[otherNamesIdx]
+                            .Split(new[] { ';', '|', '；' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(n => n.Trim())
+                            .Where(n => n.Length > 0)
+                            .ToArray();
+                        if (names.Length > 0)
+                        {
+                            tokens.Add(new Token(TokenType.Id, "OTHER_NAME", 0));
+                            tokens.Add(new Token(TokenType.Symbol, "[", 0));
+                            for (int ni = 0; ni < names.Length; ni++)
+                            {
+                                if (ni > 0)
+                                    tokens.Add(new Token(TokenType.Symbol, ",", 0));
+                                tokens.Add(new Token(TokenType.String, $"\"{names[ni]}\"", 0));
+                            }
+                            tokens.Add(new Token(TokenType.Symbol, "]", 0));
+                        }
                     }
                     tokens.Add(new Token(TokenType.Newline, "\n", 0));
                 }

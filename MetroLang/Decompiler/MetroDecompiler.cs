@@ -185,6 +185,14 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
+            // REGION: 背景图片
+            if (_root.Backgrounds?.Any() == true)
+            {
+                AddRegion("背景图片");
+                GenerateBackgrounds();
+                EndRegion();
+            }
+
             WriteFileFooter();
             return string.Join("\n", _outputLines);
         }
@@ -486,11 +494,35 @@ namespace MetroEditor.MetroLang.Decompiler
                 WriteLine($"{Indent}{Indent}{loopLine}");
             }
 
-            if (direction.IsFast) WriteLine($"{Indent}{Indent}FAST");
             if (direction.IsFuture) WriteLine($"{Indent}{Indent}FUTURE");
+
+            if (direction.ExpressStops?.Any() == true)
+            {
+                var stops = direction.ExpressStops.Select(s => $"'{s}'").ToList();
+                WriteLine($"{Indent}{Indent}EXPRESS_STOPS [{string.Join(", ", stops)}]");
+            }
+
+            // Routings (交路信息：名称 + 经过站点)
+            if (direction.Routings?.Any() == true)
+            {
+                foreach (var routing in direction.Routings)
+                {
+                    var stops = routing.Stations.Select(s => $"'{s}'").ToList();
+                    WriteLine($"{Indent}{Indent}ROUTING '{routing.Name}' [{string.Join(", ", stops)}]");
+                }
+            }
 
             if (direction.ViaDirections?.Any() == true)
                 WriteLine($"{Indent}{Indent}VIA {string.Join(" ", direction.ViaDirections)}");
+
+            // SegmentTypes (高架/地下/地面)
+            if (direction.SegmentTypes?.Any() == true)
+            {
+                foreach (var seg in direction.SegmentTypes)
+                {
+                    WriteLine($"{Indent}{Indent}SEGMENT_TYPE '{seg.From}' '{seg.To}' {seg.Type.ToUpperInvariant()}");
+                }
+            }
 
             WriteLine($"{Indent}END_DEFINE");
         }
@@ -982,7 +1014,31 @@ namespace MetroEditor.MetroLang.Decompiler
                 if (!string.IsNullOrEmpty(company.Description))
                     WriteLine($"{Indent}DESCRIPTION '{company.Description}'");
                 if (company.Lines?.Any() == true)
-                    WriteLine($"{Indent}LINES [{string.Join(", ", company.Lines)}]");
+                    // LINES 元素为文本（带引号），否则反编译结果无法再次编译
+                    WriteLine($"{Indent}LINES [{string.Join(", ", company.Lines.Select(l => $"'{l}'"))}]");
+                WriteLine("END_DEFINE");
+                AddBlankLine();
+            }
+        }
+
+        /// <summary>
+        /// 生成背景图片定义（BACKGROUND_DEFINE 块）。
+        /// 注意：SRC 数据以 Base64 存储，反编译时写入注释提示。
+        /// </summary>
+        private void GenerateBackgrounds()
+        {
+            if (_root.Backgrounds == null || !_root.Backgrounds.Any()) return;
+
+            foreach (var bg in _root.Backgrounds.OrderBy(b => b.Id))
+            {
+                WriteLine($"BACKGROUND_DEFINE {bg.Id}");
+                WriteLine($"{Indent}NAME '{bg.Name}'");
+                WriteLine($"{Indent}TYPE {bg.Type}");
+                WriteLine($"{Indent}# SRC data embedded as Base64 ({bg.Src?.Length ?? 0} chars)");
+                if (bg.Bounds != null && bg.Bounds.Length == 4)
+                    WriteLine($"{Indent}BOUNDS [{bg.Bounds[0]}, {bg.Bounds[1]}, {bg.Bounds[2]}, {bg.Bounds[3]}]");
+                if (bg.Opacity.HasValue)
+                    WriteLine($"{Indent}OPACITY {bg.Opacity.Value}");
                 WriteLine("END_DEFINE");
                 AddBlankLine();
             }

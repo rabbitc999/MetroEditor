@@ -33,19 +33,17 @@
         public string Start { get; set; } = string.Empty;
         public string End { get; set; } = string.Empty;
         public List<string> Stations { get; set; } = new();
-        public string NickColor { get; set; } = string.Empty;
         public bool IsFuture { get; set; }
         public string LineID { get; set; } = string.Empty;
 
         public SimLineDirection() { }
         public SimLineDirection(string lineId, string start, string end, List<string> stations,
-                                string nickColor, bool isFuture)
+                                bool isFuture)
         {
             LineID = lineId;
             Start = start;
             End = end;
             Stations = stations;
-            NickColor = nickColor;
             IsFuture = isFuture;
         }
     }
@@ -118,14 +116,13 @@
         public string Direction { get; set; } = string.Empty;
         public string EndStation { get; set; } = string.Empty;
         public int StationCount { get; set; }
-        public string NickColor { get; set; } = string.Empty;
         public string DirKey { get; set; } = string.Empty;
         public bool IsOutStationTransfer { get; set; }
 
         public SimRouteSegment() { }
         public SimRouteSegment(string startStation, string lineId, string lineName,
                                string direction, string endStation, int stationCount,
-                               string nickColor, bool isOutStationTransfer,
+                               bool isOutStationTransfer,
                                string dirKey)
         {
             StartStation = startStation;
@@ -134,7 +131,6 @@
             Direction = direction;
             EndStation = endStation;
             StationCount = stationCount;
-            NickColor = nickColor;
             IsOutStationTransfer = isOutStationTransfer;
             DirKey = dirKey;
         }
@@ -220,7 +216,6 @@
     /// <summary>UI 显示项（标题或站点，用于线路详情等界面渲染）</summary>
     public class SimDisplayItem
     {
-        public string NickName { get; set; } = string.Empty;
         public int Type { get; set; } // 0 = 标题, 1 = 站点
         public string HeaderTitle { get; set; } = string.Empty;
         public int HeaderColor { get; set; }
@@ -230,13 +225,12 @@
         public int Index { get; set; } = -1;
         public List<SimTransferLineInfo> Transfers { get; set; } = new();
 
-        public SimDisplayItem(string stationName, string stationType, int index, string nickName, string lineTag)
+        public SimDisplayItem(string stationName, string stationType, int index, string lineTag)
         {
             Type = 1;
             StationName = stationName;
             StationType = stationType;
             Index = index;
-            NickName = nickName;
             LineTag = lineTag;
         }
 

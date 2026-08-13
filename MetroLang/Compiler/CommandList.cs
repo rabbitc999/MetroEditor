@@ -70,6 +70,7 @@ namespace MetroEditor.MetroLang.Compiler.Compiler
             command["GEN_TRANSFER"] = new GenTransfer();
             command["ZONE_DEFINE"] = new ZoneDefine();
             command["OPERATOR_DEFINE"] = new OperatorDefine();
+            command["BACKGROUND_DEFINE"] = new BackgroundDefine();
 
             return command;
         }

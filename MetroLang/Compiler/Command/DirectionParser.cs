@@ -16,7 +16,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
         private static class Attr
         {
             public const string Loop = "LOOP";
-            public const string Fast = "FAST";
             public const string Future = "FUTURE";
             public const string Inner = "INNER";
             public const string Outer = "OUTER";
@@ -110,16 +109,20 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         hasStations = true;
                         break;
 
+                    case "EXPRESS_STOPS":
+                        dirInfo.ExpressStops = parser.ParseStringList();
+                        break;
+
+                    case "ROUTING":
+                        ParseRouting(parser, dirInfo);
+                        break;
+
                     case "DISTANCE":
                         hasAutoDistance = ParseDistance(parser, context, dirId);
                         break;
 
                     case "LOOP":
                         ParseLoop(parser, dirInfo);
-                        break;
-
-                    case "FAST":
-                        dirInfo.Attrs.Add(Attr.Fast);
                         break;
 
                     case "FUTURE":
@@ -148,6 +151,10 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
                     case "VIA":
                         ParseVia(parser, dirInfo);
+                        break;
+
+                    case "SEGMENT_TYPE":
+                        ParseSegmentType(parser, dirInfo);
                         break;
 
                     case "DEPOT":
@@ -232,6 +239,11 @@ namespace MetroEditor.MetroLang.Compiler.Command
             dirInfo.IsFuture = originalDir.IsFuture;
             dirInfo.ConnectStation = originalDir.ConnectStation;
             dirInfo.ViaDirections = new List<string>(originalDir.ViaDirections);
+            dirInfo.SegmentTypes = originalDir.SegmentTypes.Select(s => s.Clone()).ToList();
+            dirInfo.ExpressStops = ReverseList(originalDir.ExpressStops);
+            dirInfo.Routings = originalDir.Routings
+                .Select(r => new RoutingInfo { Name = r.Name, Stations = ReverseList(r.Stations) })
+                .ToList();
 
             // 反转距离列表
             if (context.Distances.TryGetValue(originalDirId, out var originalDistances))
@@ -353,11 +365,47 @@ namespace MetroEditor.MetroLang.Compiler.Command
             });
         }
 
+        /// <summary>处理 ROUTING 子命令（交路名称 + 经过的站点列表）</summary>
+        private static void ParseRouting(Parser parser, DirectionInfo dirInfo)
+        {
+            string name = parser.ParseString();
+            var stations = parser.ParseStringList();
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new SyntaxException("ROUTING 的交路名称不能为空", parser.Peek());
+            if (stations.Count == 0)
+                throw new SyntaxException($"ROUTING '{name}' 必须至少包含 1 个经过站点", parser.Peek());
+
+            dirInfo.Routings.Add(new RoutingInfo
+            {
+                Name = name,
+                Stations = stations
+            });
+        }
+
         /// <summary>处理 VIA 子命令</summary>
         private static void ParseVia(Parser parser, DirectionInfo dirInfo)
         {
             string viaDir = parser.ParseId();
             dirInfo.ViaDirections.Add(viaDir);
+        }
+
+        /// <summary>处理 SEGMENT_TYPE 子命令（高架/地下/地面）</summary>
+        private static void ParseSegmentType(Parser parser, DirectionInfo dirInfo)
+        {
+            string from = parser.ParseString();
+            string to = parser.ParseString();
+            string type = parser.ParseId().ToUpperInvariant();
+
+            if (type != "ELEVATED" && type != "UNDERGROUND" && type != "GROUND")
+                throw new SyntaxException($"SEGMENT_TYPE 的类型必须为 ELEVATED、UNDERGROUND 或 GROUND，但遇到了 '{type}'", parser.Peek());
+
+            dirInfo.SegmentTypes.Add(new SegmentTypeInfo
+            {
+                FromStation = from,
+                ToStation = to,
+                Type = type
+            });
         }
 
         /// <summary>处理 DEPOT 子命令</summary>
@@ -415,7 +463,12 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     : original.DirectionType,
                 IsFuture = original.IsFuture,
                 ConnectStation = original.ConnectStation,
-                ViaDirections = new List<string>(original.ViaDirections)
+                ViaDirections = new List<string>(original.ViaDirections),
+                SegmentTypes = original.SegmentTypes.Select(s => s.Clone()).ToList(),
+                ExpressStops = ReverseList(original.ExpressStops),
+                Routings = original.Routings
+                    .Select(r => new RoutingInfo { Name = r.Name, Stations = ReverseList(r.Stations) })
+                    .ToList()
             };
 
             // 反转距离
@@ -427,6 +480,14 @@ namespace MetroEditor.MetroLang.Compiler.Command
             }
 
             return newDir;
+        }
+
+        /// <summary>反转快车停靠站列表（保持与站点顺序一致）</summary>
+        private static List<string> ReverseList(List<string> list)
+        {
+            var copy = new List<string>(list);
+            copy.Reverse();
+            return copy;
         }
     }
 }

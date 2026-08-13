@@ -43,9 +43,6 @@ namespace MetroEditor.MetroLang.Compiler.Command
                                 throw new SyntaxException($"LOOP 类型必须是 INNER 或 OUTER", parser.Peek());
                         }
                         break;
-                    case "FAST":
-                        template.Attrs.Add("FAST");
-                        break;
                     default:
                         throw new SyntaxException($"DIRECTION_TEMPLATE 内未知属性 '{key}'", parser.Peek());
                 }

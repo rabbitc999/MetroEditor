@@ -244,7 +244,6 @@ namespace MetroEditor.Simulator.Data
                 if (line.Direction != null && line.Direction.Any())
                 {
                     bool hasLoop = false;
-                    bool hasFast = false;
                     bool hasFuture = false;
 
                     var edgeSetAll = new HashSet<string>();
@@ -254,12 +253,6 @@ namespace MetroEditor.Simulator.Data
 
                     foreach (var dir in line.Direction)
                     {
-                        if (dir.IsFast)
-                        {
-                            hasFast = true;
-                            continue;
-                        }
-
                         string start = dir.Start;
                         string end = dir.End;
                         string dirKey = SimGraphKeyUtils.MakeDirKey(lineId, start, end);
@@ -327,7 +320,6 @@ namespace MetroEditor.Simulator.Data
                     }
 
                     cache.HasLoopMap[lineId] = hasLoop;
-                    cache.LineHasFastMap[lineId] = hasFast;
                     cache.AllFutureMap[lineId] = allFuture;
                     cache.LineTotalLengthMap[lineId] = totalLengthAll;
                     cache.LineTotalLengthMapWithoutFuture[lineId] = totalLengthWithoutFuture;

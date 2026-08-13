@@ -93,7 +93,7 @@ namespace MetroEditor.MetroLang
             {
                 Command = "DIRECTION_TEMPLATE",
                 Format = "DIRECTION_TEMPLATE <模板ID> [INHERITS 父模板] ... END_TEMPLATE",
-                Example = "DIRECTION_TEMPLATE MAIN FAST END_TEMPLATE",
+                Example = "DIRECTION_TEMPLATE MAIN LOOP END_TEMPLATE",
                 InsertTemplate = "DIRECTION_TEMPLATE <模板ID>\n    LOOP INNER\nEND_TEMPLATE"
             },
 
@@ -188,8 +188,8 @@ namespace MetroEditor.MetroLang
             {
                 Command = "DIRECTION_MODIFY",
                 Format = "DIRECTION_MODIFY <方向ID> ... END_DEFINE",
-                Example = "DIRECTION_MODIFY GZ1_0 ADD FAST END_DEFINE",
-                InsertTemplate = "DIRECTION_MODIFY <方向ID>\n    ADD FAST\n    REMOVE FAST\n\nEND_DEFINE"
+                Example = "DIRECTION_MODIFY GZ1_0 SET EXPRESS_STOPS ['站A', '站C'] END_DEFINE",
+                InsertTemplate = "DIRECTION_MODIFY <方向ID>\n    SET EXPRESS_STOPS ['站1', '站3', '站5']\n\nEND_DEFINE"
             },
 
             // ---------- 换乘 ----------
@@ -350,6 +350,51 @@ namespace MetroEditor.MetroLang
                 InsertTemplate = "OPERATOR_DEFINE <公司ID>\n    NAME '<公司全称>'\n    SHORT_NAME '<公司简称>'\n    EN_NAME '<English Name>'\n    COUNTRY '<国家>'\n    CITY '<城市>'\n    FOUNDED <年份>\n    WEBSITE '<官网URL>'\n    HOTLINE '<客服热线>'\n    DESCRIPTION '<简介>'\n    LINES [<线路ID>, ...]\nEND_DEFINE"
             },
 
+            // ---------- 背景图片 ----------
+            new SyntaxReferenceItem
+            {
+                Command = "BACKGROUND_DEFINE",
+                Format = "BACKGROUND_DEFINE <背景ID> ... END_DEFINE",
+                Example = "BACKGROUND_DEFINE bg1 NAME '底图' TYPE 'image' SRC 'map.png' BOUNDS [113.0, 23.0, 113.5, 23.5] OPACITY 0.5 END_DEFINE",
+                InsertTemplate = "BACKGROUND_DEFINE <背景ID>\n    NAME '<背景名称>'\n    TYPE <svg|image>\n    SRC '<图片文件路径>'\n    BOUNDS [<minLon>, <minLat>, <maxLon>, <maxLat>]\n    OPACITY <0-1>\nEND_DEFINE"
+            },
+
+            // ---------- 区域 ----------
+            new SyntaxReferenceItem
+            {
+                Command = "ZONE_DEFINE",
+                Format = "ZONE_DEFINE <区域ID> ... END_DEFINE",
+                Example = "ZONE_DEFINE zhujiang_new_town NAME '珠江新城' TYPE CBD CENTER 113.321 23.118 RADIUS 1500 COLOR '#4CAF50' STATIONS ['珠江新城', '猎德'] ATTRIBUTES PEAK_HOURS ['07:30-09:30'] POPULATION_DENSITY 25000 AVG_RENT 180 END_ATTRIBUTES END_DEFINE",
+                InsertTemplate = "ZONE_DEFINE <区域ID>\n    NAME '<区域名称>'\n    TYPE <CBD|COMMERCIAL|RESIDENTIAL|GOVERNMENT|TOURIST|TRANSPORT_HUB|EDUCATIONAL|MEDICAL|MIXED>\n    CITY '<城市>'\n    COLOR '<颜色>'\n    CENTER <经度> <纬度>\n    RADIUS <半径(米)>\n    POLYGON [[<经度>, <纬度>], [<经度>, <纬度>]]\n    STATIONS ['<站1>', '<站2>']\n    ATTRIBUTES\n        PEAK_HOURS ['<时段1>', '<时段2>']\n        POPULATION_DENSITY <人口密度>\n        AVG_RENT <平均租金>\n    END_ATTRIBUTES\nEND_DEFINE"
+            },
+
+            // ---------- 其他语言名称 ----------
+            new SyntaxReferenceItem
+            {
+                Command = "OTHER_NAME",
+                Format = "OTHER_NAME '<名称>' | OTHER_NAME ['<名称1>', '<名称2>']",
+                Example = "STATION_DEFINE NODE '体育中心' COORD 113.328 23.142 OTHER_NAME 'Tiyu Zhongxin' END_DEFINE",
+                InsertTemplate = "OTHER_NAME '<英文名称>'"
+            },
+
+            // ---------- 路段类型 ----------
+            new SyntaxReferenceItem
+            {
+                Command = "SEGMENT_TYPE",
+                Format = "SEGMENT_TYPE '<起点站>' '<终点站>' <ELEVATED|UNDERGROUND|GROUND>",
+                Example = "SEGMENT_TYPE '体育西路' '珠江新城' UNDERGROUND",
+                InsertTemplate = "SEGMENT_TYPE '<起点站>' '<终点站>' <ELEVATED|UNDERGROUND|GROUND>"
+            },
+
+            // ---------- 交路 ----------
+            new SyntaxReferenceItem
+            {
+                Command = "ROUTING",
+                Format = "ROUTING '<交路名称>' ['站1', '站2', ...]",
+                Example = "ROUTING '全程交路' ['广州东站', '体育中心', '珠江新城']",
+                InsertTemplate = "ROUTING '<交路名称>' ['<站1>', '<站2>', '<站3>']"
+            },
+
             // ---------- 条件编译（预处理） ----------
             new SyntaxReferenceItem
             {
@@ -442,7 +487,7 @@ namespace MetroEditor.MetroLang
             new("DIRECTION_DEFINE", "方向定义块"),
             new("STATIONS", "方向站点列表"),
             new("LOOP", "环线"),
-            new("FAST", "快车"),
+            new("EXPRESS_STOPS", "快车停靠站列表"),
             new("INNER", "内环"),
             new("OUTER", "外环"),
             new("FUTURE", "建设中/规划中"),
@@ -605,6 +650,17 @@ namespace MetroEditor.MetroLang
             new("DESCRIPTION", "简介/描述"),
             new("LOGO", "公司LOGO图片"),
             new("LINES", "运营线路列表"),
+
+            // ----- 背景图片 -----
+            new("BACKGROUND_DEFINE", "背景图片定义块"),
+            new("BOUNDS", "地理范围[minLon,minLat,maxLon,maxLat]"),
+            new("OPACITY", "透明度(0-1)"),
+
+            // ----- 路段类型 -----
+            new("SEGMENT_TYPE", "路段类型(高架/地下/地面)"),
+            new("ELEVATED", "高架段"),
+            new("UNDERGROUND", "地下段"),
+            new("GROUND", "地面段"),
         };
 
 

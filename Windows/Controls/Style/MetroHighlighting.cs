@@ -64,9 +64,10 @@ namespace MetroEditor.Windows.Controls.Style
                 "POWER", "BRAKE", "DISABLE", "SPECIAL", "LINK", "DISTANCE", "IMAGE",
                 
                 // 方向属性
-                "STATIONS", "NICK_NAME", "NICK_COLOR", "REVERSE",
-                "LOOP", "FAST", "INNER", "OUTER", "FUTURE",
-                "SPEED_LIMIT", "CROWD", "HEADWAY", "MERGE",
+                "STATIONS", "REVERSE",
+                "LOOP", "EXPRESS_STOPS", "ROUTING", "INNER", "OUTER", "FUTURE",
+                "SPEED_LIMIT", "CROWD", "HEADWAY", "MERGE", "SEGMENT_TYPE",
+                "ELEVATED", "UNDERGROUND", "GROUND",
                 
                 // 运营参数
                 "DWELL_TIME", "OPEN_TIME", "ENTRY_TIME",
@@ -114,7 +115,10 @@ namespace MetroEditor.Windows.Controls.Style
                 "DIRECTION_COPY", "DIRECTION_RENAME", "DIRECTION_DELETE",
                 "DIRECTION_SPLIT", "DIRECTION_REVERSE", "DIRECTION_MODIFY",
                 "ASSERT", "ECHO", "MESSAGE",
-                "INTO", "AT", "ADD", "REMOVE", "SET", "KEEP_ORIGINAL"
+                "INTO", "AT", "ADD", "REMOVE", "SET", "KEEP_ORIGINAL",
+
+                // 背景图片
+                "BACKGROUND_DEFINE", "BOUNDS", "OPACITY"
             ];
 
             string pattern = @"\b(" + string.Join("|", primaryKeywords) + @")\b";

@@ -83,7 +83,7 @@ namespace MetroEditor.Simulator.Algorithms
 
                 foreach (var dir in directions)
                 {
-                    if (dir.IsFast || dir.IsFuture) continue;
+                    if (dir.IsFuture) continue;
 
                     string start = dir.Start;
                     string end = dir.End;
@@ -201,20 +201,12 @@ namespace MetroEditor.Simulator.Algorithms
         // ==================== 后处理：方向显示名称 ====================
         private void BuildDirDisplayNames()
         {
-            var dirNickNameMap = _cache.DirNickNameMap;
             foreach (string dirKey in _dirStations.Keys)
             {
-                if (dirNickNameMap.TryGetValue(dirKey, out string? nick) && !string.IsNullOrEmpty(nick))
-                {
-                    _dirDisplayNameMap[dirKey] = nick;
-                }
-                else
-                {
-                    string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey)!;
-                    string city = _lineCityMap[lineId];
-                    string lineName = _lineNameMap[lineId];
-                    _dirDisplayNameMap[dirKey] = BuildDisplayName(city, lineName);
-                }
+                string lineId = SimGraphKeyUtils.GetLineIdFromDirKey(dirKey)!;
+                string city = _lineCityMap[lineId];
+                string lineName = _lineNameMap[lineId];
+                _dirDisplayNameMap[dirKey] = BuildDisplayName(city, lineName);
             }
         }
 
@@ -666,8 +658,6 @@ namespace MetroEditor.Simulator.Algorithms
             }
             rawSegments.Add(new SimSegment(curDir, curStations));
 
-            var dirNickColorMap = _cache.DirNickColorMap;
-
             for (int idx = 0; idx < rawSegments.Count; idx++)
             {
                 var seg = rawSegments[idx];
@@ -706,12 +696,11 @@ namespace MetroEditor.Simulator.Algorithms
                 string directionDisplay = BuildDirectionDisplay(lineId, dirKey, stations, actualEnd);
                 string lineName = _dirDisplayNameMap.TryGetValue(dirKey, out string? name) ? name : lineId;
                 int stationCount = stations.Count - 1;
-                dirNickColorMap.TryGetValue(dirKey, out string? nickColor);
 
                 segments.Add(new SimRouteSegment(
                     startStation, lineId, lineName,
                     directionDisplay, endStation, stationCount,
-                    nickColor, isOutStationTransfer, dirKey
+                    isOutStationTransfer, dirKey
                 ));
             }
 

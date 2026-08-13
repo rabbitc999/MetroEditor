@@ -138,6 +138,9 @@
                 <MenuItem Header="批量反编译..." Click="BatchDecompile_Click"/>
                 <Separator/>
                 <MenuItem Header="站点管理" Command="{StaticResource OpenStationManagerCommand}"/>
+                <MenuItem Header="程序信息" Click="ProgramInfo_Click"/>
+                <MenuItem Header="区域管理" Click="ZoneManager_Click"/>
+                <MenuItem Header="运营公司" Click="OperatorManager_Click"/>
                 <Separator/>
                 
                 <MenuItem Header="生成线路" Command="{StaticResource GenerateLineCommand}"/>

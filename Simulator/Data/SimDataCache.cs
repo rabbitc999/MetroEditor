@@ -98,20 +98,11 @@ namespace MetroEditor.Simulator.Data
         /// <summary>线路是否为特殊线路（Key: 线路ID）</summary>
         public ConcurrentDictionary<string, bool> LineSpecialMap { get; } = new();
 
-        /// <summary>线路是否包含快车（Key: 线路ID）</summary>
-        public ConcurrentDictionary<string, bool> LineHasFastMap { get; } = new();
-
         /// <summary>线路最高速度（Key: 线路ID, Value: km/h）</summary>
         public ConcurrentDictionary<string, int> LineMaxSpeedMap { get; } = new();
 
         /// <summary>方向类型（Key: 方向键, Value: inner/outer）</summary>
         public ConcurrentDictionary<string, string> DirDirectionTypeMap { get; } = new();
-
-        /// <summary>方向别名（Key: 方向键）</summary>
-        public ConcurrentDictionary<string, string> DirNickNameMap { get; } = new();
-
-        /// <summary>方向别名颜色（Key: 方向键）</summary>
-        public ConcurrentDictionary<string, string> DirNickColorMap { get; } = new();
 
         /// <summary>方向是否为远期规划（Key: 方向键）</summary>
         public ConcurrentDictionary<string, bool> DirFutureMap { get; } = new();
@@ -188,11 +179,8 @@ namespace MetroEditor.Simulator.Data
             HasLoopMap.Clear();
             LineTotalLengthMap.Clear();
             LineSpecialMap.Clear();
-            LineHasFastMap.Clear();
             LineMaxSpeedMap.Clear();
             DirDirectionTypeMap.Clear();
-            DirNickNameMap.Clear();
-            DirNickColorMap.Clear();
             DirFutureMap.Clear();
             DirLoopMap.Clear();
             LineBrakeMap.Clear();

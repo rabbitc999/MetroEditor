@@ -58,7 +58,10 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 DirectionType = sourceDir.DirectionType,
                 IsFuture = sourceDir.IsFuture,
                 ConnectStation = sourceDir.ConnectStation,
-                ViaDirections = new List<string>(sourceDir.ViaDirections)
+                ViaDirections = new List<string>(sourceDir.ViaDirections),
+                SegmentTypes = sourceDir.SegmentTypes.Select(s => s.Clone()).ToList(),
+                ExpressStops = new List<string>(sourceDir.ExpressStops),
+                Routings = sourceDir.Routings.Select(r => r.Clone()).ToList()
             };
             context.Directions[targetId] = newDir;
 

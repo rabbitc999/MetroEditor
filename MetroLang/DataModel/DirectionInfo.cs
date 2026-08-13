@@ -11,7 +11,7 @@
         /// <summary>依次经过的车站 ID 列表</summary>
         public List<string> Stations { get; set; } = new();
 
-        /// <summary>方向属性集合（如 LOOP, FAST 等）</summary>
+        /// <summary>方向属性集合（如 LOOP 等）</summary>
         public HashSet<string> Attrs { get; set; } = new();
 
         /// <summary>方向类型（主要用于环线区分 inner/outer）</summary>
@@ -26,6 +26,21 @@
         /// <summary>经由的其他方向 ID 列表（用于复杂交路）</summary>
         public List<string> ViaDirections { get; set; } = new();
 
+        /// <summary>路段类型列表（高架/地下/地面）</summary>
+        public List<SegmentTypeInfo> SegmentTypes { get; set; } = new();
+
+        /// <summary>
+        /// 快车停靠站列表（空列表表示无快车服务）。
+        /// 仅列出快车（大站快车）停靠的车站，未列出的车站快车不停靠。
+        /// </summary>
+        public List<string> ExpressStops { get; set; } = new();
+
+        /// <summary>
+        /// 交路信息列表（列车运行交路方案）。
+        /// 每个交路包含名称与经过的站点列表，可定义多个交路（如大交路 + 小交路）。
+        /// </summary>
+        public List<RoutingInfo> Routings { get; set; } = new();
+
         /// <summary>
         /// 深拷贝当前方向信息，返回一个独立的副本。
         /// </summary>
@@ -39,7 +54,10 @@
                 DirectionType = this.DirectionType,
                 IsFuture = this.IsFuture,
                 ConnectStation = this.ConnectStation,
-                ViaDirections = new List<string>(this.ViaDirections)
+                ViaDirections = new List<string>(this.ViaDirections),
+                SegmentTypes = this.SegmentTypes.Select(s => s.Clone()).ToList(),
+                ExpressStops = new List<string>(this.ExpressStops),
+                Routings = this.Routings.Select(r => r.Clone()).ToList()
             };
         }
     }

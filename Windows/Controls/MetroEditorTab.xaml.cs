@@ -319,6 +319,27 @@ namespace MetroEditor.Windows.Controls
         #region 文件操作
 
         /// <summary>
+        /// 设置初始文本（用于新建文件模板），不触发脏标记
+        /// </summary>
+        public void SetInitialText(string content)
+        {
+            _suppressTextSync = true;
+            try
+            {
+                editorControl.Text = content;
+                SetValue(TextProperty, content);
+                IsDirty = false;
+                RaisePropertyChanged(nameof(TabHeader));
+            }
+            finally
+            {
+                _suppressTextSync = false;
+            }
+            // 设置后触发一次编译
+            DynamicCompile();
+        }
+
+        /// <summary>
         /// 加载文件到编辑器
         /// </summary>
         public void LoadFile(string path)

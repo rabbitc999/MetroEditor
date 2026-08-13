@@ -189,6 +189,18 @@ namespace MetroEditor.MetroLang.Exporter
                         Lines = kv.Value.Lines
                     }).ToList()
                     : null,
+
+                Backgrounds = context.Backgrounds.Any()
+                    ? context.Backgrounds.Select(kv => new JsonBackground
+                    {
+                        Id = kv.Key,
+                        Name = kv.Value.Name,
+                        Type = kv.Value.Type,
+                        Src = kv.Value.SrcBase64,
+                        Bounds = kv.Value.Bounds,
+                        Opacity = kv.Value.Opacity
+                    }).ToList()
+                    : null,
             };
 
             // 补充 ViaDirections 到 Direction 对象
@@ -212,6 +224,15 @@ namespace MetroEditor.MetroLang.Exporter
                     // 如果找到匹配的方向且包含经由信息，则回填到 JSON 对象中
                     if (dirInfo != null && dirInfo.ViaDirections.Count > 0)
                         dir.ViaDirections = dirInfo.ViaDirections;
+
+                    // 补充 SegmentTypes
+                    if (dirInfo != null && dirInfo.SegmentTypes.Count > 0)
+                        dir.SegmentTypes = dirInfo.SegmentTypes.Select(s => new JsonSegmentType
+                        {
+                            From = s.FromStation,
+                            To = s.ToStation,
+                            Type = s.Type.ToLowerInvariant()
+                        }).ToList();
                 }
             }
 
@@ -561,13 +582,22 @@ namespace MetroEditor.MetroLang.Exporter
                     // 创建方向对象
                     var direction = new JsonDirection
                     {
-                        IsFast = directionInfo.Attrs.Contains("FAST"),
                         IsLoop = directionInfo.Attrs.Contains("LOOP"),
                         // 环线需要指定内外环类型
                         DirectionType = directionInfo.Attrs.Contains("LOOP") ? directionInfo.DirectionType : null,
                         Station = new List<JsonDirectionStation>(),
                         IsFuture = directionInfo.IsFuture,
-                        ConnectStation = directionInfo.ConnectStation
+                        ConnectStation = directionInfo.ConnectStation,
+                        ExpressStops = directionInfo.ExpressStops.Count > 0
+                            ? new List<string>(directionInfo.ExpressStops)
+                            : null,
+                        Routings = directionInfo.Routings.Count > 0
+                            ? directionInfo.Routings.Select(r => new JsonRouting
+                            {
+                                Name = r.Name,
+                                Stations = new List<string>(r.Stations)
+                            }).ToList()
+                            : null
                     };
 
                     var stations = directionInfo.Stations;

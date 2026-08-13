@@ -180,6 +180,11 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public Dictionary<string, OperatorCompanyInfo> OperatorCompanies { get; internal set; } = new();
 
+        /// <summary>
+        /// 背景图片定义字典：Key=背景ID, Value=背景详情
+        /// </summary>
+        public Dictionary<string, BackgroundInfo> Backgrounds { get; internal set; } = new();
+
         // ====================================================================
         // 9. 辅助映射
         // ====================================================================
@@ -366,6 +371,7 @@ namespace MetroEditor.MetroLang.Compiler
             data.OtherCities = Cities.Where(k => k.Key != MainCity).Select(k => k.Key).ToList();
             data.Zones = new Dictionary<string, ZoneInfo>(this.Zones);
             data.OperatorCompanies = new Dictionary<string, OperatorCompanyInfo>(this.OperatorCompanies);
+            data.Backgrounds = new Dictionary<string, BackgroundInfo>(this.Backgrounds);
 
             return data;
         }
@@ -458,6 +464,7 @@ namespace MetroEditor.MetroLang.Compiler
             });
 
             clone.OperatorCompanies = CloneDictionary(this.OperatorCompanies, c => c.Clone());
+            clone.Backgrounds = CloneDictionary(this.Backgrounds, b => b.Clone());
 
             // ---- 11. 警告 ----
             clone.Warnings = new List<string>(this.Warnings);

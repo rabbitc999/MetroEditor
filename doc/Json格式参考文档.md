@@ -49,6 +49,7 @@
 | `labels` | array | 文字标签，见 §5.8 |
 | `zones` | array of Zone | 城市功能区/区域定义列表 |
 | `operator_companies` | array of OperatorCompany | 运营公司定义列表 |
+| `backgrounds` | array of Background | 背景图片定义列表 |
 
 ---
 
@@ -232,14 +233,18 @@
     "special": false,
     "direction": [
       {
-        "is_branch": false,
-        "is_fast": false,
+        "express_stops": null,
         "start": "广州东站",
         "end": "西塱",
         "is_loop": false,
         "direction_type": null,
-        "nick_name": null,
-        "nick_color": null,
+        "segment_types": [
+          { "from": "站A", "to": "站B", "type": "elevated" },
+          { "from": "站B", "to": "站C", "type": "underground" }
+        ],
+        "routings": [
+          { "name": "全程交路", "stations": ["广州东站", "体育中心", "西塱"] }
+        ],
         "station": [
           { "name": "广州东站", "next": 1.5, "dwell_time": 30 },
           { "name": "体育中心", "next": 2.0, "dwell_time": 30 },
@@ -273,18 +278,30 @@
 ### Direction
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `is_branch` | boolean | 是否为支线 |
-| `is_fast` | boolean | 是否为快车 |
+| `express_stops` | array of string (可选) | 快车停靠站列表，仅列出快车实际停靠的车站（须为 `station` 的子集）；`null`/缺省表示无快车服务 |
 | `start` | string | 始发站 |
 | `end` | string | 终点站 |
 | `is_loop` | boolean | 是否为环线 |
 | `direction_type` | string (可选) | 环线方向：`"inner"` 或 `"outer"` |
-| `nick_name` | string (可选) | 方向别名 |
-| `nick_color` | string (可选) | 别名颜色 |
+| `segment_types` | array of SegmentType (可选) | 路段类型列表（高架/地下/地面） |
+| `routings` | array of Routing (可选) | 交路信息列表（列车运行交路方案），每个交路含名称与经过的站点；`null`/缺省表示无交路信息 |
 | `station` | array of DirectionStation | 站点顺序列表（从起点到终点） |
 | `is_future` | boolean | 是否为规划/未来线路 |
 | `connect_station` | string (可选) | 接驳站 |
 | `via_directions` | array of string (可选) | 经过的方向ID列表（共线/跨线） |
+
+### Routing
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `name` | string | 交路名称（如 `"全程交路"`、`"机场北交路"`） |
+| `stations` | array of string | 该交路依次经过的车站列表（须为方向 `station` 的子集） |
+
+### SegmentType
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `from` | string | 起点站名 |
+| `to` | string | 终点站名 |
+| `type` | string | 路段类型：`"elevated"`(高架)、`"underground"`(地下)、`"ground"`(地面) |
 
 ### DirectionStation
 | 字段 | 类型 | 说明 |
@@ -566,7 +583,31 @@
 
 ---
 
-## 11. 扩展性
+# 11. Background 对象结构（`backgrounds`）
+
+```json
+{
+  "id": "bg_guangzhou",
+  "name": "广州底图",
+  "type": "image",
+  "src": "iVBORw0KGgoAAAANSUhEUgAA...",
+  "bounds": [113.10, 22.95, 113.51, 23.40],
+  "opacity": 0.4
+}
+```
+
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `id` | string | 背景唯一标识 |
+| `name` | string | 背景显示名称 |
+| `type` | string | 图片类型：`"svg"` 或 `"image"` |
+| `src` | string | 图片内容（Base64 编码） |
+| `bounds` | array of number | 地理范围 `[minLon, minLat, maxLon, maxLat]` |
+| `opacity` | number (可选) | 透明度 0-1（默认 1） |
+
+---
+
+## 12. 扩展性
 
 该格式预留扩展能力，未来可能增加：
 - 站点 POI 数据

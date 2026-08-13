@@ -379,7 +379,10 @@ namespace MetroEditor.MetroLang.Compiler
                     DirectionType = dirInfo.DirectionType,
                     IsFuture = dirInfo.IsFuture,
                     ConnectStation = dirInfo.ConnectStation,
-                    ViaDirections = new List<string>(dirInfo.ViaDirections)
+                    ViaDirections = new List<string>(dirInfo.ViaDirections),
+                    SegmentTypes = dirInfo.SegmentTypes.Select(s => s.Clone()).ToList(),
+                    ExpressStops = new List<string>(dirInfo.ExpressStops),
+                    Routings = dirInfo.Routings.Select(r => r.Clone()).ToList()
                 };
                 context.Directions[newDirId] = newDir;
                 if (context.Distances.TryGetValue(dirId, out var dist))
@@ -757,7 +760,10 @@ namespace MetroEditor.MetroLang.Compiler
                         DirectionType = dirInfo.DirectionType,
                         IsFuture = dirInfo.IsFuture,
                         ConnectStation = dirInfo.ConnectStation,
-                        ViaDirections = new List<string>(dirInfo.ViaDirections)
+                        ViaDirections = new List<string>(dirInfo.ViaDirections),
+                        SegmentTypes = dirInfo.SegmentTypes.Select(s => s.Clone()).ToList(),
+                        ExpressStops = new List<string>(dirInfo.ExpressStops),
+                        Routings = dirInfo.Routings.Select(r => r.Clone()).ToList()
                     };
                     context.Directions[newId] = newDir;
 
@@ -953,7 +959,10 @@ namespace MetroEditor.MetroLang.Compiler
                         DirectionType = dirInfo.DirectionType,
                         IsFuture = dirInfo.IsFuture,
                         ConnectStation = dirInfo.ConnectStation,
-                        ViaDirections = new List<string>(dirInfo.ViaDirections)
+                        ViaDirections = new List<string>(dirInfo.ViaDirections),
+                        SegmentTypes = dirInfo.SegmentTypes.Select(s => s.Clone()).ToList(),
+                        ExpressStops = new List<string>(dirInfo.ExpressStops),
+                        Routings = dirInfo.Routings.Select(r => r.Clone()).ToList()
                     };
                     context.Directions[newId] = newDir;
 

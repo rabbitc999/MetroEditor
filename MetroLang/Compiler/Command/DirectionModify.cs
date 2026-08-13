@@ -25,8 +25,13 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 {
                     case "ADD":
                         string addAttr = parser.ParseId().ToUpperInvariant();
+                        if (addAttr == "ROUTING")
+                        {
+                            AddRouting(parser, dirInfo);
+                            break;
+                        }
                         if (!IsValidAttribute(addAttr))
-                            throw new SyntaxException($"无效的属性名 '{addAttr}'，允许：FAST, LOOP", parser.Peek());
+                            throw new SyntaxException($"无效的属性名 '{addAttr}'，允许：LOOP、ROUTING", parser.Peek());
                         dirInfo.Attrs.Add(addAttr);
                         // 如果添加了 LOOP，需确保 DIRECTION_TYPE 已设置
                         if (addAttr == "LOOP" && string.IsNullOrEmpty(dirInfo.DirectionType))
@@ -35,8 +40,13 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
                     case "REMOVE":
                         string removeAttr = parser.ParseId().ToUpperInvariant();
+                        if (removeAttr == "ROUTING")
+                        {
+                            RemoveRouting(parser, dirInfo);
+                            break;
+                        }
                         if (!IsValidAttribute(removeAttr))
-                            throw new SyntaxException($"无效的属性名 '{removeAttr}'，允许：FAST, LOOP", parser.Peek());
+                            throw new SyntaxException($"无效的属性名 '{removeAttr}'，允许：LOOP、ROUTING", parser.Peek());
                         dirInfo.Attrs.Remove(removeAttr);
                         // 如果移除了 LOOP，清空 DIRECTION_TYPE
                         if (removeAttr == "LOOP")
@@ -64,8 +74,14 @@ namespace MetroEditor.MetroLang.Compiler.Command
                                     throw new SyntaxException($"DIRECTION_TYPE 必须为 'inner' 或 'outer'", parser.Peek());
                                 dirInfo.DirectionType = typeVal;
                                 break;
+                            case "EXPRESS_STOPS":
+                                dirInfo.ExpressStops = parser.ParseStringList();
+                                break;
+                            case "ROUTING":
+                                SetRouting(parser, dirInfo);
+                                break;
                             default:
-                                throw new SyntaxException($"未知的 SET 字段 '{field}'，允许：NICK_NAME, NICK_COLOR, CONNECT_STATION, IS_FUTURE, DIRECTION_TYPE", parser.Peek());
+                                throw new SyntaxException($"未知的 SET 字段 '{field}'，允许：CONNECT_STATION, IS_FUTURE, DIRECTION_TYPE, EXPRESS_STOPS, ROUTING", parser.Peek());
                         }
                         break;
 
@@ -79,7 +95,42 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
         private bool IsValidAttribute(string attr)
         {
-            return attr == "FAST" || attr == "LOOP";
+            return attr == "LOOP";
+        }
+
+        /// <summary>ADD ROUTING：添加一个交路（名称不能重复）</summary>
+        private static void AddRouting(Parser parser, DirectionInfo dirInfo)
+        {
+            string name = parser.ParseString();
+            var stations = parser.ParseStringList();
+            if (string.IsNullOrWhiteSpace(name))
+                throw new SyntaxException("ROUTING 的交路名称不能为空", parser.Peek());
+            if (dirInfo.Routings.Any(r => r.Name == name))
+                throw new SyntaxException($"交路 '{name}' 已存在，如需修改请使用 SET ROUTING", parser.Peek());
+            dirInfo.Routings.Add(new RoutingInfo { Name = name, Stations = stations });
+        }
+
+        /// <summary>REMOVE ROUTING：移除指定名称的交路</summary>
+        private static void RemoveRouting(Parser parser, DirectionInfo dirInfo)
+        {
+            string name = parser.ParseString();
+            int removed = dirInfo.Routings.RemoveAll(r => r.Name == name);
+            if (removed == 0)
+                parser.AddWarning($"交路 '{name}' 不存在，无需移除");
+        }
+
+        /// <summary>SET ROUTING：覆盖同名交路（不存在则添加）</summary>
+        private static void SetRouting(Parser parser, DirectionInfo dirInfo)
+        {
+            string name = parser.ParseString();
+            var stations = parser.ParseStringList();
+            if (string.IsNullOrWhiteSpace(name))
+                throw new SyntaxException("ROUTING 的交路名称不能为空", parser.Peek());
+            var existing = dirInfo.Routings.FirstOrDefault(r => r.Name == name);
+            if (existing != null)
+                existing.Stations = stations;
+            else
+                dirInfo.Routings.Add(new RoutingInfo { Name = name, Stations = stations });
         }
     }
 }

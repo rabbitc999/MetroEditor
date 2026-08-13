@@ -366,10 +366,11 @@ namespace MetroEditor.MetroLang.Tool
             }
             _lineCityMap[lineId] = city;
 
-            // 识别快慢车
+            // 识别快慢车：快车方向站点集合是某个完整方向站点集合的真子集
             items = items.OrderByDescending(i => i.Ordered.Count).ToList();
             int n = items.Count;
-            bool[] isExpress = new bool[n];
+            int[] expressParent = new int[n]; // 快车方向对应的完整方向索引，-1 表示非快车
+            for (int i = 0; i < n; i++) expressParent[i] = -1;
 
             for (int i = 0; i < n; i++)
             {
@@ -379,13 +380,14 @@ namespace MetroEditor.MetroLang.Tool
                     if (items[i].Ordered.Count < items[j].Ordered.Count &&
                         items[j].StationSet.IsSupersetOf(items[i].StationSet))
                     {
-                        isExpress[i] = true;
+                        expressParent[i] = j;
                         break;
                     }
                 }
             }
 
             // 处理每个方向
+            var dirByItemIdx = new LineDirection[n];
             for (int idx = 0; idx < n; idx++)
             {
                 var item = items[idx];
@@ -395,7 +397,7 @@ namespace MetroEditor.MetroLang.Tool
 
                 var (start, end) = ParseStartEnd(relTags, item.Ordered);
 
-                bool isFast = isExpress[idx];
+                int parentIdx = expressParent[idx];
 
                 string first = item.Ordered.First().Name;
                 string last = item.Ordered.Last().Name;
@@ -409,15 +411,24 @@ namespace MetroEditor.MetroLang.Tool
                 foreach (var (name, lon, lat) in item.Ordered)
                     AddStation(name, lon, lat, lineId, start, end);
 
+                if (parentIdx >= 0)
+                {
+                    // 快车方向：将停靠站列表附加到对应的完整方向，不再生成独立快车方向
+                    var parent = dirByItemIdx[parentIdx];
+                    if (parent != null)
+                        parent.ExpressStops = item.Ordered.Select(s => s.Name).ToList();
+                    continue;
+                }
+
                 var dir = new LineDirection
                 {
                     Name = displayName,
                     StationNext = stationNext,
                     Start = start,
                     End = end,
-                    IsFast = isFast,
                     IsLoop = isLoop
                 };
+                dirByItemIdx[idx] = dir;
 
                 if (!_linesDict.TryGetValue(lineId, out var dirs))
                 {
@@ -620,7 +631,9 @@ namespace MetroEditor.MetroLang.Tool
                 Start = dir.StationNext.First().Station,
                 End = dir.StationNext.Last().Station,
                 IsLoop = dir.IsLoop,
-                IsFast = dir.IsFast,
+                ExpressStops = dir.ExpressStops != null && dir.ExpressStops.Count > 0
+                    ? new List<string>(dir.ExpressStops)
+                    : null,
                 Station = dir.StationNext.Select((s, idx) => new JsonDirectionStation
                 {
                     Name = s.Station,
@@ -702,7 +715,7 @@ namespace MetroEditor.MetroLang.Tool
             public List<(string Station, double? Next)> StationNext { get; set; } = new();
             public string Start { get; set; }
             public string End { get; set; }
-            public bool IsFast { get; set; }
+            public List<string> ExpressStops { get; set; } = new();
             public bool IsLoop { get; set; }
         }
 

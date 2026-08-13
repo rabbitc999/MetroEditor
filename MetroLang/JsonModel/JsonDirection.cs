@@ -8,11 +8,11 @@ namespace MetroEditor.MetroLang.JsonModel
     public class JsonDirection
     {
         /// <summary>
-        /// 是否为快车/大站快车。
+        /// 快车停靠站列表（仅列出快车停靠的车站，未列出的车站快车不停靠；空/null 表示无快车服务）。
         /// </summary>
-        [JsonPropertyName("is_fast")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool IsFast { get; set; }
+        [JsonPropertyName("express_stops")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? ExpressStops { get; set; }
 
         /// <summary>
         /// 方向起点站 ID。
@@ -66,5 +66,20 @@ namespace MetroEditor.MetroLang.JsonModel
         [JsonPropertyName("via_directions")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<string> ViaDirections { get; set; } = new();
+
+        /// <summary>
+        /// 路段类型列表（高架/地下/地面），每段指定两站间的轨道敷设方式。
+        /// </summary>
+        [JsonPropertyName("segment_types")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<JsonSegmentType>? SegmentTypes { get; set; }
+
+        /// <summary>
+        /// 交路信息列表（列车运行交路方案），每个交路含名称与经过的站点。
+        /// 空/null 表示无交路信息。
+        /// </summary>
+        [JsonPropertyName("routings")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<JsonRouting>? Routings { get; set; }
     }
 }

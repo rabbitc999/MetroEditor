@@ -466,12 +466,14 @@ namespace MetroEditor.MetroLang.Compiler
 
         // ====================================================================
         // 移除重复方向：清理具有相同车站序列和距离序列的冗余方向定义
-        // 逻辑：按线路ID、车站序列和距离序列分组，保留优先级最高的方向
-        // 优先级：非远期 > 无别名颜色 > 方向ID字典序较小
+        // 逻辑：按线路ID、车站序列、距离序列、快车停靠、路段类型、经由方向分组，保留优先级最高的方向
+        // 优先级：非远期 > 方向ID字典序较小
+        // 注意：快车方向（EXPRESS_STOPS）与普通方向即使物理径路完全相同，也不视为重复，
+        //       SegmentTypes / ViaDirections 同理，因此这些信息都参与分组键。
         // ====================================================================
         private void RemoveDuplicateDirections()
         {
-            // 按 (线路ID, 车站序列, 距离序列) 分组，环线暂不处理
+            // 按 (线路ID, 车站序列, 距离序列, 快车停靠, 路段类型, 经由方向) 分组，环线暂不处理
             var directionGroups = context.Directions
                 .Where(keyValuePair => !keyValuePair.Value.Attrs.Contains("LOOP"))
                 .GroupBy(keyValuePair => new
@@ -481,7 +483,13 @@ namespace MetroEditor.MetroLang.Compiler
                     Stations = string.Join("\x1F", keyValuePair.Value.Stations),
                     Distances = context.Distances.TryGetValue(keyValuePair.Key, out var distanceList)
                         ? string.Join("\x1F", distanceList.Select(distance => distance.ToString()))
-                        : ""
+                        : "",
+                    ExpressStops = string.Join("\x1F", keyValuePair.Value.ExpressStops),
+                    SegmentTypes = string.Join("\x1F",
+                        keyValuePair.Value.SegmentTypes.Select(s => $"{s.FromStation}>{s.ToStation}:{s.Type}")),
+                    ViaDirections = string.Join("\x1F", keyValuePair.Value.ViaDirections),
+                    Routings = string.Join("\x1F",
+                        keyValuePair.Value.Routings.Select(r => $"{r.Name}:{string.Join(",", r.Stations)}"))
                 })
                 .Where(group => group.Count() > 1)
                 .ToList();
@@ -490,12 +498,12 @@ namespace MetroEditor.MetroLang.Compiler
 
             foreach (var group in directionGroups)
             {
-                // 排序规则：非远期方向优先，无别名颜色优先，方向ID字典序较小优先
+                // 排序规则：非远期方向优先，方向ID字典序较小优先
                 var sortedDirections = group.OrderBy(keyValuePair =>
                 {
                     var direction = keyValuePair.Value;
                     bool isFuture = direction.IsFuture;
-                    // 降序排列：false（非远期）排前面，false（无别名颜色）排前面
+                    // 降序排列：false（非远期）排前面
                     return isFuture;
                 }).ThenBy(keyValuePair => keyValuePair.Key) // 优先级相同时按方向ID字典序
                 .ToList();
@@ -818,6 +826,76 @@ namespace MetroEditor.MetroLang.Compiler
                 {
                     if (!context.Lines.ContainsKey(lineId))
                         parser.ErrorList.Add($"运营公司 '{companyId}' 引用了不存在的线路 '{lineId}'");
+                }
+            }
+
+            // 背景图片校验
+            foreach (var kv in context.Backgrounds)
+            {
+                var bgId = kv.Key;
+                var bg = kv.Value;
+
+                if (string.IsNullOrEmpty(bg.SrcBase64))
+                    parser.ErrorList.Add($"背景 '{bgId}' 缺少 SRC（图片数据）");
+
+                if (bg.Bounds == null || bg.Bounds.Length != 4)
+                    parser.ErrorList.Add($"背景 '{bgId}' 的 BOUNDS 格式不正确，应为 [minLon, minLat, maxLon, maxLat]");
+                else if (bg.Bounds[0] >= bg.Bounds[2] || bg.Bounds[1] >= bg.Bounds[3])
+                    parser.ErrorList.Add($"背景 '{bgId}' 的 BOUNDS 范围无效：minLon 应小于 maxLon，minLat 应小于 maxLat");
+
+                if (bg.Opacity.HasValue && (bg.Opacity.Value < 0 || bg.Opacity.Value > 1))
+                    parser.ErrorList.Add($"背景 '{bgId}' 的 OPACITY 应在 0 到 1 之间");
+            }
+
+            // 路段类型校验
+            var validSegmentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "ELEVATED", "UNDERGROUND", "GROUND"
+            };
+            foreach (var dirKv in context.Directions)
+            {
+                var dirId = dirKv.Key;
+                var dir = dirKv.Value;
+
+                foreach (var seg in dir.SegmentTypes)
+                {
+                    if (!validSegmentTypes.Contains(seg.Type))
+                        parser.ErrorList.Add($"方向 '{dirId}' 的 SEGMENT_TYPE 类型 '{seg.Type}' 无效，应为 ELEVATED、UNDERGROUND 或 GROUND");
+
+                    if (!dir.Stations.Contains(seg.FromStation))
+                        parser.ErrorList.Add($"方向 '{dirId}' 的 SEGMENT_TYPE 引用了不在方向中的车站 '{seg.FromStation}'");
+                    if (!dir.Stations.Contains(seg.ToStation))
+                        parser.ErrorList.Add($"方向 '{dirId}' 的 SEGMENT_TYPE 引用了不在方向中的车站 '{seg.ToStation}'");
+                }
+
+                // 快车停靠站校验：必须存在于方向站点序列中，且数量不少于2个
+                if (dir.ExpressStops.Count > 0)
+                {
+                    if (dir.ExpressStops.Count < 2)
+                        parser.ErrorList.Add($"方向 '{dirId}' 的 EXPRESS_STOPS 至少需要 2 个停靠站");
+                    foreach (var stop in dir.ExpressStops)
+                    {
+                        if (!dir.Stations.Contains(stop))
+                            parser.ErrorList.Add($"方向 '{dirId}' 的快车停靠站 '{stop}' 不在方向站点序列中");
+                    }
+                }
+
+                // 交路校验：名称唯一、至少 1 个站点、站点必须属于方向站点序列
+                var routingNames = new HashSet<string>();
+                foreach (var routing in dir.Routings)
+                {
+                    if (string.IsNullOrWhiteSpace(routing.Name))
+                        parser.ErrorList.Add($"方向 '{dirId}' 的交路名称不能为空");
+                    else if (!routingNames.Add(routing.Name))
+                        parser.ErrorList.Add($"方向 '{dirId}' 的交路名称 '{routing.Name}' 重复");
+
+                    if (routing.Stations.Count == 0)
+                        parser.ErrorList.Add($"方向 '{dirId}' 的交路 '{routing.Name}' 必须至少包含 1 个经过站点");
+                    foreach (var stop in routing.Stations)
+                    {
+                        if (!dir.Stations.Contains(stop))
+                            parser.ErrorList.Add($"方向 '{dirId}' 的交路 '{routing.Name}' 经过的站点 '{stop}' 不在方向站点序列中");
+                    }
                 }
             }
         }

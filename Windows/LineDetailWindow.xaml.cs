@@ -53,7 +53,7 @@ namespace MetroEditor.Windows
 
             if (dirs.Any(d => d.Attrs.Contains("LOOP")))
                 tags.Add(new TagItem { Text = "环线", Color = "#4CAF50" });
-            if (dirs.Any(d => d.Attrs.Contains("FAST")))
+            if (dirs.Any(d => d.ExpressStops.Count > 0))
                 tags.Add(new TagItem { Text = "有快车", Color = "#2196F3" });
             if (data.SpecialLineIds?.Contains(lineId) == true)
                 tags.Add(new TagItem { Text = "单独计费", Color = "#D32F2F" });
@@ -76,7 +76,7 @@ namespace MetroEditor.Windows
         private List<object> BuildDisplayItems(ParsedData data, string lineId)
         {
             var items = new List<object>();
-            var dirs = data.Directions.Values.Where(d => d.LineId == lineId && !d.Attrs.Contains("FAST")).ToList();
+            var dirs = data.Directions.Values.Where(d => d.LineId == lineId).ToList();
 
             // 分类方向定义
             var mainDirs = dirs.Where(d => !d.IsFuture).ToList();
@@ -88,6 +88,7 @@ namespace MetroEditor.Windows
             {
                 string title = $"{data.Lines[lineId].Name} 主线{mainIndex++}";
                 if (dir.Attrs.Contains("LOOP")) title += " (环线)";
+                if (dir.ExpressStops.Count > 0) title += $" (快车停靠{dir.ExpressStops.Count}站)";
                 items.Add(new HeaderItem { Title = title });
                 items.AddRange(dir.Stations.Select(s => new StationDisplayItem { Name = s, IsMain = true }));
             }
@@ -98,6 +99,7 @@ namespace MetroEditor.Windows
             {
                 string title = $"{data.Lines[lineId].Name} 规划线路{futureIndex++}";
                 if (dir.Attrs.Contains("LOOP")) title += " (环线)";
+                if (dir.ExpressStops.Count > 0) title += $" (快车停靠{dir.ExpressStops.Count}站)";
                 items.Add(new HeaderItem { Title = title });
                 items.AddRange(dir.Stations.Select(s => new StationDisplayItem { Name = s, IsFuture = true }));
             }
@@ -108,13 +110,13 @@ namespace MetroEditor.Windows
         /// <summary>
         /// 计算线路实际长度（静态方法，可供外部调用）
         /// 计算策略：
-        /// 1. 排除未来线路和快车线路
+        /// 1. 排除未来线路
         /// 2. 对同一线路的多方向取最长距离
         /// </summary>
         public static double GetLineLength(ParsedData data, string lineId)
         {
             var dirs = data.Directions.Values.Where(d => d.LineId == lineId).ToList();
-            var activeDirs = dirs.Where(d => !d.IsFuture && !d.Attrs.Contains("FAST")).ToList();
+            var activeDirs = dirs.Where(d => !d.IsFuture).ToList();
             if (!activeDirs.Any()) return 0;
 
             double maxLength = 0;

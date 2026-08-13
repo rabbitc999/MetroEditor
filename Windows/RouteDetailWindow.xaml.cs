@@ -208,7 +208,7 @@ namespace MetroEditor.Windows
                     {
                         Title = title,
                         Subtitle = subtitle,
-                        Color = new SolidColorBrush(seg.NickColor != null ? (Color)ColorConverter.ConvertFromString(seg.NickColor) : color),
+                        Color = new SolidColorBrush(color),
                         Stations = new List<string>()
                     });
                 }

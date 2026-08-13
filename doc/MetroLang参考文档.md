@@ -195,13 +195,9 @@ END_DEFINE
 
 ```metro
 DIRECTION_TEMPLATE 模板ID [INHERITS 父模板ID]
-    NICK_NAME '别名'
-    NICK_COLOR '颜色'
     IS_FUTURE TRUE|FALSE
     CONNECT_STATION '站名'
     LOOP [INNER | OUTER]
-    BRANCH
-    FAST
 END_DEFINE
 ```
 
@@ -215,11 +211,10 @@ END_DEFINE
 DIRECTION_DEFINE 方向ID [INHERITS 模板ID] [线路ID]      # 独立使用时需提供线路ID，嵌套时可省略
     STATIONS ['站1', '站2', ...]       # 必填（除非使用 MERGE 或 REVERSE）
     DISTANCE AUTO | [距离列表]         # 可选，AUTO 自动计算
-    NICK_NAME '别名'                   # 可选
-    NICK_COLOR '颜色'                  # 可选
+    SEGMENT_TYPE '站A' '站B' ELEVATED  # 可选，路段类型（高架/地下/地面）
     LOOP [INNER | OUTER]               # 环线标记
-    BRANCH                             # 支线标记
-    FAST                               # 快车标记
+    EXPRESS_STOPS ['站1', '站2', ...]  # 快车停靠站列表（可选）
+    ROUTING '交路名称' ['站1', ...]    # 可选，交路信息（可定义多个）
     FUTURE                             # 规划中（未来开通）
     SPEED_LIMIT '站A' '站B' 速度(km/h)
     CROWD TIME_RANGE HH:mm HH:mm 系数 [星期修饰符]
@@ -238,8 +233,10 @@ DIRECTION_DEFINE 方向ID REV 原方向ID
 ```
 
 - `REV` 为纯快捷方式，自动继承原方向所有属性并反转站点和距离，**不能**再添加额外子命令。
-- `REVERSE` 同样复制并反转，但允许在块内继续添加额外子命令（如增加 `NICK_NAME`、`CROWD` 等），支持更灵活的反向定义。
+- `REVERSE` 同样复制并反转，但允许在块内继续添加额外子命令（如增加 `CROWD` 等），支持更灵活的反向定义。
 - `MERGE` 将两个已有方向合并为一个新方向（站点和距离自动拼接），要求两个方向有公共后缀-前缀。
+- `EXPRESS_STOPS` 用于快车/大站快车方向：方向内的 `STATIONS` 仍须列出**全部**途经车站（含越行不停靠的车站），`EXPRESS_STOPS` 仅列出快车实际停靠的车站子集（至少 2 个，且必须是 `STATIONS` 的子集，未列出的车站快车越行通过）。省略或留空表示该方向无快车服务。
+- `ROUTING '交路名称' ['站1', '站2', ...]` 用于描述该方向的**列车交路方案**（如大交路、小交路、机场快线交路等），可在一个方向内重复定义多个交路。交路名称用于标识，交路站点列表为该交路实际经过的车站（须为 `STATIONS` 的子集，至少 1 个）。例如广州地铁 3 号线可同时定义主线大交路与机场北小交路。交路信息会导出到 JSON（`routings` 字段），并在地图预览中以虚线圆环标记交路经过的站点。
 
 **距离列表说明**：
 - 非环线方向：距离数量 = 站点数 - 1，最后一个距离应为 `NIL`。
@@ -266,13 +263,15 @@ DIRECTION_DEFINE 方向ID REV 原方向ID
 **`DIRECTION_MODIFY` 块内子命令**：
 ```metro
 DIRECTION_MODIFY 方向ID
-    ADD BRANCH | FAST | LOOP            # 添加属性
-    REMOVE BRANCH | FAST | LOOP         # 移除属性
-    SET NICK_NAME '新别名'
-    SET NICK_COLOR '#新颜色'
+    ADD LOOP                            # 添加属性（仅 LOOP）
+    REMOVE LOOP                         # 移除属性（仅 LOOP）
+    ADD ROUTING '交路名称' ['站1', ...]    # 添加交路（名称不能重复）
+    REMOVE ROUTING '交路名称'              # 移除指定名称的交路
+    SET ROUTING '交路名称' ['站1', ...]    # 覆盖同名交路（不存在则添加）
     SET CONNECT_STATION '站名'
     SET IS_FUTURE TRUE|FALSE
     SET DIRECTION_TYPE INNER|OUTER      # 仅环线有效
+    SET EXPRESS_STOPS ['站1', '站2', ...]  # 设置快车停靠站列表
 END_DEFINE
 ```
 
@@ -511,7 +510,7 @@ ASSERT <表达式> [MESSAGE "自定义错误信息"]
 - `STATION_COUNT("线路ID")`（返回站点数）
 - `TRANSFER_EXISTS("站名", "线路A", "线路B")`
 - `DISTANCE_BETWEEN("站A", "站B")`（返回米数）
-- `DIRECTION_ATTR("方向ID", "属性名")`（如 BRANCH、FAST）
+- `DIRECTION_ATTR("方向ID", "属性名")`（如 BRANCH、LOOP）
 
 **比较操作**：`<`, `>`, `<=`, `>=`, `==`, `!=`（仅对数值有效）  
 **逻辑运算**：`AND`, `OR`, `NOT`，支持括号分组。
@@ -704,7 +703,89 @@ END_DEFINE
 
 ---
 
-## 31. 完整示例
+## 31. 背景图片定义（`BACKGROUND_DEFINE` 块）
+
+为地图添加背景图片，支持 **SVG 矢量图** 或 **固定像素图片**（PNG/JPG）。图片通过地理范围（Bounds）定位到地图坐标系中，渲染在所有图层的最底层。
+
+```metro
+BACKGROUND_DEFINE 背景ID
+    NAME '背景名称'                           # 可选，显示名称
+    TYPE svg | image                          # 图片类型：svg=SVG矢量图, image=固定像素图片
+    SRC 'path/to/file.svg'                    # 图片文件路径（编译时读取为Base64嵌入JSON）
+    BOUNDS [minLon, minLat, maxLon, maxLat]   # 地理范围 [最小经度, 最小纬度, 最大经度, 最大纬度]
+    OPACITY 0.5                               # 可选，透明度 0-1（默认 1）
+END_DEFINE
+```
+
+**字段说明**：
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `NAME` | 字符串 | 否 | 背景显示名称 |
+| `TYPE` | `svg` / `image` | 否 | 图片类型，默认 `image` |
+| `SRC` | 文件路径 | 是 | 图片文件路径（相对或绝对），编译时读取为 Base64 |
+| `BOUNDS` | `[minLon, minLat, maxLon, maxLat]` | 是 | 图片覆盖的地理范围 |
+| `OPACITY` | 0-1 浮点 | 否 | 透明度，默认 1（不透明） |
+
+**示例**：
+
+```metro
+BACKGROUND_DEFINE bg_guangzhou
+    NAME '广州底图'
+    TYPE image
+    SRC 'assets/guangzhou_map.png'
+    BOUNDS [113.10, 22.95, 113.51, 23.40]
+    OPACITY 0.4
+END_DEFINE
+
+BACKGROUND_DEFINE bg_svg_overlay
+    NAME 'SVG覆盖层'
+    TYPE svg
+    SRC 'assets/overlay.svg'
+    BOUNDS [113.0, 23.0, 113.5, 23.5]
+    OPACITY 0.6
+END_DEFINE
+```
+
+---
+
+## 32. 路段类型设置（`SEGMENT_TYPE` 子命令）
+
+在 `DIRECTION_DEFINE` 或 `DIRECTION_MODIFY` 内部使用，为指定站间段设置轨道敷设方式（高架/地下/地面）。地图预览时以不同线型叠加显示。
+
+```metro
+SEGMENT_TYPE '起点站' '终点站' ELEVATED       # 高架段
+SEGMENT_TYPE '起点站' '终点站' UNDERGROUND    # 地下段
+SEGMENT_TYPE '起点站' '终点站' GROUND         # 地面段
+```
+
+**渲染样式**：
+
+| 类型 | 线型 | 说明 |
+|------|------|------|
+| `ELEVATED` | 长短虚线 (`12,2,2,2`) | 高架段 |
+| `UNDERGROUND` | 等距虚线 (`8,4`) | 地下段 |
+| `GROUND` | 点线 (`2,3`) | 地面段 |
+
+**示例**：
+
+```metro
+DIRECTION_DEFINE dir1 LINE1
+    STATIONS ['站A', '站B', '站C', '站D']
+    DISTANCE [1500, 2000, 1800]
+    SEGMENT_TYPE '站A' '站B' ELEVATED
+    SEGMENT_TYPE '站B' '站C' UNDERGROUND
+    SEGMENT_TYPE '站C' '站D' GROUND
+END_DEFINE
+```
+
+- 两站必须在方向的 `STATIONS` 列表中且相邻。
+- 未设置 `SEGMENT_TYPE` 的段使用默认实线渲染。
+- `REVERSE` 和 `REV` 会自动复制路段类型设置。
+
+---
+
+## 33. 完整示例
 
 ```metro
 %DEFINE CITY_BJ

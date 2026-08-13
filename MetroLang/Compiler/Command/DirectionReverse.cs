@@ -56,7 +56,12 @@ namespace MetroEditor.MetroLang.Compiler.Command
                     DirectionType = newDirectionType,
                     IsFuture = sourceDir.IsFuture,
                     ConnectStation = sourceDir.ConnectStation,
-                    ViaDirections = new List<string>(sourceDir.ViaDirections)
+                    ViaDirections = new List<string>(sourceDir.ViaDirections),
+                    SegmentTypes = sourceDir.SegmentTypes.Select(s => s.Clone()).ToList(),
+                    ExpressStops = ReverseList(sourceDir.ExpressStops),
+                    Routings = sourceDir.Routings
+                        .Select(r => new RoutingInfo { Name = r.Name, Stations = ReverseList(r.Stations) })
+                        .ToList()
                 };
                 context.Directions[targetId] = newDir;
                 context.Distances[targetId] = reversedDist;
@@ -67,6 +72,9 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 sourceDir.Stations = reversedStations;
                 sourceDir.Attrs = newAttrs;
                 sourceDir.DirectionType = newDirectionType;
+                sourceDir.ExpressStops = ReverseList(sourceDir.ExpressStops);
+                foreach (var routing in sourceDir.Routings)
+                    routing.Stations.Reverse();
                 context.Distances[sourceId] = reversedDist;
 
                 // 更新引用该方向的外部键规则
@@ -96,6 +104,14 @@ namespace MetroEditor.MetroLang.Compiler.Command
             // 更新 Depots
             foreach (var depot in context.Depots.Where(d => d.DirectionKey == oldExternalKey))
                 depot.DirectionKey = newExternalKey;
+        }
+
+        /// <summary>反转站点列表（保持与站点顺序一致）</summary>
+        private static List<string> ReverseList(List<string> list)
+        {
+            var copy = new List<string>(list);
+            copy.Reverse();
+            return copy;
         }
     }
 }

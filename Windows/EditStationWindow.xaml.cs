@@ -1,6 +1,8 @@
 ﻿using MetroEditor.Windows.Utils;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
@@ -34,6 +36,9 @@ namespace MetroEditor.Windows
             LonTextBox.Text = station.Lon.ToString("F6");
             LatTextBox.Text = station.Lat.ToString("F6");
             CityTextBox.Text = station.City;
+            // 导入其他语言名称（OTHER_NAME）
+            if (station.OtherNames != null && station.OtherNames.Count > 0)
+                OtherNamesTextBox.Text = string.Join(", ", station.OtherNames);
             Title = "编辑站点";
             UpdatePreview();
             LoadApiKey();
@@ -55,6 +60,7 @@ namespace MetroEditor.Windows
             LonTextBox.TextChanged += (s, e) => UpdatePreview();
             LatTextBox.TextChanged += (s, e) => UpdatePreview();
             CityTextBox.TextChanged += (s, e) => UpdatePreview();
+            OtherNamesTextBox.TextChanged += (s, e) => UpdatePreview();
 
             UpdatePreview();
             LoadApiKey();
@@ -85,7 +91,24 @@ namespace MetroEditor.Windows
             // 非默认城市需添加 CITY 后缀
             if (!string.IsNullOrEmpty(city) && city != _defaultCity)
                 line += $" CITY '{city}'";
+            // 其他语言名称（OTHER_NAME），逗号分隔
+            var otherNames = ParseOtherNames(OtherNamesTextBox.Text);
+            if (otherNames.Count > 0)
+                line += $" OTHER_NAME [{string.Join(", ", otherNames.Select(n => $"'{n}'"))}]";
             PreviewTextBox.Text = line;
+        }
+
+        /// <summary>
+        /// 解析其他语言名称输入（按逗号/分号/竖线分隔，去重）
+        /// </summary>
+        private static List<string> ParseOtherNames(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return new List<string>();
+            return text.Split(new[] { ',', '，', ';', '；', '|', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Select(s => s.Trim())
+                       .Where(s => s.Length > 0)
+                       .Distinct(StringComparer.Ordinal)
+                       .ToList();
         }
 
         /// <summary>
@@ -201,7 +224,9 @@ namespace MetroEditor.Windows
             _station.Lon = lon;
             _station.Lat = lat;
             _station.City = CityTextBox.Text.Trim();
+            _station.OtherNames = ParseOtherNames(OtherNamesTextBox.Text);
 
+            DialogResult = true;
             Close();
         }
 
