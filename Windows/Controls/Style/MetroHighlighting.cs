@@ -108,23 +108,40 @@ namespace MetroEditor.Windows.Controls.Style
                 // 特殊命令
                 "REV", "DEPOT", "STATION_STATUS", "STATION_MODE", "AS",
                 "IMPORT", "INCLUDE", "DEFINE", "UNDEFINE", "IF", "END_IF", "ELSE",
-                "PLATFORM_COORD", "GEN_TRANSFER", "DEFINE", "UNDEFINE",
-                
-                // 线路/方向操作（新增）
+                "PLATFORM_COORD", "GEN_TRANSFER",
+
+                // 站点操作
+                "STATION_COPY", "STATION_RENAME", "STATION_DELETE", "STATION_MODIFY",
+
+                // 线路/方向操作
                 "LINE_MERGE", "LINE_SPLIT", "LINE_COPY", "LINE_RENAME", "LINE_DELETE",
                 "DIRECTION_COPY", "DIRECTION_RENAME", "DIRECTION_DELETE",
                 "DIRECTION_SPLIT", "DIRECTION_REVERSE", "DIRECTION_MODIFY",
                 "ASSERT", "ECHO", "MESSAGE",
                 "INTO", "AT", "ADD", "REMOVE", "SET", "KEEP_ORIGINAL",
+                "DIRECTIONS", "REMAINING", "TO",
+
+                // 布尔值
+                "TRUE", "FALSE",
+
+                // GEN_TRANSFER 参数
+                "WALK_SPEED", "UPDATE_EXISTING",
+
+                // 票价值
+                "ALL",
 
                 // 背景图片
-                "BACKGROUND_DEFINE", "BOUNDS", "OPACITY",
+                "BACKGROUND_DEFINE", "SRC", "BOUNDS", "OPACITY",
 
                 // 区域定义
                 "ZONE_DEFINE", "CENTER", "RADIUS", "POLYGON",
                 "ATTRIBUTES", "PEAK_HOURS", "POPULATION_DENSITY", "AVG_RENT", "END_ATTRIBUTES",
                 "CBD", "COMMERCIAL", "RESIDENTIAL", "GOVERNMENT", "TOURIST",
-                "TRANSPORT_HUB", "EDUCATIONAL", "MEDICAL", "MIXED"
+                "TRANSPORT_HUB", "EDUCATIONAL", "MEDICAL", "MIXED",
+
+                // 运营公司
+                "OPERATOR_DEFINE", "SHORT_NAME", "EN_NAME", "COUNTRY", "FOUNDED",
+                "WEBSITE", "HOTLINE", "LOGO", "LINES"
             ];
 
             string pattern = @"\b(" + string.Join("|", primaryKeywords) + @")\b";

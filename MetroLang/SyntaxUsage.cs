@@ -135,6 +135,13 @@ namespace MetroEditor.MetroLang
             },
             new SyntaxReferenceItem
             {
+                Command = "LINE_SPLIT",
+                Format = "LINE_SPLIT <源线路> INTO <新线路1> <新线路2> ... END_DEFINE",
+                Example = "LINE_SPLIT GZ1 INTO GZ1_MAIN GZ1_EXT\n    DIRECTIONS GZ1_0 TO GZ1_MAIN\n    REMAINING TO GZ1_EXT\n    KEEP_ORIGINAL\nEND_DEFINE",
+                InsertTemplate = "LINE_SPLIT <源线路> INTO <新线路1> <新线路2>\n    DIRECTIONS <方向模式> TO <目标线路>\n    REMAINING TO <剩余目标线路>\n    KEEP_ORIGINAL\nEND_DEFINE"
+            },
+            new SyntaxReferenceItem
+            {
                 Command = "LINE_MODIFY",
                 Format = "LINE_MODIFY <线路ID> ... END_DEFINE",
                 Example = "LINE_MODIFY GZ1 SET NAME '新1号线' END_DEFINE",
@@ -454,7 +461,9 @@ namespace MetroEditor.MetroLang
         {
             // ----- 全局与城市 -----
             new("PROGRAM_DEFINE", "程序定义块"),
+            new("KEY_CITY", "主城市名称"),
             new("OTHER_CITY", "其他城市列表"),
+            new("CITY", "城市（线路/区域/票价所属城市）"),
             new("VERSION", "版本号"),
             new("UPDATE_DATE", "更新日期"),
             new("CREATE_DATE", "创建日期"),
@@ -488,6 +497,7 @@ namespace MetroEditor.MetroLang
             new("STATIONS", "方向站点列表"),
             new("LOOP", "环线"),
             new("EXPRESS_STOPS", "快车停靠站列表"),
+            new("ROUTING", "交路定义（方向内）"),
             new("INNER", "内环"),
             new("OUTER", "外环"),
             new("FUTURE", "建设中/规划中"),
@@ -527,6 +537,7 @@ namespace MetroEditor.MetroLang
             new("TIME_LIMIT", "时间限制"),
             new("FARE_CAP", "票价上限"),
             new("SPECIAL_LINE", "特殊线路（票价块内）"),
+            new("ALL", "全线统一票价"),
 
             // ----- 运营参数 -----
             new("OPERATION_DEFINE", "运营参数定义块"),
@@ -587,6 +598,13 @@ namespace MetroEditor.MetroLang
             new("KEEP_ORIGINAL", "保留原始对象"),
             new("INTO", "合并/拆分为"),
             new("AT", "拆分位置"),
+            new("DIRECTIONS", "方向分配（LINE_SPLIT内）"),
+            new("REMAINING", "剩余方向归属（LINE_SPLIT内）"),
+            new("TO", "方向分配目标（LINE_SPLIT内）"),
+
+            // ----- 布尔值 -----
+            new("TRUE", "布尔值真"),
+            new("FALSE", "布尔值假"),
 
             // ----- 其他 -----
             new("DEPOT", "车辆段"),
@@ -608,6 +626,8 @@ namespace MetroEditor.MetroLang
             new("OUT_STATION", "出站"),
             new("PLATFORM_COORD", "设置线路平台坐标"),
             new("GEN_TRANSFER", "自动生成换乘时间"),
+            new("WALK_SPEED", "步行速度（米/秒）"),
+            new("UPDATE_EXISTING", "更新已存在的换乘"),
 
             // ----- 星期与时段 -----
             new("MONDAY", "星期一"),
@@ -628,7 +648,7 @@ namespace MetroEditor.MetroLang
             new("FORMATION", "编组"),
             new("MAXSPEED", "最高速度"),
             new("OPEN_YEAR", "开通年份"),
-            new("POWER_KW", "牵引功率"),
+            new("POWER", "牵引功率"),
             new("BRAKE", "制动减速度"),
             new("DISABLE", "停运"),
             new("SPECIAL", "特殊线路"),
@@ -653,6 +673,7 @@ namespace MetroEditor.MetroLang
 
             // ----- 背景图片 -----
             new("BACKGROUND_DEFINE", "背景图片定义块"),
+            new("SRC", "背景图片文件路径"),
             new("BOUNDS", "地理范围[minLon,minLat,maxLon,maxLat]"),
             new("OPACITY", "透明度(0-1)"),
 

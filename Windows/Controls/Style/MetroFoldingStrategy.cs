@@ -39,8 +39,17 @@ namespace MetroEditor.Windows.Controls.Style
             "DIRECTION_TEMPLATE",
             "LINE_MODIFY",
             "DIRECTION_MODIFY",
+            "STATION_MODIFY",
             "POLICY",          // PROMOTION_DEFINE 内部策略块
             "IF",              // 普通 IF / %if
+            // 新增：顶层定义块
+            "OPERATOR_DEFINE",
+            "BACKGROUND_DEFINE",
+            "ZONE_DEFINE",
+            // 新增：线路拆分块
+            "LINE_SPLIT",
+            // 新增：区域属性子块
+            "ATTRIBUTES",
         };
 
         /// <summary>
@@ -120,7 +129,8 @@ namespace MetroEditor.Windows.Controls.Style
                     if (lineText.IndexOf("END_DEFINE", StringComparison.OrdinalIgnoreCase) >= 0 ||
                         lineText.IndexOf("END_IF", StringComparison.OrdinalIgnoreCase) >= 0 ||
                         lineText.IndexOf("END_TEMPLATE", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        lineText.IndexOf("END_POLICY", StringComparison.OrdinalIgnoreCase) >= 0)
+                        lineText.IndexOf("END_POLICY", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        lineText.IndexOf("END_ATTRIBUTES", StringComparison.OrdinalIgnoreCase) >= 0)
                         continue;
 
                     // 跳过 REV 简写方向
@@ -152,6 +162,8 @@ namespace MetroEditor.Windows.Controls.Style
                         isMatch = endKeyword.Equals("END_TEMPLATE", StringComparison.OrdinalIgnoreCase);
                     else if (block.Keyword.Equals("POLICY", StringComparison.OrdinalIgnoreCase))
                         isMatch = endKeyword.Equals("END_POLICY", StringComparison.OrdinalIgnoreCase);
+                    else if (block.Keyword.Equals("ATTRIBUTES", StringComparison.OrdinalIgnoreCase))
+                        isMatch = endKeyword.Equals("END_ATTRIBUTES", StringComparison.OrdinalIgnoreCase);
                     else
                         isMatch = endKeyword.Equals("END_DEFINE", StringComparison.OrdinalIgnoreCase);
 
@@ -228,6 +240,10 @@ namespace MetroEditor.Windows.Controls.Style
             if (upper.StartsWith("END_POLICY", StringComparison.OrdinalIgnoreCase) ||
                 upper.Equals("END_POLICY", StringComparison.OrdinalIgnoreCase))
             { keyword = "END_POLICY"; return true; }
+
+            if (upper.StartsWith("END_ATTRIBUTES", StringComparison.OrdinalIgnoreCase) ||
+                upper.Equals("END_ATTRIBUTES", StringComparison.OrdinalIgnoreCase))
+            { keyword = "END_ATTRIBUTES"; return true; }
 
             return false;
         }
