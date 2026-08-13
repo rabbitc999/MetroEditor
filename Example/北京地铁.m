@@ -11,6 +11,137 @@ END_DEFINE
 %INCLUDE 'TRANSFER.m'
 %IMPORT 'BEIJING.csv' AS STATIONS
 
+# ===== 运营公司 =====
+OPERATOR_DEFINE BJ_SUBWAY
+    NAME '北京市地铁运营有限公司'
+    SHORT_NAME '北京地铁'
+    EN_NAME 'Beijing Subway'
+    COUNTRY '中国'
+    CITY '北京'
+    FOUNDED 1970
+    WEBSITE 'https://www.bjsubway.com'
+    HOTLINE '010-68345678'
+    DESCRIPTION '北京市城市轨道交通主要运营主体'
+    LINES ['B1', 'B2', 'B3', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'B11', 'B13', 'B15', 'B22', 'FS', 'CP', 'YZ', 'YF', 'SD', 'S1']
+END_DEFINE
+
+OPERATOR_DEFINE BJMTR
+    NAME '北京京港地铁有限公司'
+    SHORT_NAME '京港地铁'
+    EN_NAME 'Beijing MTR'
+    COUNTRY '中国'
+    CITY '北京'
+    FOUNDED 2006
+    WEBSITE 'https://www.bjmtr.com'
+    HOTLINE '010-63900000'
+    DESCRIPTION '北京地铁4号线、14号线、16号线、17号线、19号线运营单位'
+    LINES ['B4', 'B12', 'B14', 'B16', 'B17', 'B19']
+END_DEFINE
+
+OPERATOR_DEFINE BAM
+    NAME '北京市轨道交通运营管理有限公司'
+    SHORT_NAME '京轨管理'
+    EN_NAME 'Beijing Rail Transit'
+    COUNTRY '中国'
+    CITY '北京'
+    FOUNDED 2016
+    WEBSITE 'https://www.bjgdjtwy.com'
+    HOTLINE '010-68345678'
+    DESCRIPTION '大兴机场线运营单位'
+    LINES ['DXJ']
+END_DEFINE
+
+# ===== 区域定义 =====
+ZONE_DEFINE ZN_GUOMAO
+    NAME '国贸CBD'
+    TYPE CBD
+    CITY '北京'
+    COLOR '#FF6D00'
+    CENTER 116.463400, 39.908700
+    RADIUS 1500
+    STATIONS ['国贸', '大望路', '金台夕照', '永安里', '建国门']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:30', '18:00-19:30']
+        POPULATION_DENSITY 4.5
+        AVG_RENT 18000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_ZGC
+    NAME '中关村科技园'
+    TYPE CBD
+    CITY '北京'
+    COLOR '#2962FF'
+    CENTER 116.310000, 39.982000
+    RADIUS 1500
+    STATIONS ['中关村', '海淀黄庄', '苏州街', '知春路', '知春里']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '18:00-19:00']
+        POPULATION_DENSITY 3.8
+        AVG_RENT 15000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_FIN_STREET
+    NAME '金融街'
+    TYPE COMMERCIAL
+    CITY '北京'
+    COLOR '#F50057'
+    CENTER 116.364000, 39.917000
+    RADIUS 800
+    STATIONS ['太平桥', '灵境胡同', '复兴门', '阜成门']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:00', '17:30-18:30']
+        POPULATION_DENSITY 3.5
+        AVG_RENT 20000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_BJNANZHAN
+    NAME '北京南站枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '北京'
+    COLOR '#00C853'
+    CENTER 116.378600, 39.865000
+    RADIUS 1000
+    STATIONS ['北京南站', '景风门', '马家堡', '角门西']
+    ATTRIBUTES
+        PEAK_HOURS ['06:00-08:00', '17:00-20:00']
+        POPULATION_DENSITY 2.5
+        AVG_RENT 8000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_XIZHIMEN
+    NAME '西直门枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '北京'
+    COLOR '#5C6BC0'
+    CENTER 116.355000, 39.941000
+    RADIUS 800
+    STATIONS ['西直门', '车公庄', '积水潭', '新街口']
+    ATTRIBUTES
+        PEAK_HOURS ['07:00-09:00', '17:00-19:00']
+        POPULATION_DENSITY 3.0
+        AVG_RENT 10000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_WANGJING
+    NAME '望京商务区'
+    TYPE COMMERCIAL
+    CITY '北京'
+    COLOR '#AA00FF'
+    CENTER 116.474000, 40.001000
+    RADIUS 1200
+    STATIONS ['望京', '望京东', '望京西', '阜通', '高家园']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '18:00-19:00']
+        POPULATION_DENSITY 3.2
+        AVG_RENT 12000
+    END_ATTRIBUTES
+END_DEFINE
+
 # 线路定义
 LINE_DEFINE B1
   NAME '1号线/八通线'
@@ -23,6 +154,8 @@ LINE_DEFINE B1
   DIRECTION_DEFINE B1_0
     STATIONS ['环球度假区', '花庄', '土桥', '临河里', '梨园', '九棵树', '果园', '通州北苑', '八里桥', '管庄', '双桥', '传媒大学', '高碑店', '四惠东', '四惠', '大望路', '国贸', '永安里', '建国门', '东单', '王府井', '天安门东', '天安门西', '西单', '复兴门', '南礼士路', '木樨地', '军事博物馆', '公主坟', '万寿路', '五棵松', '玉泉路', '八宝山', '八角游乐园', '古城', '苹果园', '福寿岭']
     DISTANCE [1.560000, 1.860000, 0.750000, 1.260000, 1.200000, 0.990000, 1.410000, 1.610000, 1.710000, 1.890000, 1.890000, 1.990000, 1.370000, 1.720000, 1.700000, 1.380000, 0.780000, 1.320000, 1.260000, 0.750000, 0.880000, 0.830000, 1.300000, 1.590000, 0.410000, 1.290000, 1.170000, 1.170000, 1.310000, 1.770000, 1.800000, 1.470000, 3.870000, 2.330000, 1.64000, NIL]
+    ROUTING '1号线交路' ['四惠东', '四惠', '大望路', '国贸', '永安里', '建国门', '东单', '王府井', '天安门东', '天安门西', '西单', '复兴门', '南礼士路', '木樨地', '军事博物馆', '公主坟', '万寿路', '五棵松', '玉泉路', '八宝山', '八角游乐园', '古城', '苹果园']
+    ROUTING '八通线交路' ['环球度假区', '花庄', '土桥', '临河里', '梨园', '九棵树', '果园', '通州北苑', '八里桥', '管庄', '双桥', '传媒大学', '高碑店', '四惠东', '四惠']
   END_DEFINE
   DIRECTION_DEFINE B1_1 REV B1_0
   DIRECTION_DEFINE B1_2
@@ -331,6 +464,7 @@ LINE_DEFINE B19
   DIRECTION_DEFINE B19_0
     STATIONS ['牡丹园', '北太平庄', '积水潭', '平安里', '太平桥', '牛街', '景风门', '草桥', '新发地', '新宫']
     DISTANCE [0.910000, 2.310000, 1.620000, 2.610000, 2.130000, 3.010000, 2.250000, 2.630000, 2.220000, NIL]
+    EXPRESS_STOPS ['牡丹园', '积水潭', '平安里', '牛街', '草桥', '新宫']
   END_DEFINE
   DIRECTION_DEFINE B19_1 REV B19_0
   DIRECTION_DEFINE B19_2

@@ -8,6 +8,124 @@ END_DEFINE
 %INCLUDE 'TRANSFER.m'
 %IMPORT 'SHENZHEN.csv' AS STATIONS
 
+# ===== 运营公司 =====
+OPERATOR_DEFINE SZMC
+    NAME '深圳市地铁集团有限公司'
+    SHORT_NAME '深圳地铁'
+    EN_NAME 'Shenzhen Metro'
+    COUNTRY '中国'
+    CITY '深圳'
+    FOUNDED 1998
+    WEBSITE 'https://www.szmc.net'
+    HOTLINE '0755-88960600'
+    DESCRIPTION '深圳市城市轨道交通主要运营主体'
+    LINES ['SZ1', 'SZ2_8', 'SZ3', 'SZ5', 'SZ6', 'SZ6_Z', 'SZ7', 'SZ9', 'SZ10', 'SZ11', 'SZ12', 'SZ14', 'SZ16', 'SZ20', 'SZ13']
+END_DEFINE
+
+OPERATOR_DEFINE MTR_SZ
+    NAME '港铁轨道交通（深圳）有限公司'
+    SHORT_NAME '港铁（深圳）'
+    EN_NAME 'MTR Shenzhen'
+    COUNTRY '中国'
+    CITY '深圳'
+    FOUNDED 2004
+    WEBSITE 'https://www.mtr.com.hk'
+    HOTLINE '0755-29276688'
+    DESCRIPTION '深圳地铁4号线运营单位'
+    LINES ['SZ4']
+END_DEFINE
+
+# ===== 区域定义 =====
+ZONE_DEFINE ZN_QIANHAI
+    NAME '前海合作区'
+    TYPE CBD
+    CITY '深圳'
+    COLOR '#FF6D00'
+    CENTER 113.878200, 22.547200
+    RADIUS 2000
+    STATIONS ['前海湾', '桂湾', '前湾', '前湾公园', '梦海', '怡海', '铁路公园']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:00', '18:00-19:00']
+        POPULATION_DENSITY 3.0
+        AVG_RENT 12000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_FUTIAN_CBD
+    NAME '福田CBD'
+    TYPE CBD
+    CITY '深圳'
+    COLOR '#2962FF'
+    CENTER 114.058800, 22.540400
+    RADIUS 1500
+    STATIONS ['福田', '会展中心', '市民中心', '岗厦北', '购物公园', '岗厦']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:00', '18:00-19:00']
+        POPULATION_DENSITY 4.0
+        AVG_RENT 15000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_SZNORTH_STN
+    NAME '深圳北站枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '深圳'
+    COLOR '#00C853'
+    CENTER 114.038900, 22.610200
+    RADIUS 1000
+    STATIONS ['深圳北站', '红山', '民治', '上塘']
+    ATTRIBUTES
+        PEAK_HOURS ['07:00-09:00', '17:00-20:00']
+        POPULATION_DENSITY 2.5
+        AVG_RENT 8000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_BAOAN_AIRPORT
+    NAME '宝安机场枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '深圳'
+    COLOR '#5C6BC0'
+    CENTER 113.815600, 22.639400
+    RADIUS 2000
+    STATIONS ['机场', '机场北', '机场东']
+    ATTRIBUTES
+        PEAK_HOURS ['05:00-07:00', '21:00-23:00']
+        POPULATION_DENSITY 1.0
+        AVG_RENT 6000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HUAQIANGBEI
+    NAME '华强北商圈'
+    TYPE COMMERCIAL
+    CITY '深圳'
+    COLOR '#F50057'
+    CENTER 114.087500, 22.545000
+    RADIUS 600
+    STATIONS ['华强北', '华强南', '科学馆', '华新', '燕南']
+    ATTRIBUTES
+        PEAK_HOURS ['10:00-12:00', '18:00-20:00']
+        POPULATION_DENSITY 5.0
+        AVG_RENT 20000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HOUHAI
+    NAME '后海总部基地'
+    TYPE COMMERCIAL
+    CITY '深圳'
+    COLOR '#0091EA'
+    CENTER 113.939800, 22.515200
+    RADIUS 1200
+    STATIONS ['后海', '科苑', '登良', '海月', '南山']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '17:30-18:30']
+        POPULATION_DENSITY 3.2
+        AVG_RENT 13000
+    END_ATTRIBUTES
+END_DEFINE
+
 # 线路定义
 LINE_DEFINE SZ1
   NAME '1号线'
@@ -33,6 +151,7 @@ LINE_DEFINE SZ3
   DIRECTION_DEFINE SZ3_0
     STATIONS ['福保', '益田', '石厦', '购物公园', '福田', '少年宫', '莲花村', '华新', '通新岭', '红岭', '老街', '晒布', '翠竹', '田贝', '水贝', '草埔', '布吉', '木棉湾', '大芬', '丹竹头', '六约', '塘坑', '横岗', '永湖', '荷坳', '大运', '爱联', '吉祥', '龙城广场', '南联', '双龙', '梨园', '新生', '坪西', '低碳城', '白石塘', '富坪', '坪地六联']
     DISTANCE [1.020000, 0.890000, 1.100000, 0.780000, 1.140000, 0.760000, 2.040000, 0.910000, 0.830000, 1.280000, 0.860000, 1.050000, 1.230000, 0.950000, 1.410000, 2.000000, 1.080000, 1.150000, 1.170000, 3.730000, 1.360000, 1.970000, 1.500000, 1.690000, 1.460000, 1.460000, 1.680000, 1.330000, 1.260000, 1.430000, 0.780000, 1.510000, 1.680000, 1.180000, 1.400000, 0.990000, 1.390000, NIL]
+    ROUTING '3号线原线' ['福保', '益田', '石厦', '购物公园', '福田', '少年宫', '莲花村', '华新', '通新岭', '红岭', '老街', '晒布', '翠竹', '田贝', '水贝', '草埔', '布吉', '木棉湾', '大芬', '丹竹头', '六约', '塘坑', '横岗', '永湖', '荷坳', '大运', '爱联', '吉祥', '龙城广场', '南联', '双龙']
   END_DEFINE
   DIRECTION_DEFINE SZ3_1 REV SZ3_0
 END_DEFINE
@@ -89,6 +208,7 @@ LINE_DEFINE SZ11
   DIRECTION_DEFINE SZ11_0
     STATIONS ['碧头', '松岗', '后亭', '沙井', '马安山', '塘尾', '桥头', '福永', '机场北', '机场', '碧海湾', '宝安', '前海湾', '南山', '后海', '红树湾南', '车公庙', '福田', '岗厦北', '福星', '华强南', '红岭南']
     DISTANCE [1.580000, 2.200000, 2.450000, 1.710000, 1.660000, 1.700000, 1.730000, 2.590000, 3.490000, 6.780000, 3.490000, 2.620000, 3.060000, 2.110000, 2.950000, 5.810000, 2.800000, 1.500000, 1.410000, 0.690000, 1.840000, NIL]
+    ROUTING '11号线原线' ['碧头', '松岗', '后亭', '沙井', '马安山', '塘尾', '桥头', '福永', '机场北', '机场', '碧海湾', '宝安', '前海湾', '南山', '后海', '红树湾南', '车公庙', '福田', '岗厦北']
   END_DEFINE
   DIRECTION_DEFINE SZ11_1 REV SZ11_0
 END_DEFINE
@@ -187,6 +307,8 @@ LINE_DEFINE SZ14
   DIRECTION_DEFINE SZ14_0
     STATIONS ['岗厦北', '黄木岗', '罗湖北', '布吉', '石芽岭', '六约北', '四联', '坳背', '大运', '嶂背', '南约', '宝龙', '锦龙', '坪山围', '坪山广场', '坪山中心', '坑梓', '沙田']
     DISTANCE [2.660000, 3.810000, 2.490000, 3.420000, 4.200000, 1.900000, 3.130000, 2.330000, 2.400000, 2.860000, 2.060000, 3.820000, 1.610000, 1.100000, 1.020000, 4.470000, 3.270000, NIL]
+    EXPRESS_STOPS ['岗厦北', '黄木岗', '布吉', '大运', '坪山围', '坪山中心', '沙田']
+    ROUTING '14号线短交路' ['岗厦北', '黄木岗', '罗湖北', '布吉', '石芽岭', '六约北', '四联', '坳背', '大运']
   END_DEFINE
   DIRECTION_DEFINE SZ14_1 REV SZ14_0
 END_DEFINE

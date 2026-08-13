@@ -843,10 +843,19 @@
                     expressLines: expressLinesByStation[name] || [],
                     routingInfos: routingByStation[name] || [],
                     otherNames: info.other_names || [],
-                    pendingLines: (info.lines || []).filter(l => l.status === 'pending').map(l => {
-                        const dir = rawDirections.find(d => d.groupKey === l.id);
-                        return { name: dir ? dir.displayName : l.id, color: dir ? dir.color : '#888' };
-                    })
+                    pendingLines: (() => {
+                        const seen = new Set();
+                        const result = [];
+                        for (const l of (info.lines || [])) {
+                            if (l.status !== 'pending') continue;
+                            const dir = rawDirections.find(d => d.lineId === l.id);
+                            const name = dir ? dir.displayName : l.id;
+                            if (seen.has(name)) continue;
+                            seen.add(name);
+                            result.push({ name, color: dir ? dir.color : '#888' });
+                        }
+                        return result;
+                    })()
                 };
             });
 
@@ -936,17 +945,6 @@
                             .on("mouseover", (event, d) => { showZoneTooltip(d, event); })
                             .on("mousemove", (event) => { positionZoneTooltip(event); })
                             .on("mouseout", () => { hideZoneTooltip(); });
-                        zoneGroup.append("text")
-                            .attr("class", "zone-label")
-                            .attr("x", cx)
-                            .attr("y", cy)
-                            .attr("text-anchor", "middle")
-                            .attr("dominant-baseline", "middle")
-                            .attr("font-size", zoneLabelBase + "px")
-                            .attr("fill", fillColor)
-                            .style("font-weight", "bold")
-                            .style("pointer-events", "none")
-                            .text(label);
                     }
 
                     // 多边形区域（POLYGON）
@@ -967,19 +965,6 @@
                             .on("mouseover", (event, d) => { showZoneTooltip(d, event); })
                             .on("mousemove", (event) => { positionZoneTooltip(event); })
                             .on("mouseout", () => { hideZoneTooltip(); });
-                        const ccx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
-                        const ccy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-                        zoneGroup.append("text")
-                            .attr("class", "zone-label")
-                            .attr("x", ccx)
-                            .attr("y", ccy)
-                            .attr("text-anchor", "middle")
-                            .attr("dominant-baseline", "middle")
-                            .attr("font-size", zoneLabelBase + "px")
-                            .attr("fill", fillColor)
-                            .style("font-weight", "bold")
-                            .style("pointer-events", "none")
-                            .text(label);
                     }
                 });
             }
@@ -1299,7 +1284,7 @@
                 .attr("class", "express-stop")
                 .attr("cx", d => d.x)
                 .attr("cy", d => d.y)
-                .attr("r", 9)
+                .attr("r", 4)
                 .attr("fill", "#fff")
                 .attr("fill-opacity", 0.9)
                 .attr("stroke", d => d.expressColors[0])
@@ -1315,7 +1300,7 @@
                 .attr("class", "routing-stop")
                 .attr("cx", d => d.x)
                 .attr("cy", d => d.y)
-                .attr("r", 9)
+                .attr("r", 4)
                 .attr("fill", "none")
                 .attr("stroke", d => d.routingInfos[0].color)
                 .attr("stroke-width", 1.5)
@@ -1427,15 +1412,17 @@
                     return 1;
                 });
 
-                // 平台坐标圆圈随缩放调整大小（保持视觉协调）
+
+
+                // 平台坐标圆圈随缩放调整大小
                 platformCircles
                     .attr("r", Math.min(Math.max(3 / k, 0.8), 4))
                     .attr("stroke-width", Math.min(Math.max(1.5 / k, 0.5), 2));
 
                 // 快车停靠站标记（空心环）随缩放调整，保持屏幕尺寸稳定
                 expressStopCircles
-                    .attr("r", Math.min(Math.max(9 / k, 2.5), 10))
-                    .attr("stroke-width", Math.min(Math.max(2 / k, 0.6), 2.5))
+                    .attr("r", Math.min(Math.max(4 / k, 1.0), 4))
+                    .attr("stroke-width", Math.min(Math.max(2 / k, 0.6), 2))
                     .attr("opacity", d => {
                         if (currentMode === 'all') return 1;
                         if (isHighlight) {
@@ -1453,8 +1440,8 @@
 
                 // 交路站点标记（虚线圆环）随缩放调整，保持屏幕尺寸稳定
                 routingCircles
-                    .attr("r", Math.min(Math.max(9 / k, 2.5), 10))
-                    .attr("stroke-width", Math.min(Math.max(1.5 / k, 0.5), 2))
+                    .attr("r", Math.min(Math.max(4 / k, 1.0), 4))
+                    .attr("stroke-width", Math.min(Math.max(2 / k, 0.6), 2))
                     .attr("opacity", d => {
                         if (currentMode === 'all') return 1;
                         if (isHighlight) {
@@ -1469,6 +1456,7 @@
                         }
                         return 1;
                     });
+                    
 
                 // 区域描边与标签随缩放保持屏幕尺寸稳定
                 zoneGroup.selectAll(".zone-circle, .zone-polygon")

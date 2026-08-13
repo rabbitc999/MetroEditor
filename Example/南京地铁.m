@@ -1,6 +1,7 @@
 ﻿# 数据集信息
 PROGRAM_DEFINE
     KEY_CITY '南京'
+    OTHER_CITY ['镇江', '马鞍山']
     VERSION 'V1.0'
     UPDATE_DATE '2026-7-18'
     CREATE_DATE '2026-6-30'
@@ -9,6 +10,96 @@ END_DEFINE
 # 车站列表
 %INCLUDE 'TRANSFER.m'
 %import 'NANJING.csv' AS STATIONS
+
+# ===== 运营公司 =====
+OPERATOR_DEFINE NJMETRO
+    NAME '南京地铁集团有限公司'
+    SHORT_NAME '南京地铁'
+    EN_NAME 'Nanjing Metro'
+    COUNTRY '中国'
+    CITY '南京'
+    FOUNDED 1999
+    WEBSITE 'https://www.njmetro.com.cn'
+    HOTLINE '025-51899999'
+    DESCRIPTION '南京市城市轨道交通运营主体'
+    LINES ['NJ1', 'NJ2', 'NJ3', 'NJ4', 'NJ5', 'NJ6', 'NJ7', 'NJ10', 'NJ_S1', 'NJ_S2', 'NJ_S3', 'NJ_S7', 'NJ_S8', 'NJ_S9']
+END_DEFINE
+
+# ===== 区域定义 =====
+ZONE_DEFINE ZN_XINJIEKOU
+    NAME '新街口商圈'
+    TYPE COMMERCIAL
+    CITY '南京'
+    COLOR '#F50057'
+    CENTER 118.778500, 32.043500
+    RADIUS 800
+    STATIONS ['新街口', '张府园', '珠江路', '上海路', '大行宫']
+    ATTRIBUTES
+        PEAK_HOURS ['11:00-13:00', '18:00-20:00']
+        POPULATION_DENSITY 4.5
+        AVG_RENT 18000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HEXI
+    NAME '河西CBD'
+    TYPE CBD
+    CITY '南京'
+    COLOR '#FF6D00'
+    CENTER 118.699700, 32.014000
+    RADIUS 2000
+    STATIONS ['元通', '奥体中心', '中胜', '奥体东', '梦都大街', '兴隆大街']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '17:30-18:30']
+        POPULATION_DENSITY 3.0
+        AVG_RENT 12000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_NJNANZHAN
+    NAME '南京南站枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '南京'
+    COLOR '#2962FF'
+    CENTER 118.797800, 31.971500
+    RADIUS 1200
+    STATIONS ['南京南站', '宏运大道', '明发广场', '双龙大道']
+    ATTRIBUTES
+        PEAK_HOURS ['07:00-09:00', '17:00-20:00']
+        POPULATION_DENSITY 2.5
+        AVG_RENT 8000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_FUZIMIAO
+    NAME '夫子庙-秦淮风光带'
+    TYPE TOURIST
+    CITY '南京'
+    COLOR '#00C853'
+    CENTER 118.789000, 32.021500
+    RADIUS 800
+    STATIONS ['夫子庙', '三山街', '武定门', '常府街']
+    ATTRIBUTES
+        PEAK_HOURS ['10:00-12:00', '19:00-21:00']
+        POPULATION_DENSITY 3.8
+        AVG_RENT 10000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_XIANLIN
+    NAME '仙林大学城'
+    TYPE EDUCATIONAL
+    CITY '南京'
+    COLOR '#AA00FF'
+    CENTER 118.914000, 32.104000
+    RADIUS 2500
+    STATIONS ['南大仙林校区', '羊山公园', '仙林中心', '学则路', '仙林湖', '经天路']
+    ATTRIBUTES
+        PEAK_HOURS ['07:30-08:30', '16:30-17:30']
+        POPULATION_DENSITY 2.0
+        AVG_RENT 5500
+    END_ATTRIBUTES
+END_DEFINE
 
 # 线路定义
 LINE_DEFINE NJ10
@@ -49,6 +140,7 @@ LINE_DEFINE NJ1
   DIRECTION_DEFINE NJ1_0
     STATIONS ['八卦洲大桥南', '笆斗山', '燕子矶', '吉祥庵', '晓庄', '迈皋桥', '红山动物园', '南京站', '新模范马路', '玄武门', '鼓楼', '珠江路', '新街口', '张府园', '三山街', '中华门', '安德门', '天隆寺', '软件大道', '花神庙', '南京南站', '双龙大道', '河定桥', '胜太路', '百家湖', '小龙湾', '竹山路', '天印大道', '龙眠大道', '南医大·江苏经贸学院', '南京交院', '中国药科大学']
     DISTANCE [1.210000, 1.110000, 1.050000, 0.990000, 1.910000, 1.050000, 1.120000, 1.450000, 1.070000, 1.290000, 0.870000, 1.040000, 1.190000, 0.900000, 1.900000, 2.080000, 1.410000, 1.110000, 1.060000, 1.430000, 1.980000, 1.390000, 0.860000, 1.320000, 1.160000, 1.140000, 1.900000, 1.310000, 1.430000, 2.670000, 1.910000, NIL]
+    ROUTING '1号线原线' ['迈皋桥', '红山动物园', '南京站', '新模范马路', '玄武门', '鼓楼', '珠江路', '新街口', '张府园', '三山街', '中华门', '安德门', '天隆寺', '软件大道', '花神庙', '南京南站', '双龙大道', '河定桥', '胜太路', '百家湖', '小龙湾', '竹山路', '天印大道', '龙眠大道', '南医大·江苏经贸学院', '南京交院', '中国药科大学']
   END_DEFINE
   DIRECTION_DEFINE NJ1_1 REV NJ1_0
 END_DEFINE
@@ -91,6 +183,7 @@ LINE_DEFINE NJ_S8
   DIRECTION_DEFINE NJ_S8_0
     STATIONS ['金牛湖', '八百桥', '沈桥', '方洲广场', '凤凰山公园', '雄州', '龙池', '六合开发区', '化工园', '长芦', '葛塘', '大厂', '卸甲甸', '信息工程大学', '高新开发区', '泰冯路', '泰山新村', '毛纺厂路', '长江大桥北']
     DISTANCE [5.170000, 4.910000, 5.990000, 1.460000, 1.600000, 2.290000, 2.110000, 2.870000, 1.560000, 3.890000, 2.150000, 1.820000, 1.400000, 2.840000, 2.630000, 1.130000, 1.470000, 0.710000, NIL]
+    ROUTING 'S8号线原线' ['金牛湖', '八百桥', '沈桥', '方洲广场', '凤凰山公园', '雄州', '龙池', '六合开发区', '化工园', '长芦', '葛塘', '大厂', '卸甲甸', '信息工程大学', '高新开发区', '泰冯路']
   END_DEFINE
   DIRECTION_DEFINE NJ_S8_1 REV NJ_S8_0
 END_DEFINE

@@ -518,7 +518,6 @@ namespace MetroEditor.MetroLang.Exporter
                         // 添加车站状态（如 pending/operating）
                         if (context.StationStatus.TryGetValue((stationName, lineId), out var status))
                             stationLine.Status = status;
-                        stationEntry.Lines.Add(stationLine);
 
                         // 添加平台坐标
                         if (context.PlatformCoords.TryGetValue((stationName, lineId), out var platformCoord))

@@ -1,6 +1,7 @@
 ﻿# 数据集信息
 PROGRAM_DEFINE
     KEY_CITY '上海'
+    OTHER_CITY ['苏州']
     VERSION 'V1.0'
     UPDATE_DATE '2026-6-30'
 END_DEFINE
@@ -8,6 +9,111 @@ END_DEFINE
 # 程序集引用
 %INCLUDE 'TRANSFER.m'
 %IMPORT 'SHANGHAI.csv' AS STATIONS
+
+# ===== 运营公司 =====
+OPERATOR_DEFINE SHMETRO
+    NAME '上海申通地铁集团有限公司'
+    SHORT_NAME '上海地铁'
+    EN_NAME 'Shanghai Metro'
+    COUNTRY '中国'
+    CITY '上海'
+    FOUNDED 2000
+    WEBSITE 'https://www.shmetro.com'
+    HOTLINE '021-64370000'
+    DESCRIPTION '上海市城市轨道交通运营主体'
+    LINES ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'CF', 'PJX', 'SYJ']
+END_DEFINE
+
+# ===== 区域定义 =====
+ZONE_DEFINE ZN_LUJIAZUI
+    NAME '陆家嘴金融区'
+    TYPE CBD
+    CITY '上海'
+    COLOR '#FF6D00'
+    CENTER 121.506700, 31.239700
+    RADIUS 1200
+    STATIONS ['陆家嘴', '浦东南路', '世纪大道']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:30', '18:00-19:30']
+        POPULATION_DENSITY 4.0
+        AVG_RENT 18000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_RENMIN
+    NAME '人民广场商圈'
+    TYPE COMMERCIAL
+    CITY '上海'
+    COLOR '#F50057'
+    CENTER 121.474400, 31.230400
+    RADIUS 800
+    STATIONS ['人民广场', '南京西路', '南京东路', '一大会址·黄陂南路', '大世界']
+    ATTRIBUTES
+        PEAK_HOURS ['10:00-12:00', '18:00-20:00']
+        POPULATION_DENSITY 5.0
+        AVG_RENT 22000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_XUJIAHUI
+    NAME '徐家汇商圈'
+    TYPE COMMERCIAL
+    CITY '上海'
+    COLOR '#AA00FF'
+    CENTER 121.436500, 31.195300
+    RADIUS 1000
+    STATIONS ['徐家汇', '上海体育馆', '宜山路', '交通大学']
+    ATTRIBUTES
+        PEAK_HOURS ['10:00-12:00', '18:00-20:00']
+        POPULATION_DENSITY 4.2
+        AVG_RENT 16000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HONGQIAO
+    NAME '虹桥综合交通枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '上海'
+    COLOR '#2962FF'
+    CENTER 121.319900, 31.197600
+    RADIUS 2500
+    STATIONS ['虹桥火车站', '虹桥2号航站楼', '虹桥1号航站楼']
+    ATTRIBUTES
+        PEAK_HOURS ['06:00-08:00', '20:00-22:00']
+        POPULATION_DENSITY 1.5
+        AVG_RENT 8000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_PUDONG_AIRPORT
+    NAME '浦东机场枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '上海'
+    COLOR '#00C853'
+    CENTER 121.808500, 31.149500
+    RADIUS 3000
+    STATIONS ['浦东1号2号航站楼']
+    ATTRIBUTES
+        PEAK_HOURS ['05:00-07:00', '21:00-23:00']
+        POPULATION_DENSITY 0.8
+        AVG_RENT 6000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_ZHANGJIANG
+    NAME '张江高科技园区'
+    TYPE CBD
+    CITY '上海'
+    COLOR '#0091EA'
+    CENTER 121.609000, 31.209000
+    RADIUS 2000
+    STATIONS ['张江高科', '金科路', '张江路', '学林路']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '17:30-18:30']
+        POPULATION_DENSITY 2.8
+        AVG_RENT 12000
+    END_ATTRIBUTES
+END_DEFINE
 
 # 线路定义
 LINE_DEFINE S8
@@ -82,6 +188,7 @@ LINE_DEFINE S1
   DIRECTION_DEFINE S1_0
     STATIONS ['富锦路', '友谊西路', '宝安公路', '共富新村', '呼兰路', '通河新村', '共康路', '彭浦新村', '汶水路', '上海马戏城', '延长路', '中山北路', '上海火车站', '汉中路', '新闸路', '人民广场', '一大会址·黄陂南路', '陕西南路', '常熟路', '衡山路', '徐家汇', '上海体育馆', '漕宝路', '上海南站', '锦江乐园', '莲花路', '外环路', '莘庄']
     DISTANCE [1.280000, 1.320000, 1.640000, 1.740000, 0.990000, 1.280000, 1.590000, 1.450000, 1.420000, 1.000000, 1.360000, 1.410000, 0.640000, 1.010000, 1.000000, 1.020000, 1.500000, 0.930000, 1.060000, 1.480000, 1.260000, 1.540000, 1.570000, 2.060000, 1.640000, 1.460000, 1.390000, NIL]
+    ROUTING '1号线原线' ['上海火车站', '汉中路', '新闸路', '人民广场', '一大会址·黄陂南路', '陕西南路', '常熟路', '衡山路', '徐家汇', '上海体育馆', '漕宝路', '上海南站', '锦江乐园', '莲花路', '外环路', '莘庄']
   END_DEFINE
   DIRECTION_DEFINE S1_1 REV S1_0
 END_DEFINE
@@ -157,6 +264,7 @@ LINE_DEFINE S16
   DIRECTION_DEFINE S16_0
     STATIONS ['滴水湖', '临港大道', '书院', '惠南东', '惠南', '野生动物园', '新场', '航头东', '鹤沙航城', '周浦东', '罗山路', '华夏中路', '龙阳路']
     DISTANCE [2.540000, 7.020000, 9.210000, 4.320000, 5.980000, 4.800000, 3.150000, 2.600000, 3.620000, 4.970000, 2.620000, 3.800000, NIL]
+    EXPRESS_STOPS ['滴水湖', '惠南', '鹤沙航城', '周浦东', '罗山路', '龙阳路']
   END_DEFINE
   DIRECTION_DEFINE S16_1 REV S16_0
 END_DEFINE

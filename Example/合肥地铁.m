@@ -8,6 +8,81 @@ END_DEFINE
 %INCLUDE 'TRANSFER.m'
 %IMPORT 'HEFEI.csv' AS STATIONS
 
+# ===== 运营公司 =====
+OPERATOR_DEFINE HFEZ
+    NAME '合肥市轨道交通集团有限公司'
+    SHORT_NAME '合肥轨道'
+    EN_NAME 'Hefei Rail Transit'
+    COUNTRY '中国'
+    CITY '合肥'
+    FOUNDED 2009
+    WEBSITE 'https://www.hfrt.com.cn'
+    HOTLINE '0551-62076666'
+    DESCRIPTION '合肥市城市轨道交通运营主体'
+    LINES ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8']
+END_DEFINE
+
+# ===== 区域定义 =====
+ZONE_DEFINE ZN_BINHU
+    NAME '滨湖新区'
+    TYPE RESIDENTIAL
+    CITY '合肥'
+    COLOR '#0091EA'
+    CENTER 117.319717, 31.719786
+    RADIUS 3000
+    STATIONS ['九联圩', '丙子铺', '万年埠', '万达城', '云谷路', '金斗公园', '塘西河公园', '紫庐', '滨湖会展中心']
+    ATTRIBUTES
+        PEAK_HOURS ['08:00-09:00', '17:30-18:30']
+        POPULATION_DENSITY 2.5
+        AVG_RENT 6000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_ZHENGWU
+    NAME '政务文化新区'
+    TYPE CBD
+    CITY '合肥'
+    COLOR '#FF6D00'
+    CENTER 117.263890, 31.828000
+    RADIUS 1500
+    STATIONS ['市政务中心', '合肥大剧院', '图书馆', '洪岗', '天鹅湖', '天鹅湖东']
+    ATTRIBUTES
+        PEAK_HOURS ['08:30-09:30', '17:30-18:30']
+        POPULATION_DENSITY 3.2
+        AVG_RENT 9000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HFNANZHAN
+    NAME '合肥南站枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '合肥'
+    COLOR '#2962FF'
+    CENTER 117.308483, 31.784000
+    RADIUS 1000
+    STATIONS ['合肥南站', '南站南广场', '望湖城', '望湖城西', '望湖城南']
+    ATTRIBUTES
+        PEAK_HOURS ['07:00-09:00', '17:00-20:00']
+        POPULATION_DENSITY 2.0
+        AVG_RENT 7000
+    END_ATTRIBUTES
+END_DEFINE
+
+ZONE_DEFINE ZN_HFHCZ
+    NAME '合肥火车站枢纽'
+    TYPE TRANSPORT_HUB
+    CITY '合肥'
+    COLOR '#00C853'
+    CENTER 117.349000, 31.868000
+    RADIUS 800
+    STATIONS ['合肥火车站', '瑶海公园', '长淮', '明光路']
+    ATTRIBUTES
+        PEAK_HOURS ['07:00-09:00', '17:00-19:00']
+        POPULATION_DENSITY 2.8
+        AVG_RENT 6500
+    END_ATTRIBUTES
+END_DEFINE
+
 # 线路定义
 LINE_DEFINE L1
   NAME '1号线'

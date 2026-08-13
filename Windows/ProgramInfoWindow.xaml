@@ -1,0 +1,68 @@
+﻿<Window x:Class="MetroEditor.Windows.ProgramInfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="程序信息（PROGRAM_DEFINE）" Height="480" Width="520" Topmost="True"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 字段表单 -->
+        <Grid Grid.Row="0" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="主城市*:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="KeyCityTextBox" Grid.Row="0" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged" ToolTip="KEY_CITY 必填，PROGRAM_DEFINE 必须包含"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="其他城市:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="OtherCitiesTextBox" Grid.Row="1" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"
+                     TextWrapping="Wrap" AcceptsReturn="True" Height="48" VerticalScrollBarVisibility="Auto"
+                     ToolTip="多个城市用逗号、空格或换行分隔"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Content="版本:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="VersionTextBox" Grid.Row="2" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged" Text="V1.0"/>
+
+            <Label Grid.Row="3" Grid.Column="0" Content="作者:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="AuthorTextBox" Grid.Row="3" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged" Text="匿名"/>
+
+            <Label Grid.Row="4" Grid.Column="0" Content="创建日期:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="CreateDateTextBox" Grid.Row="4" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"/>
+
+            <Label Grid.Row="5" Grid.Column="0" Content="更新日期:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="UpdateDateTextBox" Grid.Row="5" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"/>
+
+            <Label Grid.Row="6" Grid.Column="0" Content="语言顺序:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
+            <TextBox x:Name="LanguageOrderTextBox" Grid.Row="6" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"
+                     TextWrapping="Wrap" AcceptsReturn="True" Height="48" VerticalScrollBarVisibility="Auto"
+                     ToolTip="多个语言用逗号分隔，如 zh-Hans, zh-Hant, en"/>
+        </Grid>
+
+        <!-- 代码预览 -->
+        <GroupBox Grid.Row="1" Header="生成的 PROGRAM_DEFINE 代码（预览）" Margin="0,5,0,5">
+            <TextBox x:Name="PreviewTextBox" Height="130" TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12" IsReadOnly="True"/>
+        </GroupBox>
+
+        <!-- 底部按钮 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="插入到编辑器" Click="InsertCode_Click" Width="110" Margin="0,0,10,0"/>
+            <Button Content="关闭" Click="Close_Click" Width="80" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
