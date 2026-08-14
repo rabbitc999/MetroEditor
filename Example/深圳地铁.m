@@ -19,7 +19,7 @@ OPERATOR_DEFINE SZMC
     WEBSITE 'https://www.szmc.net'
     HOTLINE '0755-88960600'
     DESCRIPTION '深圳市城市轨道交通主要运营主体'
-    LINES ['SZ1', 'SZ2_8', 'SZ3', 'SZ5', 'SZ6', 'SZ6_Z', 'SZ7', 'SZ9', 'SZ10', 'SZ11', 'SZ12', 'SZ14', 'SZ16', 'SZ20', 'SZ13']
+    LINES ['SZ1', 'SZ2_8', 'SZ3', 'SZ5', 'SZ6', 'SZ6_Z', 'SZ7', 'SZ9', 'SZ10', 'SZ11', 'SZ12', 'SZ14', 'SZ16', 'SZ20']
 END_DEFINE
 
 OPERATOR_DEFINE MTR_SZ
@@ -32,7 +32,7 @@ OPERATOR_DEFINE MTR_SZ
     WEBSITE 'https://www.mtr.com.hk'
     HOTLINE '0755-29276688'
     DESCRIPTION '深圳地铁4号线运营单位'
-    LINES ['SZ4']
+    LINES ['SZ4', 'SZ13']
 END_DEFINE
 
 # ===== 区域定义 =====
