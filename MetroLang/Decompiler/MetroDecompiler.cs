@@ -9,48 +9,53 @@ namespace MetroEditor.MetroLang.Decompiler
 {
     /// <summary>
     /// 将标准 JSON 路网数据反编译为可读性更强的 .metro 源文件。
-    /// 核心职责：将结构化的 <see cref="JsonRoot"/> 对象序列化为领域特定语言（DSL）。
     /// </summary>
+    /// <remarks>
+    /// 本类只负责<b>数据组织与条件判断</b>，DSL 语法全部由 Templates 目录下的
+    /// .template 模板文件声明（占位符 {{Key}}），可通过编辑模板自定义输出格式。
+    /// </remarks>
     public class MetroDecompiler
     {
         private readonly JsonRoot _root;
         private readonly List<string> _outputLines = new();
+        private readonly TemplateEngine _engine;
 
-        // 格式化常量
-        private const string Indent = "  ";
-        private const int ItemsPerLine = 3;
-
-        // 映射表：用于记录 JSON 中的外部方向 Key 与反编译后内部方向 ID 的对应关系
-        // Key: "LineId|StartStation|EndStation"
-        // Value: "LineId_Index" (如 "LINE1_0")
+        // 映射表：JSON 外部方向 Key 与反编译后内部方向 ID 的对应关系
+        // Key: "LineId|StartStation|EndStation"  Value: "LineId_Index"
         private readonly Dictionary<string, string> _externalToInternalDirectionMap = new();
 
         /// <summary>
-        /// 初始化反编译器实例。
+        /// 初始化反编译器实例（使用默认模板目录）。
+        /// </summary>
+        public MetroDecompiler(JsonRoot root) : this(root, null) { }
+
+        /// <summary>
+        /// 初始化反编译器实例（可指定自定义模板目录）。
         /// </summary>
         /// <param name="root">路网数据根对象。</param>
-        /// <exception cref="ArgumentNullException"><paramref name="root"/> 为 <c>null</c> 时抛出。</exception>
-        public MetroDecompiler(JsonRoot root)
+        /// <param name="templateDirectory">模板目录；为 null 时使用默认目录。</param>
+        public MetroDecompiler(JsonRoot root, string? templateDirectory)
         {
             _root = root ?? throw new ArgumentNullException(nameof(root));
+            _engine = new TemplateEngine(templateDirectory);
         }
 
         /// <summary>
         /// 执行反编译过程，生成 .metro 源文件内容。
         /// </summary>
-        /// <returns>格式化后的 .metro 源文件字符串。</returns>
         public string Decompile()
         {
             _outputLines.Clear();
-            WriteFileHeader();
+            Append(_engine.Render("FileHeader", new Dictionary<string, string?>
+            {
+                ["GenerationTime"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            }));
             AddBlankLine();
 
-            // REGION: 程序定义
             AddRegion("程序定义");
             GenerateProgramDefine();
             EndRegion();
 
-            // REGION: 文字标签
             if (_root.Labels.Any())
             {
                 AddRegion("文字标签");
@@ -58,17 +63,14 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 车站列表
             AddRegion("车站列表");
             GenerateStationList();
             EndRegion();
 
-            // REGION: 线路定义（核心部分）
             AddRegion("线路定义");
             GenerateLineDefinitions();
             EndRegion();
 
-            // REGION: 平台坐标（线路级车站坐标）
             if (HasPlatformCoordData())
             {
                 AddRegion("平台坐标");
@@ -76,12 +78,10 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 运营参数与换乘
             AddRegion("运营参数与换乘");
             GenerateOperationAndTransfers();
             EndRegion();
 
-            // REGION: 停站时间（条件生成）
             if (HasCustomDwellTimeData())
             {
                 AddRegion("停站时间");
@@ -89,7 +89,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 站点状态（条件生成）
             if (HasStationStatusData())
             {
                 AddRegion("站点状态");
@@ -97,7 +96,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 票价规则
             if (_root.Price != null)
             {
                 AddRegion("票价规则");
@@ -105,7 +103,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 发车间隔
             if (_root.HeadwayRules.Any())
             {
                 AddRegion("发车间隔");
@@ -113,7 +110,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 站点进出模式
             if (_root.StationModes.Any())
             {
                 AddRegion("站点进出模式");
@@ -121,7 +117,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 拥挤度系数
             if (_root.CrowdRules.Any())
             {
                 AddRegion("拥挤度系数");
@@ -129,7 +124,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 运营时间
             if (_root.OpenTimes.Any())
             {
                 AddRegion("运营时间");
@@ -137,7 +131,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 车辆段
             if (_root.Depots.Any())
             {
                 AddRegion("车辆段");
@@ -145,7 +138,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 区间限速
             if (_root.SpeedLimits.Any())
             {
                 AddRegion("区间限速");
@@ -153,7 +145,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 虚拟换乘
             if (_root.VirtualTransfers.Any())
             {
                 AddRegion("虚拟换乘");
@@ -161,7 +152,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 无障碍设施
             if (_root.Facilities?.Any() == true)
             {
                 AddRegion("无障碍设施");
@@ -169,7 +159,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 票价优惠策略
             if (_root.Promotions?.Any() == true)
             {
                 AddRegion("票价优惠策略");
@@ -177,7 +166,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 运营公司
             if (_root.OperatorCompanies?.Any() == true)
             {
                 AddRegion("运营公司");
@@ -185,7 +173,6 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            // REGION: 背景图片
             if (_root.Backgrounds?.Any() == true)
             {
                 AddRegion("背景图片");
@@ -193,117 +180,88 @@ namespace MetroEditor.MetroLang.Decompiler
                 EndRegion();
             }
 
-            WriteFileFooter();
+            AddBlankLine();
+            Append(_engine.Render("FileFooter", new Dictionary<string, string?>()));
             return string.Join("\n", _outputLines);
         }
 
         #region 基础辅助方法
-        private void WriteLine(string text) => _outputLines.Add(text);
+        private void Append(string text)
+        {
+            foreach (var line in text.Split('\n'))
+                _outputLines.Add(line.TrimEnd('\r'));
+        }
         private void AddBlankLine() => _outputLines.Add("");
 
-        private void WriteFileHeader()
-        {
-            WriteLine("# ==========================================");
-            WriteLine("# Metro 路网配置文件");
-            WriteLine("# 由 MetroEditor 反编译器生成");
-            WriteLine($"# 生成时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            WriteLine("# ==========================================");
-        }
+        private void AddRegion(string regionName) =>
+            Append(_engine.Render("Region", new Dictionary<string, string?> { ["Name"] = regionName }));
+        private void EndRegion() =>
+            Append(_engine.Render("EndRegion", new Dictionary<string, string?>()));
 
-        private void WriteFileFooter()
-        {
-            AddBlankLine();
-            WriteLine("# ==========================================");
-            WriteLine("# 文件结束");
-            WriteLine("# ==========================================");
-        }
-
-        private void AddRegion(string regionName) => WriteLine($"# REGION {regionName}");
-        private void EndRegion() => WriteLine("# END_REGION");
-
-        /// <summary>
-        /// 检查是否存在自定义的停站时间配置。
-        /// </summary>
-        private bool HasCustomDwellTimeData()
-        {
-            return _root.Lines.Values.SelectMany(l => l.Direction)
+        private bool HasCustomDwellTimeData() =>
+            _root.Lines.Values.SelectMany(l => l.Direction)
                        .SelectMany(d => d.Station)
                        .Any(s => s.DwellTime.HasValue);
-        }
 
-        /// <summary>
-        /// 检查是否存在自定义的站点状态配置。
-        /// </summary>
-        private bool HasStationStatusData()
-        {
-            return _root.Stations.Values
+        private bool HasStationStatusData() =>
+            _root.Stations.Values
                        .Where(s => s.Lines != null)
                        .SelectMany(s => s.Lines)
                        .Any(sl => !string.IsNullOrEmpty(sl.Status));
-        }
 
-        /// <summary>
-        /// 检查是否存在平台坐标数据。
-        /// </summary>
-        private bool HasPlatformCoordData()
-        {
-            return _root.Stations.Values
+        private bool HasPlatformCoordData() =>
+            _root.Stations.Values
                 .Where(s => s.Lines != null)
                 .SelectMany(s => s.Lines)
                 .Any(l => l.PlatformCoord != null);
-        }
+
+        /// <summary>转义字符串内容：\ → \\，' → \'（用于 .metro 字符串字面量）。</summary>
+        private static string Esc(string? value) =>
+            string.IsNullOrEmpty(value) ? "" : value.Replace("\\", "\\\\").Replace("'", "\\'");
+
+        /// <summary>转义并用单引号包裹：返回 'escaped'。</summary>
+        private static string Q(string? value) => $"'{Esc(value)}'";
         #endregion
 
         #region 头部与元数据生成
         private void GenerateProgramDefine()
         {
-            WriteLine("# 程序定义（主城市/版本/日期）");
-            WriteLine("PROGRAM_DEFINE");
-
-            WriteLine($"{Indent}KEY_CITY '{_root.KeyCity}'");
-
-            // 收集除主城市外的其他城市
             var otherCities = _root.Lines.Values
                 .Select(l => l.City)
                 .Where(c => !string.IsNullOrEmpty(c) && c != _root.KeyCity)
                 .Distinct()
                 .OrderBy(c => c)
+                .Select(Q)
                 .ToList();
 
-            if (otherCities.Any())
+            var languages = _root.LanguageOrder?.Select(Q).ToList() ?? new List<string>();
+
+            Append(_engine.Render("ProgramDefine", new Dictionary<string, string?>
             {
-                var cityList = string.Join(", ", otherCities.Select(c => $"'{c}'"));
-                WriteLine($"{Indent}OTHER_CITY [{cityList}]");
-            }
-
-            if (_root.LanguageOrder != null && _root.LanguageOrder.Any())
-            {
-                var langList = string.Join(", ", _root.LanguageOrder.Select(lang => $"'{lang}'"));
-                WriteLine($"{Indent}LANGUAGE_ORDER [{langList}]");
-            }
-
-            WriteLine($"{Indent}VERSION '{_root.Version}'");
-            WriteLine($"{Indent}UPDATE_DATE '{_root.UpdateDate}'");
-
-            if (!string.IsNullOrEmpty(_root.Author))
-                WriteLine($"{Indent}AUTHOR '{_root.Author}'");
-            if (!string.IsNullOrEmpty(_root.CreateDate))
-                WriteLine($"{Indent}CREATE_DATE '{_root.CreateDate}'");
-
-            WriteLine("END_DEFINE");
+                ["KeyCity"] = Esc(_root.KeyCity),
+                ["OtherCities"] = otherCities.Any() ? string.Join(", ", otherCities) : "",
+                ["Languages"] = languages.Any() ? string.Join(", ", languages) : "",
+                ["Version"] = Esc(_root.Version),
+                ["UpdateDate"] = Esc(_root.UpdateDate),
+                ["Author"] = Esc(_root.Author),
+                ["CreateDate"] = Esc(_root.CreateDate)
+            }));
             AddBlankLine();
         }
 
         private void GenerateLabels()
         {
-            WriteLine("# 文字标签");
-            WriteLine("LABEL_DEFINE");
-            foreach (var label in _root.Labels)
+            var items = _root.Labels.Select(label => new Dictionary<string, string?>
             {
-                // :R 格式说明符确保浮点数使用小数点而非逗号（国际化兼容）
-                WriteLine($"{Indent}NODE '{label.Text}' COORD {label.Lon:R}, {label.Lat:R}");
-            }
-            WriteLine("END_DEFINE");
+                ["Text"] = Esc(label.Text),
+                ["Lon"] = label.Lon.ToString("R"),
+                ["Lat"] = label.Lat.ToString("R")
+            }).ToList();
+
+            Append(_engine.Render("LabelDefine", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("LabelNode", items)
+            }));
             AddBlankLine();
         }
         #endregion
@@ -311,75 +269,65 @@ namespace MetroEditor.MetroLang.Decompiler
         #region 车站与线路生成
         private void GenerateStationList()
         {
-            WriteLine("# 车站列表");
-            WriteLine("STATION_DEFINE");
+            var items = new List<IReadOnlyDictionary<string, string?>>();
 
-            var sortedStationNames = _root.Stations.Keys.OrderBy(k => k).ToList();
-            foreach (var stationName in sortedStationNames)
+            foreach (var stationName in _root.Stations.Keys.OrderBy(k => k))
             {
                 var station = _root.Stations[stationName];
-                var lineBuilder = new StringBuilder();
-                lineBuilder.Append($"{Indent}NODE '{stationName}' COORD {station.Lon:R}, {station.Lat:R}");
 
+                // 可选后缀：CITY / OTHER_NAME
+                var suffix = new StringBuilder();
                 if (!string.IsNullOrEmpty(station.City))
-                    lineBuilder.Append($" CITY '{station.City}'");
-
+                    suffix.Append($" CITY {Q(station.City)}");
                 if (station.OtherNames != null && station.OtherNames.Any())
                 {
                     if (station.OtherNames.Count == 1)
-                        lineBuilder.Append($" OTHER_NAME '{station.OtherNames[0]}'");
+                        suffix.Append($" OTHER_NAME {Q(station.OtherNames[0])}");
                     else
-                    {
-                        var names = string.Join(", ", station.OtherNames.Select(n => $"'{n}'"));
-                        lineBuilder.Append($" OTHER_NAME [{names}]");
-                    }
+                        suffix.Append($" OTHER_NAME [{string.Join(", ", station.OtherNames.Select(Q))}]");
                 }
 
-                WriteLine(lineBuilder.ToString());
+                items.Add(new Dictionary<string, string?>
+                {
+                    ["Name"] = Esc(stationName),
+                    ["Lon"] = station.Lon.ToString("R"),
+                    ["Lat"] = station.Lat.ToString("R"),
+                    ["Suffix"] = suffix.ToString()
+                });
             }
-            WriteLine("END_DEFINE");
+
+            Append(_engine.Render("StationDefine", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("StationNode", items)
+            }));
             AddBlankLine();
         }
 
         private void GenerateLineDefinitions()
         {
-            WriteLine("# 线路定义");
-
+            Append("# 线路定义");
             foreach (var lineEntry in _root.Lines)
             {
                 string lineId = lineEntry.Key;
                 JsonLine line = lineEntry.Value;
 
                 AddRegion($"线路 {lineId}: {line.Name}");
-                WriteLine($"LINE_DEFINE {lineId}");
-
-                // --- 基础属性 ---
-                WriteLine($"{Indent}NAME '{line.Name}'");
-                WriteLine($"{Indent}COLOR '{line.Color}'");
-
-                if (!string.IsNullOrEmpty(line.City) && line.City != _root.KeyCity)
-                    WriteLine($"{Indent}CITY '{line.City}'");
-                if (!string.IsNullOrEmpty(line.Formation))
-                    WriteLine($"{Indent}FORMATION '{line.Formation}'");
-                if (line.Maxspeed > 0)
-                    WriteLine($"{Indent}MAXSPEED {line.Maxspeed:F2}");
-                if (line.OpenYear > 0)
-                    WriteLine($"{Indent}OPEN_YEAR {line.OpenYear}");
-                if (line.PowerKw.HasValue)
-                    WriteLine($"{Indent}POWER {line.PowerKw.Value:F2}");
-                if (line.Brake.HasValue)
-                    WriteLine($"{Indent}BRAKE {line.Brake.Value:F2}");
-                if (line.Disabled == true)
-                    WriteLine($"{Indent}DISABLE");
-                if (!string.IsNullOrEmpty(line.Link))
-                    WriteLine($"{Indent}LINK '{line.Link}'");
-                if (line.IsSpecial)
-                    WriteLine($"{Indent}SPECIAL");
-
-                // --- 方向定义（核心逻辑）---
-                GenerateDirectionsForLine(lineId, line);
-
-                WriteLine("END_DEFINE");
+                Append(_engine.Render("LineDefine", new Dictionary<string, string?>
+                {
+                    ["LineId"] = lineId,
+                    ["Name"] = Esc(line.Name),
+                    ["Color"] = Esc(line.Color),
+                    ["City"] = !string.IsNullOrEmpty(line.City) && line.City != _root.KeyCity ? Esc(line.City) : "",
+                    ["Formation"] = Esc(line.Formation),
+                    ["Maxspeed"] = line.Maxspeed > 0 ? line.Maxspeed.ToString("F2") : "",
+                    ["OpenYear"] = line.OpenYear > 0 ? line.OpenYear.ToString() : "",
+                    ["Power"] = line.PowerKw.HasValue ? line.PowerKw.Value.ToString("F2") : "",
+                    ["Brake"] = line.Brake.HasValue ? line.Brake.Value.ToString("F2") : "",
+                    ["Disable"] = line.Disabled == true ? "DISABLE" : "",
+                    ["Link"] = Esc(line.Link),
+                    ["Special"] = line.IsSpecial ? "SPECIAL" : "",
+                    ["DirectionBlocks"] = GenerateDirectionsForLine(lineId, line)
+                }));
                 EndRegion();
                 AddBlankLine();
             }
@@ -388,12 +336,10 @@ namespace MetroEditor.MetroLang.Decompiler
         /// <summary>
         /// 处理单条线路下的所有方向定义，自动识别反向方向以使用 REV 简写。
         /// </summary>
-        private void GenerateDirectionsForLine(string lineId, JsonLine line)
+        private string GenerateDirectionsForLine(string lineId, JsonLine line)
         {
-            // 为每个方向分配一个内部索引 ID (e.g., LINE1_0, LINE1_1)
+            var blocks = new List<string>();
             var directionsWithIndex = line.Direction.Select((dir, idx) => (Direction: dir, Index: idx)).ToList();
-
-            // 构建反向方向映射表
             var reversedDirectionMap = BuildReverseDirectionMap(lineId, directionsWithIndex);
 
             // 第一遍：输出所有非反向的完整方向定义
@@ -401,12 +347,37 @@ namespace MetroEditor.MetroLang.Decompiler
             {
                 string internalDirectionId = $"{lineId}_{index}";
                 if (reversedDirectionMap.ContainsKey(internalDirectionId))
-                    continue; // 如果是反向方向，跳过，稍后使用 REV 简写
+                    continue;
 
-                WriteLine($"{Indent}DIRECTION_DEFINE {internalDirectionId}");
-                GenerateSingleDirectionContent(direction, direction.IsLoop);
+                blocks.Add(_engine.Render("DirectionBody", new Dictionary<string, string?>
+                {
+                    ["DirectionId"] = internalDirectionId,
+                    ["Stations"] = string.Join(", ", direction.Station.Select(s => Q(s.Name))),
+                    ["Distances"] = BuildDistanceList(direction),
+                    ["Loop"] = BuildLoopToken(direction),
+                    ["Future"] = direction.IsFuture ? "FUTURE" : "",
+                    ["ExpressStops"] = direction.ExpressStops?.Any() == true
+                        ? string.Join(", ", direction.ExpressStops.Select(Q)) : "",
+                    ["RoutingLines"] = direction.Routings?.Any() == true
+                        ? _engine.RenderMany("Routing", direction.Routings.Select(r => new Dictionary<string, string?>
+                        {
+                            ["Name"] = Esc(r.Name),
+                            ["Stations"] = string.Join(", ", r.Stations.Select(Q))
+                        })) : "",
+                    ["ViaLine"] = direction.ViaDirections?.Any() == true
+                        ? _engine.Render("Via", new Dictionary<string, string?>
+                        {
+                            ["Directions"] = string.Join(" ", direction.ViaDirections)
+                        }) : "",
+                    ["SegmentTypeLines"] = direction.SegmentTypes?.Any() == true
+                        ? _engine.RenderMany("SegmentType", direction.SegmentTypes.Select(seg => new Dictionary<string, string?>
+                        {
+                            ["From"] = Esc(seg.From),
+                            ["To"] = Esc(seg.To),
+                            ["Type"] = seg.Type.ToUpperInvariant()
+                        })) : ""
+                }));
 
-                // 记录映射关系，供后续模块（如 SpeedLimit, CrowdRule）引用
                 string externalKey = $"{lineId}|{direction.Start}|{direction.End}";
                 if (!_externalToInternalDirectionMap.ContainsKey(externalKey))
                     _externalToInternalDirectionMap[externalKey] = internalDirectionId;
@@ -415,26 +386,49 @@ namespace MetroEditor.MetroLang.Decompiler
             // 第二遍：输出所有 REV 简写定义
             foreach (var mapping in reversedDirectionMap)
             {
-                string originalDirectionId = mapping.Value;
                 string revDirectionId = mapping.Key;
-                WriteLine($"{Indent}DIRECTION_DEFINE {revDirectionId} REV {originalDirectionId}");
+                blocks.Add(_engine.Render("DirectionRev", new Dictionary<string, string?>
+                {
+                    ["RevId"] = revDirectionId,
+                    ["OriginalId"] = mapping.Value
+                }));
 
-                // 记录反向方向的映射关系
                 var revDirection = directionsWithIndex.First(d => $"{lineId}_{d.Index}" == revDirectionId).Direction;
                 string revExternalKey = $"{lineId}|{revDirection.Start}|{revDirection.End}";
                 if (!_externalToInternalDirectionMap.ContainsKey(revExternalKey))
                     _externalToInternalDirectionMap[revExternalKey] = revDirectionId;
             }
+
+            return string.Join("\n", blocks);
+        }
+
+        /// <summary>构建距离列表；非环线终点强制为 NIL。</summary>
+        private static string BuildDistanceList(JsonDirection direction)
+        {
+            var distances = direction.Station
+                .Select(s => s.Next.HasValue ? s.Next.Value.ToString("F6") : "NIL")
+                .ToList();
+            if (!direction.IsLoop && distances.Any() && distances.Last() != "NIL")
+                distances[distances.Count - 1] = "NIL";
+            return string.Join(", ", distances);
+        }
+
+        /// <summary>构建 LOOP 命令（含可选的 INNER/OUTER 类型）。</summary>
+        private static string BuildLoopToken(JsonDirection direction)
+        {
+            if (!direction.IsLoop) return "";
+            return string.IsNullOrEmpty(direction.DirectionType)
+                ? "LOOP"
+                : $"LOOP {direction.DirectionType.ToUpperInvariant()}";
         }
 
         /// <summary>
-        /// 构建方向的反向映射表。
-        /// 通过比较站点列表的顺序来判断两个方向是否互为反向。
+        /// 构建方向的反向映射表（通过站点序列逆序比较判断互为反向）。
         /// </summary>
-        private Dictionary<string, string> BuildReverseDirectionMap(string lineId, List<(JsonDirection Direction, int Index)> directionsWithIndex)
+        private static Dictionary<string, string> BuildReverseDirectionMap(string lineId, List<(JsonDirection Direction, int Index)> directionsWithIndex)
         {
             var usedAsRev = new HashSet<string>();
-            var pairMap = new Dictionary<string, string>(); // RevId -> OriginalId
+            var pairMap = new Dictionary<string, string>();
 
             for (int i = 0; i < directionsWithIndex.Count; i++)
             {
@@ -453,15 +447,14 @@ namespace MetroEditor.MetroLang.Decompiler
 
                     if (stations1.Count == stations2.Count && stations1.SequenceEqual(stations2.AsEnumerable().Reverse()))
                     {
-                        // 按字典序决定谁是 Original，谁是 Rev，保证输出稳定
                         if (string.Compare(stations1.FirstOrDefault(), stations2.FirstOrDefault(), StringComparison.Ordinal) <= 0)
                         {
-                            pairMap[id2] = id1; // id2 是 id1 的反向
+                            pairMap[id2] = id1;
                             usedAsRev.Add(id2);
                         }
                         else
                         {
-                            pairMap[id1] = id2; // id1 是 id2 的反向
+                            pairMap[id1] = id2;
                             usedAsRev.Add(id1);
                         }
                         break;
@@ -471,83 +464,31 @@ namespace MetroEditor.MetroLang.Decompiler
             return pairMap;
         }
 
-        /// <summary>
-        /// 生成单个方向定义块的内部内容（不包含 DIRECTION_DEFINE 头尾）。
-        /// </summary>
-        private void GenerateSingleDirectionContent(JsonDirection direction, bool isLineLoop)
-        {
-            // Stations
-            var stationNames = direction.Station.Select(s => $"'{s.Name}'").ToList();
-            WriteLine($"{Indent}{Indent}STATIONS [{string.Join(", ", stationNames)}]");
-
-            // Distances
-            var distances = direction.Station.Select(s => s.Next.HasValue ? s.Next.Value.ToString("F6") : "NIL").ToList();
-            if (!isLineLoop && distances.Any() && distances.Last() != "NIL")
-                distances[distances.Count - 1] = "NIL"; // 非环线终点距离设为 NIL
-            WriteLine($"{Indent}{Indent}DISTANCE [{string.Join(", ", distances)}]");
-
-            if (direction.IsLoop)
-            {
-                var loopLine = "LOOP";
-                if (!string.IsNullOrEmpty(direction.DirectionType))
-                    loopLine += $" {direction.DirectionType.ToUpperInvariant()}";
-                WriteLine($"{Indent}{Indent}{loopLine}");
-            }
-
-            if (direction.IsFuture) WriteLine($"{Indent}{Indent}FUTURE");
-
-            if (direction.ExpressStops?.Any() == true)
-            {
-                var stops = direction.ExpressStops.Select(s => $"'{s}'").ToList();
-                WriteLine($"{Indent}{Indent}EXPRESS_STOPS [{string.Join(", ", stops)}]");
-            }
-
-            // Routings (交路信息：名称 + 经过站点)
-            if (direction.Routings?.Any() == true)
-            {
-                foreach (var routing in direction.Routings)
-                {
-                    var stops = routing.Stations.Select(s => $"'{s}'").ToList();
-                    WriteLine($"{Indent}{Indent}ROUTING '{routing.Name}' [{string.Join(", ", stops)}]");
-                }
-            }
-
-            if (direction.ViaDirections?.Any() == true)
-                WriteLine($"{Indent}{Indent}VIA {string.Join(" ", direction.ViaDirections)}");
-
-            // SegmentTypes (高架/地下/地面)
-            if (direction.SegmentTypes?.Any() == true)
-            {
-                foreach (var seg in direction.SegmentTypes)
-                {
-                    WriteLine($"{Indent}{Indent}SEGMENT_TYPE '{seg.From}' '{seg.To}' {seg.Type.ToUpperInvariant()}");
-                }
-            }
-
-            WriteLine($"{Indent}END_DEFINE");
-        }
-
-        /// <summary>
-        /// 生成平台坐标命令（线路级车站坐标）。
-        /// </summary>
         private void GeneratePlatformCoords()
         {
-            WriteLine("# 线路级车站坐标（平台坐标）");
+            var items = new List<IReadOnlyDictionary<string, string?>>();
             foreach (var stationEntry in _root.Stations.OrderBy(kv => kv.Key))
             {
                 string station = stationEntry.Key;
-                var lines = stationEntry.Value.Lines;
-                if (lines == null) continue;
-
-                foreach (var line in lines.OrderBy(l => l.Id))
+                foreach (var line in stationEntry.Value.Lines?.OrderBy(l => l.Id) ?? Enumerable.Empty<JsonStationLine>())
                 {
                     if (line.PlatformCoord != null)
                     {
-                        var coord = line.PlatformCoord;
-                        WriteLine($"PLATFORM_COORD '{station}' {line.Id} COORD {coord.Lon:R}, {coord.Lat:R}");
+                        items.Add(new Dictionary<string, string?>
+                        {
+                            ["Station"] = Esc(station),
+                            ["LineId"] = line.Id,
+                            ["Lon"] = line.PlatformCoord.Lon.ToString("R"),
+                            ["Lat"] = line.PlatformCoord.Lat.ToString("R")
+                        });
                     }
                 }
             }
+
+            Append(_engine.Render("PlatformCoords", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("PlatformCoord", items)
+            }));
             AddBlankLine();
         }
         #endregion
@@ -558,14 +499,13 @@ namespace MetroEditor.MetroLang.Decompiler
             var opParams = _root.OperationParams;
             if (opParams != null)
             {
-                WriteLine("# 运营参数");
-                WriteLine("OPERATION_DEFINE");
-                WriteLine($"{Indent}TRANSFER_TIME {opParams.InnerTransferTime}");
-                WriteLine($"{Indent}OUT_STATION_TRANSFER_TIME {opParams.OutStationTransferTime}");
-                WriteLine($"{Indent}DWELL_TIME {opParams.DwellTime}");
-                if (opParams.EntryTime > 0)
-                    WriteLine($"{Indent}ENTRY_TIME {opParams.EntryTime}");
-                WriteLine("END_DEFINE");
+                Append(_engine.Render("OperationDefine", new Dictionary<string, string?>
+                {
+                    ["InnerTransferTime"] = opParams.InnerTransferTime.ToString(),
+                    ["OutStationTransferTime"] = opParams.OutStationTransferTime.ToString(),
+                    ["DwellTime"] = opParams.DwellTime.ToString(),
+                    ["EntryTime"] = opParams.EntryTime > 0 ? opParams.EntryTime.ToString() : ""
+                }));
                 AddBlankLine();
             }
 
@@ -580,40 +520,37 @@ namespace MetroEditor.MetroLang.Decompiler
 
             foreach (var stationEntry in _root.Stations)
             {
-                string stationName = stationEntry.Key;
-                var station = stationEntry.Value;
-                if (station.Transfers == null) continue;
-
-                foreach (var transferEntry in station.Transfers)
+                if (stationEntry.Value.Transfers == null) continue;
+                foreach (var transferEntry in stationEntry.Value.Transfers)
                 {
-                    string key = transferEntry.Key;
-                    var parts = key.Split('|');
+                    var parts = transferEntry.Key.Split('|');
                     if (parts.Length != 2) continue;
 
-                    string line1 = parts[0], line2 = parts[1];
-                    string status = "operating";
-                    double timeSec = 0;
-
-                    ParseTransferValue(transferEntry.Value, out status, out timeSec, defaultInnerTransfer, defaultOutTransfer);
-
-                    customTransfers.Add((stationName, line1, line2, status, timeSec));
+                    ParseTransferValue(transferEntry.Value, out string status, out double timeSec,
+                        defaultInnerTransfer, defaultOutTransfer);
+                    customTransfers.Add((stationEntry.Key, parts[0], parts[1], status, timeSec));
                 }
             }
 
             if (!customTransfers.Any()) return;
 
-            WriteLine("# 自定义换乘");
-            var distinctTransfers = customTransfers
+            var items = customTransfers
                 .DistinctBy(t => new { t.Station, L1 = Min(t.Line1, t.Line2), L2 = Max(t.Line1, t.Line2) })
-                .OrderBy(t => t.Line1).ThenBy(t => t.Line2).ThenBy(t => t.Station);
+                .OrderBy(t => t.Line1).ThenBy(t => t.Line2).ThenBy(t => t.Station)
+                .Select(t => new Dictionary<string, string?>
+                {
+                    ["Station"] = Esc(t.Station),
+                    ["Line1"] = t.Line1,
+                    ["Line2"] = t.Line2,
+                    ["Status"] = t.Status.ToUpperInvariant(),
+                    ["Time"] = ((int)t.TimeSec).ToString()
+                })
+                .ToList();
 
-            foreach (var (station, line1, line2, status, timeSec) in distinctTransfers)
+            Append(_engine.Render("CustomTransfers", new Dictionary<string, string?>
             {
-                WriteLine($"TRANSFER_DEFINE '{station}' {line1} {line2}");
-                WriteLine($"{Indent}STATUS {status.ToUpperInvariant()}");
-                WriteLine($"{Indent}TIME {(int)timeSec}");
-                WriteLine("END_DEFINE");
-            }
+                ["Items"] = _engine.RenderMany("TransferItem", items)
+            }));
             AddBlankLine();
         }
 
@@ -648,42 +585,44 @@ namespace MetroEditor.MetroLang.Decompiler
 
         private static string Min(string a, string b) => string.CompareOrdinal(a, b) <= 0 ? a : b;
         private static string Max(string a, string b) => string.CompareOrdinal(a, b) > 0 ? a : b;
-        private int GetDefaultTimeForStatus(string status, int innerSec, int outerSec) =>
+        private static int GetDefaultTimeForStatus(string status, int innerSec, int outerSec) =>
             status.Equals("out_station", StringComparison.OrdinalIgnoreCase) ? outerSec : innerSec;
         #endregion
 
-        #region 其余模块生成（停站时间、状态、票价等）
-        // 以下方法主要进行了变量重命名、注释补充和微小结构调整，
-        // 逻辑与原代码保持一致。
-
+        #region 其余模块生成
         private void GenerateDwellTimeDefine()
         {
             var dwellList = new List<(string Station, string Line, double Seconds)>();
             foreach (var lineEntry in _root.Lines)
             {
-                string lineId = lineEntry.Key;
                 foreach (var direction in lineEntry.Value.Direction)
                 {
                     foreach (var station in direction.Station)
                     {
                         if (station.DwellTime.HasValue)
-                            dwellList.Add((station.Name, lineId, station.DwellTime.Value));
+                            dwellList.Add((station.Name, lineEntry.Key, station.DwellTime.Value));
                     }
                 }
             }
 
             if (!dwellList.Any()) return;
 
-            var distinctDwells = dwellList
+            var items = dwellList
                 .GroupBy(x => new { x.Station, x.Line })
                 .Select(g => g.Last())
-                .OrderBy(x => x.Line).ThenBy(x => x.Station);
+                .OrderBy(x => x.Line).ThenBy(x => x.Station)
+                .Select(x => new Dictionary<string, string?>
+                {
+                    ["Station"] = Esc(x.Station),
+                    ["Line"] = x.Line,
+                    ["Seconds"] = x.Seconds.ToString("F2")
+                })
+                .ToList();
 
-            WriteLine("# 停站时间（Dwell Time）");
-            WriteLine("DWELL_TIME_DEFINE");
-            foreach (var item in distinctDwells)
-                WriteLine($"{Indent}NODE '{item.Station}' {item.Line} {item.Seconds:F2}");
-            WriteLine("END_DEFINE");
+            Append(_engine.Render("DwellTimeDefine", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("DwellTimeNode", items)
+            }));
             AddBlankLine();
         }
 
@@ -692,26 +631,31 @@ namespace MetroEditor.MetroLang.Decompiler
             var statuses = new List<(string Station, string Line, string Status)>();
             foreach (var stationEntry in _root.Stations)
             {
-                string stationName = stationEntry.Key;
                 if (stationEntry.Value.Lines == null) continue;
-
                 foreach (var stationLine in stationEntry.Value.Lines)
                 {
                     if (!string.IsNullOrEmpty(stationLine.Status))
-                        statuses.Add((stationName, stationLine.Id, stationLine.Status));
+                        statuses.Add((stationEntry.Key, stationLine.Id, stationLine.Status));
                 }
             }
 
             if (!statuses.Any()) return;
 
-            WriteLine("# 站点线路状态");
-            var distinctStatuses = statuses
+            var items = statuses
                 .DistinctBy(t => new { t.Station, t.Line })
-                .OrderBy(t => t.Line).ThenBy(t => t.Station);
+                .OrderBy(t => t.Line).ThenBy(t => t.Station)
+                .Select(t => new Dictionary<string, string?>
+                {
+                    ["Station"] = Esc(t.Station),
+                    ["Line"] = t.Line,
+                    ["Status"] = t.Status.ToUpperInvariant()
+                })
+                .ToList();
 
-            foreach (var (station, line, status) in distinctStatuses)
-                WriteLine($"STATION_STATUS '{station}' {line} {status.ToUpperInvariant()}");
-
+            Append(_engine.Render("StationStatuses", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("StationStatus", items)
+            }));
             AddBlankLine();
         }
 
@@ -720,193 +664,217 @@ namespace MetroEditor.MetroLang.Decompiler
             var price = _root.Price;
             if (price == null) return;
 
-            WriteLine("# 票价规则");
-            WriteLine("PRICE_DEFINE");
-
-            if (price.DefaultFare > 0)
-                WriteLine($"{Indent}DEFAULT_FARE {price.DefaultFare:F2}");
-
-            if (price.Segments != null)
-                foreach (var segment in price.Segments)
-                    WriteLine($"{Indent}SEGMENT {segment.RangeStart:F2} {segment.RangeEnd:F2} {segment.Fare:F2}");
-
-            if (price.LinearExtension?.RatePerKm > 0)
-            {
-                var ext = price.LinearExtension;
-                WriteLine($"{Indent}LINEAR_EXTENSION THRESHOLD {ext.Threshold:F2} BASE_FARE {ext.BaseFare:F2} RATE_PER_KM {ext.RatePerKm:F6}");
-            }
-
+            var specialLines = new List<string>();
             if (price.SpecialLines != null)
             {
                 foreach (var specialLine in price.SpecialLines)
                 {
                     if (specialLine.All.HasValue)
-                        WriteLine($"{Indent}SPECIAL_LINE {specialLine.LineId} ALL {specialLine.All.Value:F2}");
-
+                        specialLines.Add(_engine.Render("SpecialLineAll", new Dictionary<string, string?>
+                        {
+                            ["LineId"] = specialLine.LineId,
+                            ["Fare"] = specialLine.All.Value.ToString("F2")
+                        }));
                     if (specialLine.Surcharge != null)
                         foreach (var surcharge in specialLine.Surcharge)
-                            WriteLine($"{Indent}SPECIAL_LINE {specialLine.LineId} SEGMENT '{surcharge.NodeA}' '{surcharge.NodeB}' {surcharge.Price:F2}");
+                            specialLines.Add(_engine.Render("SpecialLineSegment", new Dictionary<string, string?>
+                            {
+                                ["LineId"] = specialLine.LineId,
+                                ["NodeA"] = Esc(surcharge.NodeA),
+                                ["NodeB"] = Esc(surcharge.NodeB),
+                                ["Fare"] = surcharge.Price.ToString("F2")
+                            }));
                 }
             }
 
-            if (price.TransferDiscount?.Enabled == true)
-                WriteLine($"{Indent}TRANSFER_DISCOUNT ENABLED TRUE DISCOUNT_AMOUNT {price.TransferDiscount.DiscountAmount:F2} TIME_LIMIT {price.TransferDiscount.TimeLimitMinutes}");
-
-            if (price.FareCap > 0)
-                WriteLine($"{Indent}FARE_CAP {price.FareCap:F2}");
-
-            WriteLine("END_DEFINE");
+            Append(_engine.Render("PriceDefine", new Dictionary<string, string?>
+            {
+                ["DefaultFare"] = price.DefaultFare > 0 ? price.DefaultFare.ToString("F2") : "",
+                ["SegmentLines"] = price.Segments != null
+                    ? _engine.RenderMany("PriceSegment", price.Segments.Select(s => new Dictionary<string, string?>
+                    {
+                        ["Start"] = s.RangeStart.ToString("F2"),
+                        ["End"] = s.RangeEnd.ToString("F2"),
+                        ["Fare"] = s.Fare.ToString("F2")
+                    })) : "",
+                ["LinearExtensionLine"] = price.LinearExtension?.RatePerKm > 0
+                    ? _engine.Render("LinearExtension", new Dictionary<string, string?>
+                    {
+                        ["Threshold"] = price.LinearExtension.Threshold.ToString("F2"),
+                        ["BaseFare"] = price.LinearExtension.BaseFare.ToString("F2"),
+                        ["RatePerKm"] = price.LinearExtension.RatePerKm.ToString("F6")
+                    }) : "",
+                ["SpecialLineLines"] = string.Join("\n", specialLines),
+                ["TransferDiscountLine"] = price.TransferDiscount?.Enabled == true
+                    ? _engine.Render("TransferDiscount", new Dictionary<string, string?>
+                    {
+                        ["Amount"] = price.TransferDiscount.DiscountAmount.ToString("F2"),
+                        ["TimeLimit"] = price.TransferDiscount.TimeLimitMinutes.ToString()
+                    }) : "",
+                ["FareCap"] = price.FareCap > 0 ? price.FareCap.ToString("F2") : ""
+            }));
             AddBlankLine();
         }
 
         private void GenerateHeadwayRules()
         {
-            if (!_root.HeadwayRules.Any()) return;
-
-            var groupedRules = _root.HeadwayRules.GroupBy(r => r.LineId).OrderBy(g => g.Key);
-            WriteLine("# 发车间隔");
-
-            foreach (var group in groupedRules)
-            {
-                string lineId = group.Key;
-                if (string.IsNullOrEmpty(lineId)) continue;
-
-                WriteLine($"HEADWAY_PROFILE {lineId}");
-                foreach (var rule in group)
+            var profiles = _root.HeadwayRules
+                .GroupBy(r => r.LineId)
+                .Where(g => !string.IsNullOrEmpty(g.Key))
+                .OrderBy(g => g.Key)
+                .Select(g => _engine.Render("HeadwayProfile", new Dictionary<string, string?>
                 {
-                    var lineBuilder = new StringBuilder();
-                    lineBuilder.Append($"{Indent}PERIOD {rule.StartTime} {rule.EndTime} {rule.IntervalSeconds}");
-                    AppendDaysCondition(lineBuilder, rule.Days);
-                    WriteLine(lineBuilder.ToString());
-                }
-                WriteLine("END_DEFINE");
-            }
+                    ["LineId"] = g.Key!,
+                    ["Periods"] = _engine.RenderMany("HeadwayPeriod", g.Select(rule => new Dictionary<string, string?>
+                    {
+                        ["Start"] = rule.StartTime,
+                        ["End"] = rule.EndTime,
+                        ["Interval"] = rule.IntervalSeconds.ToString(),
+                        ["Days"] = BuildDaysSuffix(rule.Days)
+                    }))
+                }))
+                .ToList();
+
+            Append(_engine.Render("HeadwayRules", new Dictionary<string, string?>
+            {
+                ["Profiles"] = string.Join("\n", profiles)
+            }));
             AddBlankLine();
         }
 
         private void GenerateStationModes()
         {
-            if (!_root.StationModes.Any()) return;
+            var items = _root.StationModes
+                .OrderBy(r => r.Station)
+                .Select(rule => new Dictionary<string, string?>
+                {
+                    ["Station"] = rule.Station,
+                    ["Mode"] = rule.Mode,
+                    ["TimeRange"] = !string.IsNullOrEmpty(rule.StartTime) && !string.IsNullOrEmpty(rule.EndTime)
+                        ? $" TIME_RANGE {rule.StartTime} {rule.EndTime}" : "",
+                    ["Days"] = BuildDaysSuffix(rule.Days)
+                })
+                .ToList();
 
-            WriteLine("# 站点进出模式");
-            foreach (var rule in _root.StationModes.OrderBy(r => r.Station))
+            Append(_engine.Render("StationModes", new Dictionary<string, string?>
             {
-                var lineBuilder = new StringBuilder();
-                lineBuilder.Append($"STATION_MODE '{rule.Station}' {rule.Mode}");
-
-                if (!string.IsNullOrEmpty(rule.StartTime) && !string.IsNullOrEmpty(rule.EndTime))
-                    lineBuilder.Append($" TIME_RANGE {rule.StartTime} {rule.EndTime}");
-
-                AppendDaysCondition(lineBuilder, rule.Days);
-                WriteLine(lineBuilder.ToString());
-            }
+                ["Items"] = _engine.RenderMany("StationMode", items)
+            }));
             AddBlankLine();
         }
 
         private void GenerateCrowdRules()
         {
-            if (!_root.CrowdRules.Any()) return;
-
-            var groupedRules = _root.CrowdRules.GroupBy(r => r.DirectionKey).OrderBy(g => g.Key);
-            WriteLine("# 拥挤度系数");
-
-            foreach (var group in groupedRules)
-            {
-                string externalDirectionKey = group.Key;
-                if (string.IsNullOrEmpty(externalDirectionKey)) continue;
-
-                string internalDirectionId = _externalToInternalDirectionMap.TryGetValue(externalDirectionKey, out var id) ? id : externalDirectionKey;
-                WriteLine($"CROWD_PROFILE {internalDirectionId}");
-
-                foreach (var rule in group)
+            var profiles = _root.CrowdRules
+                .GroupBy(r => r.DirectionKey)
+                .Where(g => !string.IsNullOrEmpty(g.Key))
+                .OrderBy(g => g.Key)
+                .Select(g => _engine.Render("CrowdProfile", new Dictionary<string, string?>
                 {
-                    var lineBuilder = new StringBuilder();
-                    lineBuilder.Append($"{Indent}PERIOD {rule.StartTime} {rule.EndTime} {rule.Factor:F2}");
-                    AppendDaysCondition(lineBuilder, rule.Days);
-                    WriteLine(lineBuilder.ToString());
-                }
-                WriteLine("END_DEFINE");
-            }
+                    ["DirectionId"] = MapToInternalDirectionId(g.Key!),
+                    ["Periods"] = _engine.RenderMany("CrowdPeriod", g.Select(rule => new Dictionary<string, string?>
+                    {
+                        ["Start"] = rule.StartTime,
+                        ["End"] = rule.EndTime,
+                        ["Factor"] = rule.Factor.ToString("F2"),
+                        ["Days"] = BuildDaysSuffix(rule.Days)
+                    }))
+                }))
+                .ToList();
+
+            Append(_engine.Render("CrowdRules", new Dictionary<string, string?>
+            {
+                ["Profiles"] = string.Join("\n", profiles)
+            }));
             AddBlankLine();
         }
 
         private void GenerateOpenTimes()
         {
-            if (!_root.OpenTimes.Any()) return;
+            var items = _root.OpenTimes
+                .OrderBy(r => r.LineId)
+                .Select(rule => new Dictionary<string, string?>
+                {
+                    ["Prefix"] = string.IsNullOrEmpty(rule.LineId) ? "GLOBAL" : rule.LineId,
+                    ["Start"] = rule.StartTime,
+                    ["End"] = rule.EndTime,
+                    ["Days"] = BuildDaysSuffix(rule.Days)
+                })
+                .ToList();
 
-            WriteLine("# 运营时间");
-            foreach (var rule in _root.OpenTimes.OrderBy(r => r.LineId))
+            Append(_engine.Render("OpenTimes", new Dictionary<string, string?>
             {
-                string prefix = string.IsNullOrEmpty(rule.LineId) ? "GLOBAL" : rule.LineId;
-                var lineBuilder = new StringBuilder();
-                lineBuilder.Append($"OPEN_TIME {prefix} {rule.StartTime} {rule.EndTime}");
-                AppendDaysCondition(lineBuilder, rule.Days);
-                WriteLine(lineBuilder.ToString());
-            }
+                ["Items"] = _engine.RenderMany("OpenTime", items)
+            }));
             AddBlankLine();
         }
 
         private void GenerateDepots()
         {
-            if (!_root.Depots.Any()) return;
-
-            WriteLine("# 车辆段");
-            foreach (var rule in _root.Depots.OrderBy(r => r.LineId))
-            {
-                var lineBuilder = new StringBuilder();
-                lineBuilder.Append($"DEPOT {rule.LineId} '{rule.Station}'");
-
-                if (!string.IsNullOrEmpty(rule.DirectionKey))
+            var items = _root.Depots
+                .OrderBy(r => r.LineId)
+                .Select(rule => new Dictionary<string, string?>
                 {
-                    string internalKey = _externalToInternalDirectionMap.TryGetValue(rule.DirectionKey, out var id) ? id : rule.DirectionKey;
-                    lineBuilder.Append($" {internalKey}");
-                }
+                    ["LineId"] = rule.LineId,
+                    ["Station"] = Esc(rule.Station),
+                    ["Direction"] = !string.IsNullOrEmpty(rule.DirectionKey)
+                        ? $" {MapToInternalDirectionId(rule.DirectionKey!)}" : "",
+                    ["DepartureTime"] = !string.IsNullOrEmpty(rule.DepartureTime) ? $" {rule.DepartureTime}" : ""
+                })
+                .ToList();
 
-                if (!string.IsNullOrEmpty(rule.DepartureTime))
-                    lineBuilder.Append($" {rule.DepartureTime}");
-
-                WriteLine(lineBuilder.ToString());
-            }
+            Append(_engine.Render("Depots", new Dictionary<string, string?>
+            {
+                ["Items"] = _engine.RenderMany("Depot", items)
+            }));
             AddBlankLine();
         }
 
         private void GenerateSpeedLimits()
         {
-            if (!_root.SpeedLimits.Any()) return;
+            var profiles = _root.SpeedLimits
+                .GroupBy(r => r.DirectionKey)
+                .Where(g => !string.IsNullOrEmpty(g.Key))
+                .OrderBy(g => g.Key)
+                .Select(g => _engine.Render("SpeedLimitProfile", new Dictionary<string, string?>
+                {
+                    ["DirectionId"] = MapToInternalDirectionId(g.Key!),
+                    ["Nodes"] = _engine.RenderMany("SpeedLimitNode", g.OrderBy(r => r.FromStation).Select(rule =>
+                        new Dictionary<string, string?>
+                        {
+                            ["From"] = Esc(rule.FromStation),
+                            ["To"] = Esc(rule.ToStation),
+                            ["Speed"] = rule.SpeedKmh.ToString()
+                        }))
+                }))
+                .ToList();
 
-            var groupedRules = _root.SpeedLimits.GroupBy(r => r.DirectionKey).OrderBy(g => g.Key);
-            WriteLine("# 区间限速");
-
-            foreach (var group in groupedRules)
+            Append(_engine.Render("SpeedLimits", new Dictionary<string, string?>
             {
-                string externalDirectionKey = group.Key;
-                if (string.IsNullOrEmpty(externalDirectionKey)) continue;
-
-                string internalDirectionId = _externalToInternalDirectionMap.TryGetValue(externalDirectionKey, out var id) ? id : externalDirectionKey;
-                WriteLine($"SPEED_LIMIT_DEFINE {internalDirectionId}");
-
-                foreach (var rule in group.OrderBy(r => r.FromStation))
-                    WriteLine($"{Indent}NODE '{rule.FromStation}' '{rule.ToStation}' {rule.SpeedKmh}");
-
-                WriteLine("END_DEFINE");
-            }
+                ["Profiles"] = string.Join("\n", profiles)
+            }));
             AddBlankLine();
         }
 
         private void GenerateVirtualTransfers()
         {
-            if (!_root.VirtualTransfers.Any()) return;
+            var items = _root.VirtualTransfers
+                .OrderBy(r => r.StationA)
+                .Select(rule => new Dictionary<string, string?>
+                {
+                    ["StationA"] = Esc(rule.StationA),
+                    ["StationB"] = Esc(rule.StationB),
+                    ["Time"] = rule.TimeMinutes.ToString("F2"),
+                    ["SecurityCheck"] = rule.SecurityCheck ? "SECURITY_CHECK" : "",
+                    ["ViaDirections"] = rule.ViaDirections?.Any() == true
+                        ? string.Join(", ", rule.ViaDirections.Select(Q)) : ""
+                })
+                .ToList();
 
-            WriteLine("# 虚拟换乘");
-            foreach (var rule in _root.VirtualTransfers.OrderBy(r => r.StationA))
+            Append(_engine.Render("VirtualTransfers", new Dictionary<string, string?>
             {
-                WriteLine($"VIRTUAL_TRANSFER_DEFINE '{rule.StationA}' '{rule.StationB}'");
-                WriteLine($"{Indent}TIME_MINUTES {rule.TimeMinutes:F2}");
-                if (rule.SecurityCheck) WriteLine($"{Indent}SECURITY_CHECK");
-                if (rule.ViaDirections?.Any() == true)
-                    WriteLine($"{Indent}VIA_DIRECTIONS [{string.Join(", ", rule.ViaDirections.Select(d => $"'{d}'"))}]");
-                WriteLine("END_DEFINE");
-            }
+                ["Items"] = _engine.RenderMany("VirtualTransfer", items)
+            }));
             AddBlankLine();
         }
 
@@ -914,158 +882,191 @@ namespace MetroEditor.MetroLang.Decompiler
         {
             if (_root.Facilities == null || !_root.Facilities.Any()) return;
 
-            WriteLine("# 无障碍设施与卫生间信息");
-            WriteLine("FACILITY_DEFINE");
-
+            var items = new List<IReadOnlyDictionary<string, string?>>();
             foreach (var facilityEntry in _root.Facilities.OrderBy(x => x.Key))
             {
                 string station = facilityEntry.Key;
                 var facilities = facilityEntry.Value;
 
                 if (facilities.Toilet != null)
-                    WriteLine(BuildToiletLine(station, "TOILET", facilities.Toilet));
-
+                    items.Add(BuildToiletVars(station, "TOILET", facilities.Toilet));
                 if (facilities.AccessibleToilet != null)
-                    WriteLine(BuildToiletLine(station, "ACCESSIBLE_TOILET", facilities.AccessibleToilet));
+                    items.Add(BuildToiletVars(station, "ACCESSIBLE_TOILET", facilities.AccessibleToilet));
 
                 if (facilities.Elevators != null)
                     foreach (var elevator in facilities.Elevators)
-                        WriteLine($"{Indent}ELEVATOR '{station}' LOCATION '{elevator.Location}'{(elevator.Accessible ? " ACCESSIBLE" : "")}");
+                        items.Add(new Dictionary<string, string?>
+                        {
+                            ["Station"] = Esc(station),
+                            ["Location"] = Esc(elevator.Location),
+                            ["Accessible"] = elevator.Accessible ? " ACCESSIBLE" : ""
+                        });
 
                 if (facilities.WideGate != null)
-                    WriteLine($"{Indent}WIDE_GATE '{station}' QUANTITY {facilities.WideGate.Quantity}");
+                    items.Add(new Dictionary<string, string?>
+                    {
+                        ["Station"] = Esc(station),
+                        ["Quantity"] = facilities.WideGate.Quantity.ToString()
+                    });
 
                 if (facilities.Escalators != null)
                     foreach (var escalator in facilities.Escalators)
-                        WriteLine($"{Indent}ESCALATOR '{station}' QUANTITY {escalator.Quantity}{(escalator.Direction != "both" ? $" DIRECTION {escalator.Direction.ToUpperInvariant()}" : "")}");
+                        items.Add(new Dictionary<string, string?>
+                        {
+                            ["Station"] = Esc(station),
+                            ["Quantity"] = escalator.Quantity.ToString(),
+                            ["Direction"] = escalator.Direction != "both"
+                                ? $" DIRECTION {escalator.Direction.ToUpperInvariant()}" : ""
+                        });
 
                 if (facilities.TactilePaving != null)
-                    WriteLine($"{Indent}TACTILE_PAVING '{station}' STATUS {facilities.TactilePaving.Status.ToUpperInvariant()}");
+                    items.Add(new Dictionary<string, string?>
+                    {
+                        ["Station"] = Esc(station),
+                        ["Status"] = facilities.TactilePaving.Status.ToUpperInvariant()
+                    });
             }
 
-            WriteLine("END_DEFINE");
+            Append(_engine.Render("FacilityDefine", new Dictionary<string, string?>
+            {
+                ["Items"] = RenderFacilityItems(items)
+            }));
             AddBlankLine();
         }
 
-        private string BuildToiletLine(string station, string command, JsonToiletInfo toilet)
+        /// <summary>卫生间条目模板与电梯/扶梯等模板不同，此处按内容特征分派渲染。</summary>
+        private string RenderFacilityItems(List<IReadOnlyDictionary<string, string?>> items)
         {
-            var lineBuilder = new StringBuilder();
-            lineBuilder.Append($"{Indent}{command} '{station}' POSITION {toilet.Position.ToUpperInvariant()}");
-            if (toilet.Accessible) lineBuilder.Append(" ACCESSIBLE");
-            if (toilet.Gender != "mixed") lineBuilder.Append($" GENDER {toilet.Gender.ToUpperInvariant()}");
-            return lineBuilder.ToString();
+            var rendered = new List<string>();
+            foreach (var item in items)
+            {
+                string template = item.ContainsKey("Command") ? "Toilet"
+                    : item.ContainsKey("Location") ? "Elevator"
+                    : item.ContainsKey("Status") ? "TactilePaving"
+                    : item.ContainsKey("Direction") ? "Escalator"
+                    : "WideGate";
+                rendered.Add(_engine.Render(template, item));
+            }
+            return string.Join("\n", rendered);
         }
+
+        private Dictionary<string, string?> BuildToiletVars(string station, string command, JsonToiletInfo toilet) => new()
+        {
+            ["Command"] = command,
+            ["Station"] = Esc(station),
+            ["Position"] = toilet.Position.ToUpperInvariant(),
+            ["Accessible"] = toilet.Accessible ? " ACCESSIBLE" : "",
+            ["Gender"] = toilet.Gender != "mixed" ? $" GENDER {toilet.Gender.ToUpperInvariant()}" : ""
+        };
 
         private void GeneratePromotionDefine()
         {
             if (_root.Promotions == null || !_root.Promotions.Any()) return;
 
-            WriteLine("# 票价优惠策略");
-            WriteLine("PROMOTION_DEFINE");
+            var policies = _root.Promotions
+                .OrderBy(p => p.Id)
+                .Select(policy => new Dictionary<string, string?>
+                {
+                    ["Id"] = policy.Id,
+                    ["Name"] = Esc(policy.Name),
+                    ["Description"] = Esc(policy.Description),
+                    ["Type"] = policy.Type.ToUpperInvariant(),
+                    ["Value"] = policy.Value.ToString("F2"),
+                    ["Lines"] = policy.ApplicableLines?.Any() == true
+                        ? string.Join(", ", policy.ApplicableLines) : "",
+                    ["StartTime"] = !string.IsNullOrEmpty(policy.StartTime) && !string.IsNullOrEmpty(policy.EndTime)
+                        ? policy.StartTime : "",
+                    ["EndTime"] = !string.IsNullOrEmpty(policy.StartTime) && !string.IsNullOrEmpty(policy.EndTime)
+                        ? policy.EndTime : "",
+                    ["DaysLine"] = BuildDaysToken(policy.Days) is { } token && token.Length > 0 ? $"    {token}" : ""
+                })
+                .ToList();
 
-            foreach (var policy in _root.Promotions.OrderBy(p => p.Id))
+            Append(_engine.Render("PromotionDefine", new Dictionary<string, string?>
             {
-                WriteLine($"{Indent}POLICY {policy.Id}");
-                WriteLine($"{Indent}{Indent}NAME '{policy.Name}'");
-                if (!string.IsNullOrEmpty(policy.Description))
-                    WriteLine($"{Indent}{Indent}DESCRIPTION '{policy.Description}'");
-                WriteLine($"{Indent}{Indent}TYPE {policy.Type.ToUpperInvariant()}");
-                WriteLine($"{Indent}{Indent}VALUE {policy.Value:F2}");
-
-                if (policy.ApplicableLines?.Any() == true)
-                    WriteLine($"{Indent}{Indent}APPLICABLE_LINES [{string.Join(", ", policy.ApplicableLines)}]");
-
-                if (!string.IsNullOrEmpty(policy.StartTime) && !string.IsNullOrEmpty(policy.EndTime))
-                    WriteLine($"{Indent}{Indent}TIME_RANGE {policy.StartTime} {policy.EndTime}");
-
-                AppendDaysCondition(new StringBuilder($"{Indent}{Indent}"), policy.Days, true);
-                WriteLine($"{Indent}END_POLICY");
-            }
-
-            WriteLine("END_DEFINE");
+                ["Policies"] = _engine.RenderMany("PromotionPolicy", policies)
+            }));
             AddBlankLine();
         }
 
-        /// <summary>
-        /// 生成运营公司定义（OPERATOR_DEFINE 块）。
-        /// </summary>
         private void GenerateOperatorCompanies()
         {
             if (_root.OperatorCompanies == null || !_root.OperatorCompanies.Any()) return;
 
             foreach (var company in _root.OperatorCompanies.OrderBy(c => c.Id))
             {
-                WriteLine($"OPERATOR_DEFINE {company.Id}");
-                WriteLine($"{Indent}NAME '{company.Name}'");
-                if (!string.IsNullOrEmpty(company.ShortName))
-                    WriteLine($"{Indent}SHORT_NAME '{company.ShortName}'");
-                if (!string.IsNullOrEmpty(company.EnName))
-                    WriteLine($"{Indent}EN_NAME '{company.EnName}'");
-                if (!string.IsNullOrEmpty(company.Country))
-                    WriteLine($"{Indent}COUNTRY '{company.Country}'");
-                if (!string.IsNullOrEmpty(company.City))
-                    WriteLine($"{Indent}CITY '{company.City}'");
-                if (company.Founded.HasValue)
-                    WriteLine($"{Indent}FOUNDED {company.Founded.Value}");
-                if (!string.IsNullOrEmpty(company.Website))
-                    WriteLine($"{Indent}WEBSITE '{company.Website}'");
-                if (!string.IsNullOrEmpty(company.Hotline))
-                    WriteLine($"{Indent}HOTLINE '{company.Hotline}'");
-                if (!string.IsNullOrEmpty(company.Description))
-                    WriteLine($"{Indent}DESCRIPTION '{company.Description}'");
-                if (company.Lines?.Any() == true)
+                Append(_engine.Render("OperatorDefine", new Dictionary<string, string?>
+                {
+                    ["Id"] = company.Id,
+                    ["Name"] = Esc(company.Name),
+                    ["ShortName"] = Esc(company.ShortName),
+                    ["EnName"] = Esc(company.EnName),
+                    ["Country"] = Esc(company.Country),
+                    ["City"] = Esc(company.City),
+                    ["Founded"] = company.Founded.HasValue ? company.Founded.Value.ToString() : "",
+                    ["Website"] = Esc(company.Website),
+                    ["Hotline"] = Esc(company.Hotline),
+                    ["Description"] = Esc(company.Description),
                     // LINES 元素为文本（带引号），否则反编译结果无法再次编译
-                    WriteLine($"{Indent}LINES [{string.Join(", ", company.Lines.Select(l => $"'{l}'"))}]");
-                WriteLine("END_DEFINE");
+                    ["Lines"] = company.Lines?.Any() == true
+                        ? string.Join(", ", company.Lines.Select(Q)) : ""
+                }));
                 AddBlankLine();
             }
         }
 
-        /// <summary>
-        /// 生成背景图片定义（BACKGROUND_DEFINE 块）。
-        /// 注意：SRC 数据以 Base64 存储，反编译时写入注释提示。
-        /// </summary>
         private void GenerateBackgrounds()
         {
             if (_root.Backgrounds == null || !_root.Backgrounds.Any()) return;
 
             foreach (var bg in _root.Backgrounds.OrderBy(b => b.Id))
             {
-                WriteLine($"BACKGROUND_DEFINE {bg.Id}");
-                WriteLine($"{Indent}NAME '{bg.Name}'");
-                WriteLine($"{Indent}TYPE {bg.Type}");
-                WriteLine($"{Indent}# SRC data embedded as Base64 ({bg.Src?.Length ?? 0} chars)");
-                if (bg.Bounds != null && bg.Bounds.Length == 4)
-                    WriteLine($"{Indent}BOUNDS [{bg.Bounds[0]}, {bg.Bounds[1]}, {bg.Bounds[2]}, {bg.Bounds[3]}]");
-                if (bg.Opacity.HasValue)
-                    WriteLine($"{Indent}OPACITY {bg.Opacity.Value}");
-                WriteLine("END_DEFINE");
+                Append(_engine.Render("BackgroundDefine", new Dictionary<string, string?>
+                {
+                    ["Id"] = bg.Id,
+                    ["Name"] = Esc(bg.Name),
+                    ["Type"] = bg.Type,
+                    ["SrcLength"] = (bg.Src?.Length ?? 0).ToString(),
+                    ["Bounds"] = bg.Bounds != null && bg.Bounds.Length == 4
+                        ? $"{bg.Bounds[0]}, {bg.Bounds[1]}, {bg.Bounds[2]}, {bg.Bounds[3]}" : "",
+                    ["Opacity"] = bg.Opacity.HasValue ? bg.Opacity.Value.ToString() : ""
+                }));
                 AddBlankLine();
             }
         }
 
-        /// <summary>
-        /// 辅助方法：将星期集合转换为 DSL 字符串表示。
-        /// </summary>
-        private void AppendDaysCondition(StringBuilder builder, List<string>? days, bool indentTwice = false)
-        {
-            if (days == null || !days.Any()) return;
+        /// <summary>将外部方向 Key 映射为反编译后的内部方向 ID。</summary>
+        private string MapToInternalDirectionId(string externalKey) =>
+            _externalToInternalDirectionMap.TryGetValue(externalKey, out var id) ? id : externalKey;
 
-            string indentation = indentTwice ? $"{Indent}{Indent}" : Indent;
-            builder.Append(indentation);
+        #region 星期集合转换
+        /// <summary>
+        /// 将星期集合转换为行尾后缀（与原版保持一致的 3 空格前导：
+        /// 原版 AppendDaysCondition 在行内场景会先追加 2 空格缩进再追加带前导空格的令牌）。
+        /// </summary>
+        private static string BuildDaysSuffix(List<string>? days)
+        {
+            string token = BuildDaysToken(days);
+            return token.Length > 0 ? "   " + token : "";
+        }
+
+        /// <summary>将星期集合转换为 DSL 令牌（WORKDAY / WEEKEND / 单日 / 列表）。</summary>
+        private static string BuildDaysToken(List<string>? days)
+        {
+            if (days == null || !days.Any()) return "";
 
             var weekdays = new[] { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY" };
             var upperDays = days.Select(d => d.ToUpperInvariant()).ToList();
 
             if (upperDays.Count == 5 && weekdays.All(wd => upperDays.Contains(wd)))
-                builder.Append(" WORKDAY");
-            else if (upperDays.Count == 2 && upperDays.Contains("SATURDAY") && upperDays.Contains("SUNDAY"))
-                builder.Append(" WEEKEND");
-            else if (upperDays.Count == 1)
-                builder.Append($" {upperDays[0]}");
-            else
-                builder.Append($" [{string.Join(", ", upperDays)}]");
+                return "WORKDAY";
+            if (upperDays.Count == 2 && upperDays.Contains("SATURDAY") && upperDays.Contains("SUNDAY"))
+                return "WEEKEND";
+            if (upperDays.Count == 1)
+                return upperDays[0];
+            return $"[{string.Join(", ", upperDays)}]";
         }
+        #endregion
         #endregion
     }
 }

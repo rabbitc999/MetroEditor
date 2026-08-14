@@ -633,12 +633,7 @@
                     const city = dir.city || lineInfo.city || keyCity;
                     const baseName = lineInfo.name || lineId;
                     const groupKey = (city !== keyCity) ? city + baseName : baseName;
-                    let displayName;
-                    if (dir.is_branch === true) {
-                        displayName = groupKey + '(支线)';
-                    } else {
-                        displayName = groupKey;
-                    }
+                    const displayName = groupKey;
                     const color = lineInfo.color || '#888';
                     const isLoop = dir.is_loop || false;
                     const stationNames = dir.station.map(s => s.name);

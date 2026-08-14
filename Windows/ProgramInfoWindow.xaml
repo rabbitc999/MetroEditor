@@ -36,10 +36,10 @@
                      ToolTip="多个城市用逗号、空格或换行分隔"/>
 
             <Label Grid.Row="2" Grid.Column="0" Content="版本:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
-            <TextBox x:Name="VersionTextBox" Grid.Row="2" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged" Text="V1.0"/>
+            <TextBox x:Name="VersionTextBox" Grid.Row="2" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"/>
 
             <Label Grid.Row="3" Grid.Column="0" Content="作者:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
-            <TextBox x:Name="AuthorTextBox" Grid.Row="3" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged" Text="匿名"/>
+            <TextBox x:Name="AuthorTextBox" Grid.Row="3" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"/>
 
             <Label Grid.Row="4" Grid.Column="0" Content="创建日期:" HorizontalAlignment="Right" Margin="0,2,5,2"/>
             <TextBox x:Name="CreateDateTextBox" Grid.Row="4" Grid.Column="1" Margin="0,2" TextChanged="Field_TextChanged"/>

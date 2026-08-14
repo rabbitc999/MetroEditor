@@ -208,10 +208,44 @@ namespace MetroEditor.MetroLang.Compiler
                 (inputString[0] == '"' || inputString[0] == '\'') &&
                 inputString[0] == inputString[inputString.Length - 1])
             {
-                return inputString.Substring(1, inputString.Length - 2);
+                return UnescapeString(inputString.Substring(1, inputString.Length - 2));
             }
 
             return inputString; // 无引号则原样返回
+        }
+
+        /// <summary>
+        /// 反转义字符串字面量中的转义序列。
+        /// 支持：\\ \' \" \n \t \r；未知转义 \x 保留后随字符 x（丢弃反斜杠）。
+        /// </summary>
+        private static string UnescapeString(string content)
+        {
+            if (content.IndexOf('\\') < 0) return content;
+
+            var sb = new StringBuilder(content.Length);
+            for (int i = 0; i < content.Length; i++)
+            {
+                char c = content[i];
+                if (c == '\\' && i + 1 < content.Length)
+                {
+                    char next = content[++i];
+                    sb.Append(next switch
+                    {
+                        '\\' => '\\',
+                        '\'' => '\'',
+                        '"' => '"',
+                        'n' => '\n',
+                        't' => '\t',
+                        'r' => '\r',
+                        _ => next
+                    });
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
         }
 
         // ====================================================================

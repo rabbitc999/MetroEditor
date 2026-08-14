@@ -1,0 +1,9 @@
+  POLICY {{Id}}
+    NAME '{{Name}}'
+    DESCRIPTION '{{Description}}'
+    TYPE {{Type}}
+    VALUE {{Value}}
+    APPLICABLE_LINES [{{Lines}}]
+    TIME_RANGE {{StartTime}} {{EndTime}}
+{{DaysLine}}
+  END_POLICY

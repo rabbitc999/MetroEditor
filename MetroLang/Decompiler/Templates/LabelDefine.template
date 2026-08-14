@@ -1,0 +1,4 @@
+# 文字标签
+LABEL_DEFINE
+{{Items}}
+END_DEFINE

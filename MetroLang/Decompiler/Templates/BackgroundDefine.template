@@ -1,0 +1,7 @@
+BACKGROUND_DEFINE {{Id}}
+  NAME '{{Name}}'
+  TYPE {{Type}}
+  # SRC data embedded as Base64 ({{SrcLength}} chars)
+  BOUNDS [{{Bounds}}]
+  OPACITY {{Opacity}}
+END_DEFINE

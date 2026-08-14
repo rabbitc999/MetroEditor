@@ -974,6 +974,21 @@ namespace MetroEditor.Windows
             dialog.Show();
         }
 
+        private void NetworkStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            if (documentWorkspace.CurrentTab?.ParsedData == null)
+            {
+                MessageBox.Show("请先编译文件以获取数据", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            new NetworkStatisticsWindow(documentWorkspace.CurrentTab.ParsedData).Show();
+        }
+
+        private void TemplateEditor_Click(object sender, RoutedEventArgs e)
+        {
+            new TemplateEditorWindow { Owner = this }.Show();
+        }
+
         private void CommuteAnalysis_Click(object sender, RoutedEventArgs e)
         {
             if (documentWorkspace.CurrentTab?.ParsedData == null)

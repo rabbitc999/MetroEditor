@@ -1,0 +1,10 @@
+# 程序定义（主城市/版本/日期）
+PROGRAM_DEFINE
+  KEY_CITY '{{KeyCity}}'
+  OTHER_CITY [{{OtherCities}}]
+  LANGUAGE_ORDER [{{Languages}}]
+  VERSION '{{Version}}'
+  UPDATE_DATE '{{UpdateDate}}'
+  AUTHOR '{{Author}}'
+  CREATE_DATE '{{CreateDate}}'
+END_DEFINE

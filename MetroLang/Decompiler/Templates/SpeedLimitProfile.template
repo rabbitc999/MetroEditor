@@ -1,0 +1,3 @@
+SPEED_LIMIT_DEFINE {{DirectionId}}
+{{Nodes}}
+END_DEFINE

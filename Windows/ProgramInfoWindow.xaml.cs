@@ -15,6 +15,8 @@ namespace MetroEditor.Windows
     public partial class ProgramInfoWindow : Window
     {
         private const string Indent = "  ";
+        // 控件是否已就绪：防止 InitializeComponent 期间 TextChanged 提前触发 GenerateCode 导致 NRE
+        private bool _ready;
 
         public ProgramInfoWindow(ParsedData? data = null, string defaultCity = "广州")
         {
@@ -23,6 +25,7 @@ namespace MetroEditor.Windows
             if (data != null)
                 LoadFromData(data);
             UpdatePreview();
+            _ready = true;
             Loaded += (o, e) => Topmost = false;
         }
 
@@ -111,9 +114,13 @@ namespace MetroEditor.Windows
         private void UpdatePreview() => PreviewTextBox.Text = GenerateCode();
 
         /// <summary>
-        /// 字段变化时实时刷新预览
+        /// 字段变化时实时刷新预览（控件未就绪时跳过，避免初始化期 NRE）
         /// </summary>
-        private void Field_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => UpdatePreview();
+        private void Field_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (!_ready) return;
+            UpdatePreview();
+        }
 
         /// <summary>
         /// 插入到编辑器

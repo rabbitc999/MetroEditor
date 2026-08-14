@@ -1,0 +1,7 @@
+# 运营参数
+OPERATION_DEFINE
+  TRANSFER_TIME {{InnerTransferTime}}
+  OUT_STATION_TRANSFER_TIME {{OutStationTransferTime}}
+  DWELL_TIME {{DwellTime}}
+  ENTRY_TIME {{EntryTime}}
+END_DEFINE

@@ -1,0 +1,9 @@
+# 票价规则
+PRICE_DEFINE
+  DEFAULT_FARE {{DefaultFare}}
+{{SegmentLines}}
+{{LinearExtensionLine}}
+{{SpecialLineLines}}
+{{TransferDiscountLine}}
+  FARE_CAP {{FareCap}}
+END_DEFINE

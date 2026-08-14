@@ -1,0 +1,14 @@
+LINE_DEFINE {{LineId}}
+  NAME '{{Name}}'
+  COLOR '{{Color}}'
+  CITY '{{City}}'
+  FORMATION '{{Formation}}'
+  MAXSPEED {{Maxspeed}}
+  OPEN_YEAR {{OpenYear}}
+  POWER {{Power}}
+  BRAKE {{Brake}}
+  {{Disable}}
+  LINK '{{Link}}'
+  {{Special}}
+{{DirectionBlocks}}
+END_DEFINE

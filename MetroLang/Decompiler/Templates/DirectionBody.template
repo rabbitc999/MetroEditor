@@ -1,0 +1,10 @@
+  DIRECTION_DEFINE {{DirectionId}}
+    STATIONS [{{Stations}}]
+    DISTANCE [{{Distances}}]
+    {{Loop}}
+    {{Future}}
+    EXPRESS_STOPS [{{ExpressStops}}]
+{{RoutingLines}}
+{{ViaLine}}
+{{SegmentTypeLines}}
+  END_DEFINE

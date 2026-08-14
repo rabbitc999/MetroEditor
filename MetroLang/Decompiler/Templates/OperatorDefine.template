@@ -1,0 +1,12 @@
+OPERATOR_DEFINE {{Id}}
+  NAME '{{Name}}'
+  SHORT_NAME '{{ShortName}}'
+  EN_NAME '{{EnName}}'
+  COUNTRY '{{Country}}'
+  CITY '{{City}}'
+  FOUNDED {{Founded}}
+  WEBSITE '{{Website}}'
+  HOTLINE '{{Hotline}}'
+  DESCRIPTION '{{Description}}'
+  LINES [{{Lines}}]
+END_DEFINE

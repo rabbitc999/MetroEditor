@@ -1,0 +1,5 @@
+VIRTUAL_TRANSFER_DEFINE '{{StationA}}' '{{StationB}}'
+  TIME_MINUTES {{Time}}
+  {{SecurityCheck}}
+  VIA_DIRECTIONS [{{ViaDirections}}]
+END_DEFINE

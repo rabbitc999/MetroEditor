@@ -1,0 +1,4 @@
+# 票价优惠策略
+PROMOTION_DEFINE
+{{Policies}}
+END_DEFINE

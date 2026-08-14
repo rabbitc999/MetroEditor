@@ -1,0 +1,4 @@
+TRANSFER_DEFINE '{{Station}}' {{Line1}} {{Line2}}
+  STATUS {{Status}}
+  TIME {{Time}}
+END_DEFINE

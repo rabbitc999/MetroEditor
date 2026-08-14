@@ -40,7 +40,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// 7: 非法字符
         /// </summary>
         private static readonly Regex _tokenRegex = new Regex(
-            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""[^""]*""|'[^']*')|([A-Za-z_][A-Za-z0-9_*]*)|(<=|>=|==|!=|[\[\](){}:,=<%>!])|(.)",
+            @"([ \t]+)|(#[^\n]*)|([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+)(?:[Ee][+\-]?\d+)?)|(""(?:[^""\\]|\\.)*""|'(?:[^'\\]|\\.)*')|([A-Za-z_][A-Za-z0-9_*]*)|(<=|>=|==|!=|[\[\](){}:,=<%>!])|(.)",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         /// <summary>
@@ -52,7 +52,8 @@ namespace MetroEditor.MetroLang.Compiler
             var placeholderMap = new Dictionary<string, string>();
 
             // 1. 保护字符串内容（防止 URL 中的 // 被误判为注释）
-            string textWithPlaceholders = Regex.Replace(sourceText, @"(""[^""]*""|'[^']*')", match =>
+            //    字符串支持反斜杠转义（\' \" \\），需完整匹配含转义的字符串
+            string textWithPlaceholders = Regex.Replace(sourceText, @"(""(?:[^""\\]|\\.)*""|'(?:[^'\\]|\\.)*')", match =>
             {
                 string uniqueKey = Guid.NewGuid().ToString("N");
                 placeholderMap[uniqueKey] = match.Value;
