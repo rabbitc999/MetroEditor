@@ -27,6 +27,21 @@ namespace MetroEditor.Simulator.Models
         }
     }
 
+    /// <summary>站点打卡记录（与 Android CheckInRecord 字段对齐）</summary>
+    public class SimCheckInRecord
+    {
+        public string City { get; set; } = string.Empty;
+        public string Station { get; set; } = string.Empty;
+        public long Timestamp { get; set; }
+        public double Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Distance { get; set; }
+        public string Note { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+        public string ImageBase64 { get; set; } = string.Empty;
+        public List<string> Images { get; set; } = new();
+    }
+
     /// <summary>线路方向信息（起讫站、站点序列、别名颜色等）</summary>
     public class SimLineDirection
     {
@@ -134,6 +149,24 @@ namespace MetroEditor.Simulator.Models
             IsOutStationTransfer = isOutStationTransfer;
             DirKey = dirKey;
         }
+    }
+
+    /// <summary>历史行程记录（与 Android TripHistory 字段对齐）</summary>
+    public class SimTripHistory
+    {
+        public string StartStation { get; set; } = string.Empty;
+        public string EndStation { get; set; } = string.Empty;
+        public long Timestamp { get; set; }
+        public double DistanceKm { get; set; }
+        public int Transfers { get; set; }
+        public double Fare { get; set; }
+        public double TimeMinutes { get; set; }
+        public List<string> Stations { get; set; } = new();
+        public List<string> PathNodes { get; set; } = new();
+        public List<SimRouteSegment> Segments { get; set; } = new();
+        public double SpecialMoney { get; set; }
+        public int StationCount { get; set; }
+        public string Mode { get; set; } = string.Empty;
     }
 
     /// <summary>
