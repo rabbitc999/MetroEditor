@@ -1252,12 +1252,13 @@ namespace MetroEditor.Windows
             int imageIndex = 0;
 
             var sb = new StringBuilder();
-            sb.AppendLine("站点,打卡时间,日期,经度,纬度,距站距离(米),备注,图片文件");
+            sb.AppendLine("城市,站点,打卡时间,日期,经度,纬度,距站距离(米),备注,图片文件");
             using var doc = JsonDocument.Parse(json);
             if (doc.RootElement.TryGetProperty("records", out var records) && records.ValueKind == JsonValueKind.Array)
             {
                 foreach (var r in records.EnumerateArray())
                 {
+                    string city = r.TryGetProperty("city", out var c) ? c.GetString() ?? "" : "";
                     string station = r.TryGetProperty("station", out var s) ? s.GetString() ?? "" : "";
                     long ts = r.TryGetProperty("timestamp", out var t) ? t.GetInt64() : 0;
                     string time = ts > 0
@@ -1291,7 +1292,7 @@ namespace MetroEditor.Windows
                         }
                     }
 
-                    sb.AppendLine($"{EscapeCsv(station)},{time},{date},{lon},{lat},{dist:F0},{EscapeCsv(note)},{imageFile}");
+                    sb.AppendLine($"{EscapeCsv(city)},{EscapeCsv(station)},{time},{date},{lon},{lat},{dist:F0},{EscapeCsv(note)},{imageFile}");
                 }
             }
             return sb.ToString();

@@ -17,18 +17,13 @@ namespace MetroEditor.Simulator.Models
         public string End { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
 
-        /// <summary>路线图片列表（Base64 JPEG 字符串，可为空）</summary>
-        public List<string> Images { get; set; } = new();
-
         public SimFavoriteRoute() { }
-        public SimFavoriteRoute(string keyCity, string start, string end, string label,
-                                List<string>? images = null)
+        public SimFavoriteRoute(string keyCity, string start, string end, string label)
         {
             KeyCity = keyCity;
             Start = start;
             End = end;
             Label = label;
-            Images = images ?? new List<string>();
         }
     }
 
