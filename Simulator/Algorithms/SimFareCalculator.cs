@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MetroEditor.Simulator.Data;
 using MetroEditor.Simulator.Models;
@@ -148,7 +148,6 @@ namespace MetroEditor.Simulator.Algorithms
                     if (rule.Surcharge != null && rule.Surcharge.Count > 0)
                     {
                         normalSurcharge += CalcSurchargeForSegment(seg, rule);
-                        normalDist += seg.Distance;
                         if (normalLineId == null)
                         {
                             normalLineId = seg.LineId;
@@ -346,17 +345,15 @@ namespace MetroEditor.Simulator.Algorithms
             var segments = rule.Segments;
             if (segments != null && segments.Count > 0)
             {
+                double maxFare = 0.0;
                 foreach (var fs in segments)
                 {
                     if (distance >= fs.RangeStart && distance < fs.RangeEnd)
                         return fs.Fare;
+                    if (fs.Fare > maxFare)
+                        maxFare = fs.Fare;
                 }
-                var last = segments[^1];
-                double threshold = last.RangeEnd;
-                double baseFare = last.Fare;
-                if (rule.LinearExtension != null && distance >= threshold)
-                    return baseFare + (distance - threshold) * rule.LinearExtension.RatePerKm;
-                return baseFare;
+                return maxFare;
             }
             return startPrice;
         }

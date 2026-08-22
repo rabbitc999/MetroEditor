@@ -1,9 +1,10 @@
-﻿using MetroEditor.MetroLang.Compiler;
+using MetroEditor.MetroLang.Compiler;
 using MetroEditor.MetroLang.DataModel;
 using MetroEditor.MetroLang.Decompiler;
 using MetroEditor.MetroLang.Exporter;
 using MetroEditor.MetroLang.JsonModel;
 using MetroEditor.MetroLang.Tool;
+using MetroEditor.Network;
 using MetroEditor.Simulator.Algorithms;
 using MetroEditor.Simulator.Data;
 using MetroEditor.Windows.Controls;
@@ -52,6 +53,11 @@ namespace MetroEditor.Windows
 
         private Dictionary<string, string> _lineNameMap;
         private string _startupFile;
+
+        // TCP 同步服务端
+        private TcpSyncServer? _syncServer;
+        private int _syncPort = 28080;
+        private const string SyncPortSettingKey = "SyncPort";
         #endregion
 
         #region 构造函数与初始化
@@ -385,7 +391,11 @@ namespace MetroEditor.Windows
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, SaveFile_Click));
         }
 
-        private void Window_Closed(object sender, EventArgs e) => Application.Current.Shutdown();
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            _syncServer?.Stop();
+            Application.Current.Shutdown();
+        }
         #endregion
 
         #region 文件操作
@@ -552,8 +562,18 @@ namespace MetroEditor.Windows
             if (documentWorkspace.CurrentTab?.Editor is MetroEditorControl editor)
                 editor.FontSize = Math.Max(editor.FontSize / 1.2, FontSizeMin);
         }
-        private void ShowPreview_Checked(object sender, EventArgs e) => previewPanel.Visibility = Visibility.Visible;
-        private void ShowPreview_Unchecked(object sender, EventArgs e) => previewPanel.Visibility = Visibility.Collapsed;
+        private void ShowPreview_Checked(object sender, EventArgs e)
+        {
+            if (previewPanel == null) return;
+            previewPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ShowPreview_Unchecked(object sender, EventArgs e)
+        {
+            if (previewPanel == null) return;
+            previewPanel.Visibility = Visibility.Collapsed;
+        }
+
         private void About_Click(object sender, EventArgs e)
         {
             var about = new AboutWindow();
@@ -703,6 +723,622 @@ namespace MetroEditor.Windows
             {
                 LoadCompiledFile(dlg.FileName);
             }
+        }
+        #endregion
+
+        #region TCP 设备同步
+
+        /// <summary>
+        /// 启动 TCP 同步服务端，开始监听 Android 客户端连接。
+        /// </summary>
+        private void SyncStartServer_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer != null && _syncServer.IsRunning)
+            {
+                MessageBox.Show("同步服务已在运行中", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                _syncServer = new TcpSyncServer(_syncPort);
+                _syncServer.Log += OnSyncLog;
+                _syncServer.ClientConnected += OnClientConnected;
+                _syncServer.ClientDisconnected += OnClientDisconnected;
+                _syncServer.RecordsDataReceived += OnRecordsDataReceived;
+                _syncServer.RecordsResultReceived += OnRecordsResultReceived;
+                _syncServer.Start();
+
+                mnuSyncStartServer.IsEnabled = false;
+                mnuSyncStopServer.IsEnabled = true;
+                mnuSyncSearch.IsEnabled = true;
+                mnuSyncPush.IsEnabled = true;
+                mnuSyncExportRecords.IsEnabled = true;
+                mnuSyncPushRecords.IsEnabled = true;
+                UpdateSyncStatus();
+                syncIp.Text = $"本机 IP: {UdpDeviceSearcher.GetLocalIPv4Addresses()}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"启动同步服务失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 停止 TCP 同步服务端。
+        /// </summary>
+        private void SyncStopServer_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer == null || !_syncServer.IsRunning) return;
+
+            _syncServer.Stop();
+            syncIp.Text = "";
+            mnuSyncStartServer.IsEnabled = true;
+            mnuSyncStopServer.IsEnabled = false;
+            mnuSyncSearch.IsEnabled = false;
+            mnuSyncPush.IsEnabled = false;
+            mnuSyncExportRecords.IsEnabled = false;
+            mnuSyncPushRecords.IsEnabled = false;
+            UpdateSyncStatus();
+        }
+
+        /// <summary>
+        /// 弹出同步设置对话框，配置监听端口。
+        /// </summary>
+        private void SyncConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Window
+            {
+                Title = "同步设置",
+                Width = 320,
+                Height = 160,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            var panel = new StackPanel { Margin = new Thickness(16) };
+            panel.Children.Add(new TextBlock
+            {
+                Text = "请输入同步服务监听端口（1-65535）：",
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+
+            var portInput = new System.Windows.Controls.TextBox
+            {
+                Text = _syncPort.ToString(),
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(4)
+            };
+            panel.Children.Add(portInput);
+
+            var btnPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 12, 0, 0)
+            };
+
+            var btnOk = new System.Windows.Controls.Button { Content = "确定", Padding = new Thickness(16, 2, 16, 2), Margin = new Thickness(0, 0, 8, 0), IsDefault = true };
+            var btnCancel = new System.Windows.Controls.Button { Content = "取消", Padding = new Thickness(16, 2, 16, 2), IsCancel = true };
+            btnPanel.Children.Add(btnOk);
+            btnPanel.Children.Add(btnCancel);
+            panel.Children.Add(btnPanel);
+
+            btnOk.Click += (_, _) =>
+            {
+                if (int.TryParse(portInput.Text, out int port) && port > 0 && port <= 65535)
+                {
+                    _syncPort = port;
+                    statusInfo.Text = $"同步端口已设为 {port}（下次启动生效）";
+                    dialog.DialogResult = true;
+                }
+                else
+                {
+                    MessageBox.Show("端口无效，请输入 1-65535 的数字", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            };
+
+            dialog.Content = panel;
+            dialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// 编译当前源码并推送到所有已连接的 Android 设备。
+        /// </summary>
+        private async void SyncPush_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer == null || !_syncServer.IsRunning)
+            {
+                MessageBox.Show("同步服务未启动，请先启动", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_syncServer.ClientCount == 0)
+            {
+                MessageBox.Show("无已连接的 Android 设备", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var tab = documentWorkspace.CurrentTab;
+            if (tab == null || string.IsNullOrWhiteSpace(tab.Text))
+            {
+                MessageBox.Show("编辑器为空，无法编译", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                statusInfo.Text = "正在编译并推送数据...";
+
+                // 编译
+                var compiler = new MetroCompiler();
+                compiler.Parse(tab.Text, tab.BaseDirectory);
+                var root = compiler.ExportJson();
+
+                // 序列化为 JSON（中文不转义）
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = false,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                };
+                string json = JsonSerializer.Serialize(root, jsonOptions);
+
+                // 压缩为 .bmetro
+                byte[] compressed = CompressJson(json);
+                string baseName = string.IsNullOrWhiteSpace(tab.FilePath)
+                    ? $"route_data_{root.KeyCity}"
+                    : Path.GetFileNameWithoutExtension(tab.FilePath);
+                string fileName = baseName + ".bmetro";
+
+                // 推送
+                int pushed = await _syncServer.BroadcastSyncDataAsync(fileName, compressed);
+                statusInfo.Text = $"已推送到 {pushed} 个设备（{fileName}）";
+            }
+            catch (Exception ex)
+            {
+                statusInfo.Text = "推送失败";
+                MessageBox.Show($"编译或推送失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 更新状态栏同步状态文本。
+        /// </summary>
+        private void UpdateSyncStatus()
+        {
+            if (_syncServer != null && _syncServer.IsRunning)
+            {
+                int count = _syncServer.ClientCount;
+                syncStatus.Text = $"同步: 运行中 (端口 {_syncPort}, {count} 设备)";
+                syncStatus.Foreground = new SolidColorBrush(Color.FromRgb(0x2E, 0x8B, 0x57));
+            }
+            else
+            {
+                syncStatus.Text = "同步: 未启动";
+                syncStatus.Foreground = new SolidColorBrush(Color.FromRgb(0x99, 0x99, 0x99));
+            }
+        }
+
+        /// <summary>
+        /// 服务端日志回调 — 输出到状态栏。
+        /// </summary>
+        private void OnSyncLog(string msg)
+        {
+            Dispatcher.BeginInvoke(new Action(() => { statusInfo.Text = msg; }));
+        }
+
+        /// <summary>
+        /// 客户端连接回调 — 更新状态栏。
+        /// </summary>
+        private void OnClientConnected(ClientSession session)
+        {
+            Dispatcher.BeginInvoke(new Action(UpdateSyncStatus));
+        }
+
+        /// <summary>
+        /// 客户端断开回调 — 更新状态栏。
+        /// </summary>
+        private void OnClientDisconnected(ClientSession session)
+        {
+            Dispatcher.BeginInvoke(new Action(UpdateSyncStatus));
+        }
+
+        /// <summary>
+        /// 自动搜索局域网内的 Android 设备（UDP 广播），选择后让设备自动连接本机。
+        /// </summary>
+        private async void SyncSearchDevices_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer == null || !_syncServer.IsRunning)
+            {
+                MessageBox.Show("同步服务未启动，请先启动", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            statusInfo.Text = "正在搜索局域网设备...";
+            var devices = await UdpDeviceSearcher.SearchDevicesAsync(TimeSpan.FromSeconds(3));
+
+            if (devices.Count == 0)
+            {
+                statusInfo.Text = "未发现设备";
+                MessageBox.Show("未在局域网中发现设备。\n请确认手机与电脑在同一网络，且手机 App 已打开。",
+                    "搜索结果", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            ShowDeviceSearchDialog(devices);
+        }
+
+        /// <summary>
+        /// 显示设备搜索结果对话框，双击或点击「连接此设备」发送连接指令。
+        /// </summary>
+        private async void ShowDeviceSearchDialog(List<UdpDeviceSearcher.DiscoveredDevice> devices)
+        {
+            var dialog = new Window
+            {
+                Title = $"发现 {devices.Count} 台设备",
+                Width = 380,
+                Height = 280,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            var panel = new StackPanel { Margin = new Thickness(16) };
+
+            var hint = new TextBlock
+            {
+                Text = "选择要连接的设备，点击「连接此设备」后手机会自动连接电脑：",
+                Margin = new Thickness(0, 0, 0, 8),
+                TextWrapping = TextWrapping.Wrap
+            };
+            panel.Children.Add(hint);
+
+            var deviceList = new System.Windows.Controls.ListBox { Height = 120 };
+            foreach (var d in devices)
+                deviceList.Items.Add(d.ToString());
+            deviceList.SelectedIndex = 0;
+            panel.Children.Add(deviceList);
+
+            var btnPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 12, 0, 0)
+            };
+
+            var btnConnect = new System.Windows.Controls.Button
+            {
+                Content = "连接此设备",
+                Padding = new Thickness(16, 2, 16, 2),
+                Margin = new Thickness(0, 0, 8, 0)
+            };
+            var btnClose = new System.Windows.Controls.Button
+            {
+                Content = "关闭",
+                Padding = new Thickness(16, 2, 16, 2)
+            };
+            btnPanel.Children.Add(btnConnect);
+            btnPanel.Children.Add(btnClose);
+            panel.Children.Add(btnPanel);
+
+            btnClose.Click += (_, _) => dialog.Close();
+            btnConnect.Click += async (_, _) =>
+            {
+                int index = deviceList.SelectedIndex;
+                if (index < 0) return;
+                var device = devices[index];
+                try
+                {
+                    await UdpDeviceSearcher.SendConnectCommandAsync(device.Ip, _syncPort);
+                    statusInfo.Text = $"已向 {device} 发送连接指令，等待设备连接...";
+                    dialog.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"发送连接指令失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+
+            dialog.Content = panel;
+            dialog.ShowDialog();
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 从所有已连接设备导出打卡记录和历史行程（数据到达后弹出保存对话框）。
+        /// </summary>
+        private async void SyncExportRecords_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer == null || !_syncServer.IsRunning)
+            {
+                MessageBox.Show("同步服务未启动，请先启动", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_syncServer.ClientCount == 0)
+            {
+                MessageBox.Show("无已连接的 Android 设备", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int checkIns = await _syncServer.RequestRecordsAsync(TcpSyncServer.RecordTypeCheckIn);
+            int trips = await _syncServer.RequestRecordsAsync(TcpSyncServer.RecordTypeTripHistory);
+            if (checkIns + trips > 0)
+                statusInfo.Text = $"已向设备请求打卡与行程记录，等待回复...";
+        }
+
+        /// <summary>
+        /// 选择本地记录 JSON 文件并推送到所有已连接设备（自动识别打卡/行程）。
+        /// </summary>
+        private async void SyncPushRecords_Click(object sender, RoutedEventArgs e)
+        {
+            if (_syncServer == null || !_syncServer.IsRunning)
+            {
+                MessageBox.Show("同步服务未启动，请先启动", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_syncServer.ClientCount == 0)
+            {
+                MessageBox.Show("无已连接的 Android 设备", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dlg = new OpenFileDialog
+            {
+                Title = "选择要推送到设备的记录文件",
+                Filter = "记录 JSON (*.json)|*.json|所有文件 (*.*)|*.*"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                string json = File.ReadAllText(dlg.FileName, Encoding.UTF8);
+                byte recordType = DetectRecordType(json);
+                if (recordType == 0)
+                {
+                    MessageBox.Show("无法识别记录类型：JSON 中既无打卡字段（station）也无行程字段（start/end）。",
+                        "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string typeName = recordType == TcpSyncServer.RecordTypeCheckIn ? "打卡记录" : "行程记录";
+                if (MessageBox.Show($"将把 {typeName} 推送到 {_syncServer.ClientCount} 台设备（与已有记录合并去重），继续？",
+                        "确认推送", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK)
+                    return;
+
+                int pushed = await _syncServer.PushRecordsAsync(recordType, json);
+                statusInfo.Text = $"已推送 {typeName} 到 {pushed} 台设备";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"读取或推送记录失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// 识别 JSON 记录类型：1=打卡，2=行程，0=未知。
+        /// </summary>
+        private static byte DetectRecordType(string json)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                if (!doc.RootElement.TryGetProperty("records", out var records)
+                    || records.ValueKind != JsonValueKind.Array || records.GetArrayLength() == 0)
+                    return 0;
+                var first = records[0];
+                if (first.TryGetProperty("station", out _)) return TcpSyncServer.RecordTypeCheckIn;
+                if (first.TryGetProperty("start", out _) && first.TryGetProperty("end", out _))
+                    return TcpSyncServer.RecordTypeTripHistory;
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// 收到设备记录数据回调 — 解析并保存为 JSON 或 CSV 文件（打卡图片另存为图片文件）。
+        /// </summary>
+        private void OnRecordsDataReceived(ClientSession session, byte recordType, string json)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try
+                {
+                    bool isCheckIn = recordType == TcpSyncServer.RecordTypeCheckIn;
+                    string typeName = isCheckIn ? "打卡记录" : "行程记录";
+
+                    if (string.IsNullOrWhiteSpace(json))
+                    {
+                        MessageBox.Show($"{session} 返回的{typeName}数据为空", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    // 解析 JSON 校验
+                    using var doc = JsonDocument.Parse(json);
+                    int count = doc.RootElement.TryGetProperty("count", out var countEl) ? countEl.GetInt32() : 0;
+                    if (count == 0)
+                    {
+                        MessageBox.Show($"{session} 没有{typeName}", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                        statusInfo.Text = $"导出取消：设备无{typeName}";
+                        return;
+                    }
+
+                    string fileTag = isCheckIn ? "打卡记录" : "行程记录";
+                    var dlg = new SaveFileDialog
+                    {
+                        Title = $"导出 {session} 的{typeName}（{count} 条）",
+                        Filter = $"{typeName} JSON (*.json)|*.json|{typeName} CSV (*.csv)|*.csv",
+                        FileName = $"{fileTag}_{DateTime.Now:yyyyMMdd_HHmmss}",
+                        DefaultExt = ".json"
+                    };
+
+                    if (dlg.ShowDialog() != true)
+                    {
+                        statusInfo.Text = "导出取消";
+                        return;
+                    }
+
+                    bool asCsv = dlg.FilterIndex == 2;
+                    if (asCsv)
+                    {
+                        string csv = isCheckIn ? BuildCheckInCsv(json, dlg.FileName) : BuildTripCsv(json);
+                        File.WriteAllText(dlg.FileName, csv, new UTF8Encoding(true));
+                    }
+                    else
+                    {
+                        File.WriteAllText(dlg.FileName, FormatRecordsJson(json), new UTF8Encoding(true));
+                    }
+
+                    statusInfo.Text = $"{typeName}已导出（{count} 条）: {dlg.FileName}";
+                    MessageBox.Show($"已导出 {count} 条{typeName}到:\n{dlg.FileName}", "导出成功",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    statusInfo.Text = "记录导出失败";
+                    MessageBox.Show($"解析或保存记录失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }));
+        }
+
+        /// <summary>
+        /// 收到设备记录推送/合并结果回调 — 更新状态栏。
+        /// </summary>
+        private void OnRecordsResultReceived(ClientSession session, byte recordType, bool success, string message)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                string typeName = recordType == TcpSyncServer.RecordTypeCheckIn ? "打卡记录" : "行程记录";
+                statusInfo.Text = $"{session} {typeName}推送{(success ? "成功" : "失败")}: {message}";
+            }));
+        }
+
+        /// <summary>
+        /// 将设备记录 JSON 格式化为缩进可读形式。
+        /// </summary>
+        private static string FormatRecordsJson(string json)
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                };
+                return JsonSerializer.Serialize(doc.RootElement, options);
+            }
+            catch
+            {
+                return json;
+            }
+        }
+
+        /// <summary>
+        /// 将打卡记录 JSON 转换为 CSV 文本（带 BOM，Excel 可直接打开）。
+        /// 图片另存到 CSV 同目录的 "&lt;文件名&gt;_images" 文件夹，CSV 中记录图片文件名。
+        /// </summary>
+        private static string BuildCheckInCsv(string json, string csvFilePath)
+        {
+            string imageDir = Path.Combine(
+                Path.GetDirectoryName(csvFilePath) ?? ".",
+                Path.GetFileNameWithoutExtension(csvFilePath) + "_images");
+            bool imageDirCreated = false;
+            int imageIndex = 0;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("站点,打卡时间,日期,经度,纬度,距站距离(米),备注,图片文件");
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("records", out var records) && records.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var r in records.EnumerateArray())
+                {
+                    string station = r.TryGetProperty("station", out var s) ? s.GetString() ?? "" : "";
+                    long ts = r.TryGetProperty("timestamp", out var t) ? t.GetInt64() : 0;
+                    string time = ts > 0
+                        ? DateTimeOffset.FromUnixTimeMilliseconds(ts).ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                        : "";
+                    string date = r.TryGetProperty("date", out var d) ? d.GetString() ?? "" : "";
+                    double lon = r.TryGetProperty("longitude", out var lo) ? lo.GetDouble() : 0;
+                    double lat = r.TryGetProperty("latitude", out var la) ? la.GetDouble() : 0;
+                    double dist = r.TryGetProperty("distance", out var di) ? di.GetDouble() : 0;
+                    string note = r.TryGetProperty("note", out var n) ? n.GetString() ?? "" : "";
+                    string imageField = r.TryGetProperty("image", out var img) ? img.GetString() ?? "" : "";
+
+                    // 图片另存为文件
+                    string imageFile = "";
+                    if (!string.IsNullOrEmpty(imageField))
+                    {
+                        try
+                        {
+                            if (!imageDirCreated)
+                            {
+                                Directory.CreateDirectory(imageDir);
+                                imageDirCreated = true;
+                            }
+                            imageIndex++;
+                            imageFile = $"{station}_{imageIndex}.jpg".Replace(' ', '_');
+                            File.WriteAllBytes(Path.Combine(imageDir, imageFile), Convert.FromBase64String(imageField));
+                        }
+                        catch
+                        {
+                            imageFile = "保存失败";
+                        }
+                    }
+
+                    sb.AppendLine($"{EscapeCsv(station)},{time},{date},{lon},{lat},{dist:F0},{EscapeCsv(note)},{imageFile}");
+                }
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 将行程记录 JSON 转换为 CSV 文本（带 BOM，Excel 可直接打开）。
+        /// </summary>
+        private static string BuildTripCsv(string json)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("起点,终点,查询时间,里程(公里),耗时(分钟),换乘次数,票价(元),模式,途经站点");
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("records", out var records) && records.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var r in records.EnumerateArray())
+                {
+                    string start = r.TryGetProperty("start", out var s) ? s.GetString() ?? "" : "";
+                    string end = r.TryGetProperty("end", out var e) ? e.GetString() ?? "" : "";
+                    long ts = r.TryGetProperty("timestamp", out var t) ? t.GetInt64() : 0;
+                    string time = ts > 0
+                        ? DateTimeOffset.FromUnixTimeMilliseconds(ts).ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                        : "";
+                    double km = r.TryGetProperty("distanceKm", out var d) ? d.GetDouble() : 0;
+                    double minutes = r.TryGetProperty("timeMinutes", out var m) ? m.GetDouble() : 0;
+                    int transfers = r.TryGetProperty("transfers", out var tr) ? tr.GetInt32() : 0;
+                    double fare = r.TryGetProperty("fare", out var f) ? f.GetDouble() : 0;
+                    string mode = r.TryGetProperty("mode", out var mo) ? mo.GetString() ?? "" : "";
+                    string stations = "";
+                    if (r.TryGetProperty("stations", out var st) && st.ValueKind == JsonValueKind.Array)
+                        stations = string.Join("、", st.EnumerateArray().Select(x => x.GetString() ?? ""));
+
+                    sb.AppendLine($"{EscapeCsv(start)},{EscapeCsv(end)},{time},{km:F1},{minutes:F0},{transfers},{fare:F2},{EscapeCsv(mode)},{EscapeCsv(stations)}");
+                }
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// CSV 字段转义（包含逗号/引号/换行时用双引号包裹）。
+        /// </summary>
+        private static string EscapeCsv(string field)
+        {
+            if (string.IsNullOrEmpty(field)) return "";
+            if (field.Contains(',') || field.Contains('"') || field.Contains('\n') || field.Contains('\r'))
+                return "\"" + field.Replace("\"", "\"\"") + "\"";
+            return field;
         }
         #endregion
 
