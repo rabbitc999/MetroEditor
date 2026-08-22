@@ -1,0 +1,3 @@
+[submodule "Android"]
+	path = Android
+	url = https://gitee.com/rabbitc999/metro_view
