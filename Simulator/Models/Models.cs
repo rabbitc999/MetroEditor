@@ -37,8 +37,10 @@ namespace MetroEditor.Simulator.Models
         public double Latitude { get; set; }
         public double Distance { get; set; }
         public string Note { get; set; } = string.Empty;
+        public string Essay { get; set; } = string.Empty;
         public string Date { get; set; } = string.Empty;
         public string ImageBase64 { get; set; } = string.Empty;
+        public bool HasOnSiteProof { get; set; }
         public List<string> Images { get; set; } = new();
     }
 
