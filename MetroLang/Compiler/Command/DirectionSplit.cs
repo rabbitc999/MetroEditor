@@ -5,8 +5,11 @@ using System.Linq;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_SPLIT 指令，将一个非环线方向拆分为两个方向。</summary>
     internal class DirectionSplit : ICommandHandler
     {
+        /// <summary>校验拆分站点并创建两个新的方向及距离列表。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             // 1. 解析源方向

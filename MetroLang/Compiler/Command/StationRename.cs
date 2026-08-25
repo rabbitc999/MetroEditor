@@ -2,8 +2,11 @@
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 STATION_RENAME 指令，并同步更新车站关联数据。</summary>
     internal class StationRename : ICommandHandler
     {
+        /// <summary>重命名车站并迁移坐标、别名、设施、状态及换乘引用。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             string oldName = parser.ParseString();

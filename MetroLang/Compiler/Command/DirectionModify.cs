@@ -5,8 +5,11 @@ using System.Linq;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_MODIFY 块，修改环线、运营和路径属性。</summary>
     internal class DirectionModify : ICommandHandler
     {
+        /// <summary>解析方向修改子命令并应用字段、路由和属性变更。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             // 1. 解析方向ID

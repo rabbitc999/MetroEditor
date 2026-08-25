@@ -2,8 +2,11 @@
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_COPY 指令，复制方向及其距离和属性。</summary>
     internal class DirectionCopy : ICommandHandler
     {
+        /// <summary>解析源/目标方向模式并执行单个或批量复制。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             string sourcePattern = parser.ParseId();
