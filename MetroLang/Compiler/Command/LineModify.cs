@@ -1,8 +1,16 @@
 ﻿using MetroEditor.MetroLang.Compiler;
 using System.IO;
 
+/// <summary>
+/// 处理 LINE_MODIFY 块，修改线路属性、特殊线路标记和外部资源。
+/// </summary>
 internal class LineModify : ICommandHandler
 {
+    /// <summary>
+    /// 解析 SET、ADD 和 REMOVE 子命令并更新目标线路。
+    /// </summary>
+    /// <param name="parser">当前源文件解析器</param>
+    /// <param name="context">编译中的路网数据上下文</param>
     public void Handle(Parser parser, Context context)
     {
         string lineId = parser.ParseId();

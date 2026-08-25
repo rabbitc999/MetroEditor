@@ -1,7 +1,15 @@
 ﻿using MetroEditor.MetroLang.Compiler;
 
+/// <summary>
+/// 处理 LINE_RENAME 指令，支持按线路 ID 或通配符批量重命名线路。
+/// </summary>
 internal class LineRename : ICommandHandler
 {
+    /// <summary>
+    /// 解析源/目标线路模式并更新上下文中的线路标识。
+    /// </summary>
+    /// <param name="parser">当前源文件解析器</param>
+    /// <param name="context">编译中的路网数据上下文</param>
     public void Handle(Parser parser, Context context)
     {
         string sourcePattern = parser.ParseId();

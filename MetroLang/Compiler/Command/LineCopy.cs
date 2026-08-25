@@ -1,7 +1,15 @@
 ﻿using MetroEditor.MetroLang.Compiler;
 
+/// <summary>
+/// 处理 LINE_COPY 指令，支持按线路 ID 或通配符复制线路定义。
+/// </summary>
 internal class LineCopy : ICommandHandler
 {
+    /// <summary>
+    /// 读取源/目标线路模式并将匹配的线路复制到编译上下文。
+    /// </summary>
+    /// <param name="parser">当前源文件解析器</param>
+    /// <param name="context">编译中的路网数据上下文</param>
     public void Handle(Parser parser, Context context)
     {
         string sourcePattern = parser.ParseId();

@@ -2,8 +2,11 @@
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_DELETE 指令，按 ID 或通配符删除方向及其派生规则。</summary>
     internal class DirectionDelete : ICommandHandler
     {
+        /// <summary>解析待删除方向并清理距离、运营规则和 Via 引用。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             var patterns = new List<string>();

@@ -6,8 +6,11 @@ using System.Linq;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 STATION_MODIFY 块，修改坐标、城市和其他名称。</summary>
     internal class StationModify : ICommandHandler
     {
+        /// <summary>解析 SET 子命令，在校验完成后一次性应用车站属性变更。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             string stationName = parser.ParseString();

@@ -5,8 +5,11 @@ using System.Linq;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_REVERSE 指令，反转站点顺序及对应距离。</summary>
     internal class DirectionReverse : ICommandHandler
     {
+        /// <summary>解析方向并创建反向副本或原地更新，同时维护外部规则引用。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             // 1. 解析源方向ID

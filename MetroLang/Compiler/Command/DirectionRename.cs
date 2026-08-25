@@ -2,8 +2,11 @@
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>处理 DIRECTION_RENAME 指令，并同步迁移方向距离索引。</summary>
     internal class DirectionRename : ICommandHandler
     {
+        /// <summary>解析方向重命名模式并更新上下文中的方向标识。</summary>
+        /// <param name="parser">当前源文件解析器</param><param name="context">编译数据上下文</param>
         public void Handle(Parser parser, Context context)
         {
             string sourcePattern = parser.ParseId();

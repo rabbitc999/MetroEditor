@@ -2,8 +2,15 @@
 
 namespace MetroEditor.MetroLang.Compiler.Compiler
 {
+    /// <summary>
+    /// 构建 MetroLang 指令名到处理器实例的注册表。
+    /// </summary>
     public static class CommandUtils
     {
+        /// <summary>
+        /// 创建一次编译所需的全部指令处理器。
+        /// </summary>
+        /// <returns>按指令名索引的处理器字典</returns>
         public static Dictionary<string, ICommandHandler> GetCommandList()
         {
             Dictionary<string, ICommandHandler> command = new Dictionary<string, ICommandHandler>();

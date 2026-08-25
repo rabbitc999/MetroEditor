@@ -38,6 +38,10 @@ namespace MetroEditor.MetroLang.Compiler
             _commandHandlers = CommandUtils.GetCommandList();
         }
 
+        /// <summary>
+        /// 返回当前编译上下文的结构化数据及警告信息。
+        /// </summary>
+        /// <returns>解析后的中间数据模型</returns>
         public ParsedData GetParsedData()
         {
             ParsedData parsedData = context.GetParsedData();
@@ -45,6 +49,10 @@ namespace MetroEditor.MetroLang.Compiler
             return parsedData;
         }
 
+        /// <summary>
+        /// 将当前编译上下文导出为标准 JSON 模型。
+        /// </summary>
+        /// <returns>可序列化的 JSON 根对象</returns>
         public JsonRoot ExportJson()
         {
             Context _context = context.DeepClone();
@@ -73,6 +81,12 @@ namespace MetroEditor.MetroLang.Compiler
         // 主解析入口：将源代码文本解析为中间数据结构
         // 执行词法分析、语法分析和语义分析，构建编译中间态
         // ====================================================================
+        /// <summary>
+        /// 执行词法分析、预处理、语法分析和后处理，构建完整编译上下文。
+        /// </summary>
+        /// <param name="sourceText">MetroLang 源文本</param>
+        /// <param name="baseDirectory">当前源文件目录，用于解析 include 和资源路径</param>
+        /// <exception cref="AggregateException">存在一个或多个解析、语义或后处理错误时抛出</exception>
         public void Parse(string sourceText, string baseDirectory)
         {
             // 1. 词法分析
