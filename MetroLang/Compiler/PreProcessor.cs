@@ -27,6 +27,7 @@ namespace MetroEditor.MetroLang.Compiler
         public static List<Token> Process(List<Token> tokens, string baseDirectory, Context context, out List<string> errors)
         {
             var state = new PreprocessorState();
+            // 所有嵌套 include/import 共用状态，避免重复读取文件或突破递归深度。
             return ProcessInternal(tokens, baseDirectory, context, state, out errors, 0);
         }
 
@@ -50,6 +51,7 @@ namespace MetroEditor.MetroLang.Compiler
             {
                 var current = tokens[i];
 
+                // 预处理指令本身不进入语法分析器，普通 Token 仅在当前分支启用时转发。
                 // ---------- 检测 % 指令 ----------
                 if (current.TokenType == TokenType.Symbol && current.Value == "%")
                 {

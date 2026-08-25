@@ -51,6 +51,7 @@ namespace MetroEditor.MetroLang.Compiler
         {
             var placeholderMap = new Dictionary<string, string>();
 
+            // 先保护字符串，再移除注释；否则 URL 或字符串中的注释符会被误删。
             // 1. 保护字符串内容（防止 URL 中的 // 被误判为注释）
             //    字符串支持反斜杠转义（\' \" \\），需完整匹配含转义的字符串
             string textWithPlaceholders = Regex.Replace(sourceText, @"(""(?:[^""\\]|\\.)*""|'(?:[^'\\]|\\.)*')", match =>
@@ -119,6 +120,7 @@ namespace MetroEditor.MetroLang.Compiler
             {
                 string currentLine = rawLineContent;
 
+                // 每行独立维护列号，Token 的来源位置因此仍与原始源码一致。
                 // 匹配行内的所有 Token
                 foreach (Match regexMatch in _tokenRegex.Matches(currentLine))
                 {

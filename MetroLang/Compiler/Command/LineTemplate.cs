@@ -3,8 +3,12 @@ using MetroEditor.MetroLang.DataModel;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>
+    /// 解析线路模板定义，为后续线路创建提供可继承的默认字段。
+    /// </summary>
     internal class LineTemplateCommand : ICommandHandler
     {
+        /// <summary>读取模板 ID 和属性，完成后注册到编译上下文。</summary>
         public void Handle(Parser parser, Context context)
         {
             string templateId = parser.ParseId();
@@ -15,6 +19,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
             while (true)
             {
+                // 模板属性按键值顺序读取，直到遇到定义结束标记。
                 parser.ParseNewlines();
                 if (parser.IsEndDefine()) break;
 

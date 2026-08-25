@@ -3,6 +3,9 @@ using System.IO;
 
 internal class LineModify : ICommandHandler
 {
+    /// <summary>
+    /// 修改已定义线路的元数据和特殊线路标记。
+    /// </summary>
     public void Handle(Parser parser, Context context)
     {
         string lineId = parser.ParseId();
@@ -11,6 +14,7 @@ internal class LineModify : ICommandHandler
 
         while (true)
         {
+            // 每个子命令占用一行或一个定义片段，空白行由解析器统一跳过。
             parser.ParseNewlines();
             if (parser.IsEndDefine()) break;
 
@@ -18,6 +22,7 @@ internal class LineModify : ICommandHandler
             switch (subCmd)
             {
                 case "SET":
+                    // SET 仅更新线路本身的属性，不会重建方向对象。
                     string field = parser.ParseId().ToUpperInvariant();
                     switch (field)
                     {
@@ -34,6 +39,7 @@ internal class LineModify : ICommandHandler
                             lineInfo.Disabled = val == "TRUE";
                             break;
                         case "IMAGE":
+                            // 图片按当前源文件目录解析，写入上下文时保存为 Base64。
                             string imgPath = parser.ParseString();
                             string fullPath = Path.GetFullPath(Path.Combine(parser.GetCurrentTokenSourceDirectory(), imgPath));
                             if (!File.Exists(fullPath))
@@ -49,6 +55,7 @@ internal class LineModify : ICommandHandler
                     break;
 
                 case "ADD":
+                    // ADD/REMOVE 目前只维护 SPECIAL 集合，其他属性留给 SET 处理。
                     string addAttr = parser.ParseId().ToUpperInvariant();
                     if (addAttr == "SPECIAL")
                         context.SpecialLineIds.Add(lineId);

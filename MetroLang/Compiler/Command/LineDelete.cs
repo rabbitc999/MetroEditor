@@ -2,9 +2,13 @@
 
 internal class LineDelete : ICommandHandler
 {
+    /// <summary>
+    /// 按线路 ID 或通配符批量删除线路。
+    /// </summary>
     public void Handle(Parser parser, Context context)
     {
         var patterns = new List<string>();
+        // 先收集全部模式，保证同一条命令中的匹配结果一次性计算。
         while (parser.Peek().TokenType == TokenType.Id)
             patterns.Add(parser.ParseId());
 
@@ -14,6 +18,7 @@ internal class LineDelete : ICommandHandler
         var toDelete = new HashSet<string>();
         foreach (var pattern in patterns)
         {
+            // 带星号的模式需要遍历当前线路键；精确 ID 则直接检查字典。
             if (pattern.Contains('*'))
             {
                 foreach (var id in context.Lines.Keys)
@@ -29,6 +34,7 @@ internal class LineDelete : ICommandHandler
             }
         }
 
+        // 去重后的集合避免多个模式重复触发删除逻辑。
         foreach (var id in toDelete)
             Utils.DeleteLine(context, id);
     }

@@ -32,6 +32,7 @@ namespace MetroEditor.Simulator.Algorithms
             double total = 0.0, special = 0.0;
             foreach (var d in details)
             {
+                // 特殊段的整段票价计入 Special；普通段只把区间附加费计入 Special。
                 total += d.TotalFare;
                 if (d.IsSpecial)
                     special += d.TotalFare;
@@ -92,6 +93,7 @@ namespace MetroEditor.Simulator.Algorithms
             {
                 if (excludeSpecial)
                 {
+                    // 排除特殊线路时先把所有普通区间合并，最后按总里程结算一次。
                     normalDist += seg.Distance;
                     if (normalLineId == null)
                     {
@@ -114,6 +116,7 @@ namespace MetroEditor.Simulator.Algorithms
                     {
                         if (normalDist > 0)
                         {
+                            // 遇到独立特殊票价前，先结算尚未结束的普通段。
                             details.AddRange(FinishNormalSegment(cache, normalLineId!, normalStart!, normalEnd!,
                                 normalDist, normalSurcharge, lineNameMap));
                             normalDist = 0;
@@ -147,6 +150,7 @@ namespace MetroEditor.Simulator.Algorithms
                     // 区间附加费 surcharge
                     if (rule.Surcharge != null && rule.Surcharge.Count > 0)
                     {
+                        // 附加费不拆分普通里程段，只累加到当前普通段的 surcharge 字段。
                         normalSurcharge += CalcSurchargeForSegment(seg, rule);
                         if (normalLineId == null)
                         {
@@ -162,7 +166,7 @@ namespace MetroEditor.Simulator.Algorithms
                     }
                 }
 
-                // 普通段
+                // 没有特殊规则的区间继续并入普通段，跨方向时由 BuildSegments 预先拆开。
                 normalDist += seg.Distance;
                 if (normalLineId == null)
                 {
@@ -262,6 +266,7 @@ namespace MetroEditor.Simulator.Algorithms
 
             foreach (string node in path)
             {
+                // 连续节点属于同一方向；方向变化表示一次换乘并关闭当前票价分段。
                 string[] parts = SimGraphKeyUtils.ParseNode(node);
                 string dirKey = parts[0];
                 string station = parts[1];
@@ -301,6 +306,7 @@ namespace MetroEditor.Simulator.Algorithms
             double dist = 0.0;
             for (int i = 0; i < stations.Count - 1; i++)
             {
+                // 图中距离以米保存，票价规则统一按公里计算，因此由调用方负责单位约定。
                 double d = metroGraph.GetDistanceInDirection(dirKey, stations[i], stations[i + 1]);
                 if (d > 0) dist += d;
             }
@@ -322,6 +328,7 @@ namespace MetroEditor.Simulator.Algorithms
             var segments = cache.FareSegments;
             if (segments != null)
             {
+                // 区间采用左闭右开匹配；未命中时继续尝试线性扩展或默认票价。
                 foreach (var fs in segments)
                 {
                     if (distance >= fs.RangeStart && distance < fs.RangeEnd)
@@ -345,6 +352,7 @@ namespace MetroEditor.Simulator.Algorithms
             var segments = rule.Segments;
             if (segments != null && segments.Count > 0)
             {
+                // 特殊线路同样优先使用区间规则，超出最大区间时沿用最高档票价。
                 double maxFare = 0.0;
                 foreach (var fs in segments)
                 {
@@ -364,7 +372,7 @@ namespace MetroEditor.Simulator.Algorithms
             var rules = cache.SpecialLineRules;
             if (rules == null) return null;
 
-            // 优先匹配 useLines
+            // 优先匹配 useLines，使线路组规则覆盖单线路回退规则。
             foreach (var r in rules)
             {
                 if (r.UseLines != null && r.UseLines.Contains(lineId))

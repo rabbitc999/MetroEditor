@@ -149,6 +149,7 @@ namespace MetroEditor.Simulator.Data
         /// </summary>
         public void Clear()
         {
+            // 标量参数恢复与属性初始化一致的默认值。
             AvgTransferTime = 120.0;
             AvgStopTime = 45.0;
             OutStationTransferTime = 300.0;
@@ -171,6 +172,7 @@ namespace MetroEditor.Simulator.Data
             SpeedLimits = null;
             JsonData = null;
 
+            // 引用类型属性统一清空，避免复用缓存时残留上一份路网数据。
             StationCoords.Clear();
             DirStations.Clear();
             LineNameMap.Clear();

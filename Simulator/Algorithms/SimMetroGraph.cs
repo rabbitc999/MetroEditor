@@ -55,6 +55,7 @@ namespace MetroEditor.Simulator.Algorithms
             if (metroData.Lines == null)
                 throw new ArgumentException("数据中缺少 Lines 字段");
 
+            // 先建立方向内的运行边，再解析站点换乘边，确保节点已经存在。
             ParseLines(metroData.Lines);
             if (metroData.Stations == null)
                 throw new ArgumentException("数据中缺少 Stations 字段");
@@ -83,6 +84,7 @@ namespace MetroEditor.Simulator.Algorithms
 
                 foreach (var dir in directions)
                 {
+                    // 远期方向不参与当前可用路径图，但仍由数据解析器保留在缓存中。
                     if (dir.IsFuture) continue;
 
                     string start = dir.Start;
@@ -108,6 +110,7 @@ namespace MetroEditor.Simulator.Algorithms
 
                         if (i < stationList.Count - 1)
                         {
+                            // 邻接距离按无向关系保存，A* 可从任意方向读取区间长度。
                             string nxt = stationList[i + 1].Name;
                             if (ds.Next.HasValue)
                             {
@@ -122,6 +125,7 @@ namespace MetroEditor.Simulator.Algorithms
 
                     if (isLoop && stationList.Count > 1)
                     {
+                        // 环线补充首尾闭合边，避免搜索在最后一站提前断开。
                         string first = stationNames[0];
                         string last = stationNames[^1];
                         var lastDs = stationList[^1];
@@ -166,6 +170,7 @@ namespace MetroEditor.Simulator.Algorithms
                 var dirKeys = new HashSet<string>();
                 foreach (var lineEntry in lines)
                 {
+                    // 同一车站的每一对可用方向生成一条换乘边。
                     string id = lineEntry.Id;
                     string start = lineEntry.Start;
                     string end = lineEntry.End;
@@ -365,6 +370,7 @@ namespace MetroEditor.Simulator.Algorithms
 
             while (heap.Count > 0)
             {
+                // 优先队列按 f=g+h 出队；旧状态若不是当前最优 g 值则直接丢弃。
                 var cur = heap.Dequeue();
                 string curNode = cur.Node;
                 double curG = cur.TotalCost; // 这里存储的是 g
@@ -385,6 +391,7 @@ namespace MetroEditor.Simulator.Algorithms
 
                 foreach (var edge in edges)
                 {
+                    // 负代价表示线路/换乘关闭或缺少区间数据，该邻居不可达。
                     string neighbor = edge.Node;
                     double edgeCost = ComputeEdgeCost(curNode, neighbor, weight, _cache, excludeSpecial, travelTimeMillis);
                     if (edgeCost < 0) continue;
@@ -404,6 +411,7 @@ namespace MetroEditor.Simulator.Algorithms
                 return new SimPathResult(-1, 0, new List<string>());
 
             // 回溯路径
+            // prev 只记录改进过的节点，因此从终点反向追溯即可得到最优路径。
             var path = new List<string>();
             string node = foundNode;
             while (prev.TryGetValue(node, out string? p))
@@ -469,6 +477,7 @@ namespace MetroEditor.Simulator.Algorithms
             // 换乘边
             if (!SimGraphKeyUtils.IsEndEqual(cache, fromDir, toDir))
             {
+                // 换乘成本包含固定换乘权重、站内耗时和下一方向的候车时间。
                 string transferStatus = SimStationUtils.GetTransferStatus(cache, fromStation, fromDir, toDir);
                 if (SimStationUtils.IsClosed(transferStatus))
                     return -1;
@@ -478,6 +487,7 @@ namespace MetroEditor.Simulator.Algorithms
             }
 
             // 同一方向内边
+            // 运行边成本由距离、列车运行时间、站点计数和可选拥挤度组成。
             if (excludeSpecial && SimStationUtils.IsSpecialDirKey(cache, fromDir))
                 return -1;
 
@@ -500,6 +510,7 @@ namespace MetroEditor.Simulator.Algorithms
             var speedLimits = cache.SpeedLimits;
             if (speedLimits != null)
             {
+                // 限速规则按方向和起止站精确覆盖线路默认最高速度。
                 foreach (var sl in speedLimits)
                 {
                     if (sl.DirectionKey == fromDir &&
@@ -525,6 +536,7 @@ namespace MetroEditor.Simulator.Algorithms
 
             if (weight.CrowdWeight > 0)
             {
+                // 拥挤系数只增加额外代价，不改变基础距离与时间成本。
                 double crowdFactor = SimTimeCalculator.FindCrowdFactor(cache, fromDir, travelTimeMillis);
                 if (crowdFactor > 1.0)
                     cost += weight.CrowdWeight * (crowdFactor - 1.0);
@@ -538,6 +550,7 @@ namespace MetroEditor.Simulator.Algorithms
             int transfers = 0;
             for (int i = 0; i < path.Count - 1; i++)
             {
+                // 方向键变化代表换乘；同方向连续节点不增加换乘次数。
                 string dir1 = SimGraphKeyUtils.ParseNode(path[i])[0];
                 string dir2 = SimGraphKeyUtils.ParseNode(path[i + 1])[0];
                 if (dir1 != dir2) transfers++;
@@ -555,6 +568,7 @@ namespace MetroEditor.Simulator.Algorithms
             double total = 0.0;
             for (int i = 0; i < path.Count - 1; i++)
             {
+                // 只累计同方向且站名不同的相邻节点，换乘边不贡献行驶距离。
                 string[] p1 = SimGraphKeyUtils.ParseNode(path[i]);
                 string[] p2 = SimGraphKeyUtils.ParseNode(path[i + 1]);
                 string dir1 = p1[0], st1 = p1[1];
@@ -651,6 +665,7 @@ namespace MetroEditor.Simulator.Algorithms
                     curStations.Add(st);
                 else
                 {
+                    // 方向变化结束当前分段，并以换乘后的站点开启新分段。
                     rawSegments.Add(new SimSegment(curDir, curStations));
                     curDir = dir;
                     curStations = new List<string> { st };

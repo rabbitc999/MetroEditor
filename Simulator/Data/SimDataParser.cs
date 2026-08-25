@@ -34,6 +34,7 @@ namespace MetroEditor.Simulator.Data
             SimDataCache cache = new SimDataCache();
 
             // ====== 1. 基础信息 ======
+            // 先保存原始根对象，后续算法可按需读取未展开的 JSON 字段。
             cache.JsonData = root;
             cache.KeyCity = root.KeyCity ?? "未知";
             cache.Version = root.Version ?? "未知";
@@ -61,6 +62,7 @@ namespace MetroEditor.Simulator.Data
                               transferStatus, specialTransferTimeMap);
             }
 
+            // 将临时普通字典复制到并发缓存，便于仿真查询阶段并行读取。
             foreach (var kv in stationCoords) cache.StationCoords[kv.Key] = kv.Value;
             foreach (var kv in stationLineStatus) cache.StationLineStatusMap[kv.Key] = kv.Value;
             foreach (var kv in transferStatus) cache.TransferStatusMap[kv.Key] = kv.Value;
@@ -75,6 +77,7 @@ namespace MetroEditor.Simulator.Data
             // ====== 5. 线路分段运营标记 ======
             foreach (var lineId in cache.LineNameMap.Keys)
             {
+                // 分段判断依赖已解析的方向站点列表，因此必须在 ParseLines 之后执行。
                 cache.LineSegmentedMap[lineId] = IsLineSegmented(cache, lineId, cache.DirStations);
             }
 
@@ -87,6 +90,7 @@ namespace MetroEditor.Simulator.Data
             // ====== 7. 其他规则 ======
             if (root.HeadwayRules != null)
             {
+                // 规则对象保持字符串时间格式，实际时间计算由 SimTimeCalculator 统一完成。
                 cache.HeadwayRules = root.HeadwayRules.Select(hr => new SimHeadwayRule
                 {
                     LineId = hr.LineId,
@@ -160,6 +164,7 @@ namespace MetroEditor.Simulator.Data
                 string name = kv.Key;
                 JsonStation st = kv.Value;
 
+                // 坐标使用 [经度, 纬度] 顺序，与 JsonModel 和地图绘制约定一致。
                 coords[name] = new double[] { st.Lon, st.Lat };
 
                 if (st.Lines != null)
@@ -177,6 +182,7 @@ namespace MetroEditor.Simulator.Data
                     var transferMap = new Dictionary<string, string>();
                     foreach (var tKv in st.Transfers)
                     {
+                        // Transfers 兼容字符串状态和包含 status/time 的对象两种 JSON 形态。
                         string key = tKv.Key;
                         object? value = tKv.Value;
                         string status = "operating";
@@ -191,6 +197,7 @@ namespace MetroEditor.Simulator.Data
                                 if (elem.TryGetProperty("time", out var timeProp) &&
                                     timeProp.TryGetDouble(out double time) && time > 0)
                                 {
+                                    // 特殊换乘时间按正向和反向键各存一份，查询时无需再反转线路顺序。
                                     string cacheKey = name + "|" + key;
                                     specialTransferTime[cacheKey] = time;
                                     string[] parts = key.Split('|');
@@ -253,6 +260,7 @@ namespace MetroEditor.Simulator.Data
 
                     foreach (var dir in line.Direction)
                     {
+                        // 每个方向独立累积站点、环线信息和区间总长度。
                         string start = dir.Start;
                         string end = dir.End;
                         string dirKey = SimGraphKeyUtils.MakeDirKey(lineId, start, end);
@@ -284,6 +292,7 @@ namespace MetroEditor.Simulator.Data
                                 string name = ds.Name;
                                 stationNames.Add(name);
 
+                                // 停站时间按“站点|方向键”索引，未提供或非正值时使用全局默认值。
                                 if (ds.DwellTime.HasValue && ds.DwellTime.Value > 0)
                                 {
                                     cache.StationStopTimeMap[name + "|" + dirKey] = ds.DwellTime.Value;
@@ -291,6 +300,7 @@ namespace MetroEditor.Simulator.Data
 
                                 if (i < count - 1)
                                 {
+                                    // 使用排序后的站名组合键去重，避免往返方向重复累计同一物理区间。
                                     var nextDs = stations[i + 1];
                                     double dist = ds.Next ?? 0.0;
                                     string key = name.CompareTo(nextDs.Name) < 0
@@ -304,6 +314,7 @@ namespace MetroEditor.Simulator.Data
                                 }
                                 else if (dir.IsLoop)
                                 {
+                                    // 环线最后一站还要补上与首站之间的闭合边。
                                     var firstDs = stations[0];
                                     double dist = ds.Next ?? 0.0;
                                     string key = name.CompareTo(firstDs.Name) < 0
@@ -338,6 +349,7 @@ namespace MetroEditor.Simulator.Data
 
             if (price.Segments != null)
             {
+                // 将 JSON 票价区间转换为仿真使用的轻量模型，避免算法层依赖序列化类型。
                 cache.FareSegments = price.Segments.Select(seg => new SimFareSegment
                 {
                     RangeStart = seg.RangeStart,
@@ -358,6 +370,7 @@ namespace MetroEditor.Simulator.Data
 
             if (price.SpecialLines != null)
             {
+                // 特殊线路同时支持线路组、统一票价、附加费和独立分段计价。
                 cache.SpecialLineRules = price.SpecialLines.Select(sp => new SimSpecialLineRule
                 {
                     LineId = sp.LineId,
@@ -398,6 +411,7 @@ namespace MetroEditor.Simulator.Data
                 if (parts[0] != lineId) continue;
 
                 var stations = kv.Value;
+                // 仅把远期方向的连续站点连边，用于判断其是否由多个不连通区段组成。
                 for (int i = 0; i < stations.Count - 1; i++)
                 {
                     string a = stations[i];
@@ -425,6 +439,7 @@ namespace MetroEditor.Simulator.Data
 
             var visited = new HashSet<string>();
             int components = 0;
+            // 对未来方向图做连通分量遍历；超过一个分量即视为分段运营。
             foreach (var station in adj.Keys)
             {
                 if (!visited.Contains(station))

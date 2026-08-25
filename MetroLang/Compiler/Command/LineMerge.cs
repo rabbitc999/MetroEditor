@@ -3,11 +3,18 @@ using System.Collections.Generic;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>
+    /// 将多条线路合并为一条目标线路，可选择保留源线路。
+    /// </summary>
     internal class LineMerge : ICommandHandler
     {
+        /// <summary>
+        /// 读取源线路列表、目标线路和可选的 <c>KEEP_ORIGINAL</c> 标志。
+        /// </summary>
         public void Handle(Parser parser, Context context)
         {
             var sourceIds = new List<string>();
+            // 源线路以连续 ID 表示，遇到 INTO 后切换到目标线路解析。
             while (parser.Peek().TokenType == TokenType.Id && !parser.IsPeekId("INTO"))
                 sourceIds.Add(parser.ParseId());
 
@@ -24,6 +31,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
                 keep = true;
             }
 
+            // 由工具层统一处理方向、站点和线路元数据的合并规则。
             Utils.MergeLines(context, sourceIds, targetId, keep);
         }
     }

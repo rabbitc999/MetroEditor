@@ -37,6 +37,7 @@ namespace MetroEditor.MetroLang.Compiler
 
         public Parser(List<Token> tokens)
         {
+            // Parser 只维护当前位置和诊断集合；具体语义由各命令处理器完成。
             _tokens = tokens;
             _pos = 0;
         }
@@ -83,12 +84,14 @@ namespace MetroEditor.MetroLang.Compiler
             // 检查是否到达文件末尾
             if (currentToken.TokenType == TokenType.End)
             {
+                // 末尾使用虚拟 End Token，让调用方统一处理 EOF。
                 return currentToken;
             }
 
             // 验证 Token 类型
             if (currentToken.TokenType != expectedType)
             {
+                // 在消费前完成类型校验，错误恢复时不会跳过当前 Token。
                 string expectedDescription = GetTokenTypeDescription(expectedType);
                 string actualDescription = GetTokenTypeDescription(currentToken.TokenType);
                 string suggestion = GetSuggestion(expectedType, currentToken);
@@ -105,6 +108,7 @@ namespace MetroEditor.MetroLang.Compiler
 
             // 消费 Token 并移动指针
             _pos++;
+            // 只有校验成功才推进指针，保证后续诊断仍指向正确位置。
             return currentToken;
         }
 
@@ -255,6 +259,7 @@ namespace MetroEditor.MetroLang.Compiler
         public List<string> ParseStringList()
         {
             var stringList = new List<string>();
+            // 列表项允许换行和逗号分隔，统一在这里处理边界与闭合括号。
             Consume(TokenType.Symbol, "[");
 
             while (true)
@@ -445,6 +450,7 @@ namespace MetroEditor.MetroLang.Compiler
         // ====================================================================
         public void SynchronizeToNextCommand()
         {
+            // 跳过当前错误命令，恢复到下一个顶层标识符，避免单个错误终止整份文件解析。
             while (_pos < _tokens.Count)
             {
                 var currentToken = Peek();

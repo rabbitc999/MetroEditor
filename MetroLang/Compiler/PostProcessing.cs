@@ -47,6 +47,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public void DoProcess()
         {
+            // 后处理把临时模板、隐式关系和跨对象引用收敛为可导出的最终模型。
             MarkFutureOnlyStations();
             ApplyPendingTransfers();
             RemoveDuplicateDirections();
@@ -606,6 +607,7 @@ namespace MetroEditor.MetroLang.Compiler
         /// </summary>
         public void RemoveUnusedStations()
         {
+            // 仅保留至少出现在一个方向中的车站，避免导出孤立坐标。
             // 收集所有被方向引用的车站
             var usedStations = new HashSet<string>();
             foreach (var direction in context.Directions.Values)

@@ -3,8 +3,12 @@ using MetroEditor.MetroLang.DataModel;
 
 namespace MetroEditor.MetroLang.Compiler.Command
 {
+    /// <summary>
+    /// 解析方向模板定义，并保存可被方向命令继承的默认属性。
+    /// </summary>
     internal class DirectionTemplateCommand : ICommandHandler
     {
+        /// <summary>读取模板属性直到定义结束标记。</summary>
         public void Handle(Parser parser, Context context)
         {
             string templateId = parser.ParseId();
@@ -15,6 +19,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
 
             while (true)
             {
+                // 每一轮处理一个模板属性，ParseNewlines 负责跨行读取。
                 parser.ParseNewlines();
                 if (parser.IsEndDefine()) break;
 
@@ -32,6 +37,7 @@ namespace MetroEditor.MetroLang.Compiler.Command
                         template.ConnectStation = parser.ParseString();
                         break;
                     case "LOOP":
+                        // LOOP 可选地携带 INNER/OUTER，用于确定环线方向类型。
                         template.Attrs.Add("LOOP");
                         // 可指定 inner/outer
                         if (parser.Peek().TokenType == TokenType.Id)

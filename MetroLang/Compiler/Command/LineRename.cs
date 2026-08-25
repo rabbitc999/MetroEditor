@@ -2,6 +2,9 @@
 
 internal class LineRename : ICommandHandler
 {
+    /// <summary>
+    /// 重命名线路，支持精确名称和通配符批量替换。
+    /// </summary>
     public void Handle(Parser parser, Context context)
     {
         string sourcePattern = parser.ParseId();
@@ -9,6 +12,7 @@ internal class LineRename : ICommandHandler
 
         if (!sourcePattern.Contains('*') && !targetPattern.Contains('*'))
         {
+            // 精确重命名由工具方法处理所有引用关系。
             Utils.RenameLine(context, sourcePattern, targetPattern);
             return;
         }
@@ -26,6 +30,7 @@ internal class LineRename : ICommandHandler
 
         foreach (var (source, (_, capture)) in matched)
         {
+            // 目标已存在时跳过该项，避免覆盖另一条线路。
             string target = Utils.ApplyWildcard(targetPattern, capture);
             if (context.Lines.ContainsKey(target))
                 parser.AddWarning($"目标线路 '{target}' 已存在，跳过");
