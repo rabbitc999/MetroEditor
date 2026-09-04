@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿// LineTemplate.cs
 namespace MetroEditor.MetroLang.DataModel
 {
@@ -19,17 +18,3 @@ namespace MetroEditor.MetroLang.DataModel
         public string? Inherits { get; set; }
     }
 }
-=======
-﻿// LineTemplate.cs
-namespace MetroEditor.MetroLang.DataModel
-{
-    public class DirectionTemplate
-    {
-        public bool? IsFuture { get; set; }
-        public string? ConnectStation { get; set; }
-        public HashSet<string> Attrs { get; set; } = new(); // LOOP
-        public string? DirectionType { get; set; } // inner/outer
-        public string? Inherits { get; set; }
-    }
-}
->>>>>>> 68704bec0197aa2f176e12f57e1de8fb0a964814
