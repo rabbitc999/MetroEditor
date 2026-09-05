@@ -48,10 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Converter\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Page\edit.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -65,5 +61,12 @@
       <Link>Templates\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Converter\**" />
+    <EmbeddedResource Remove="Converter\**" />
+    <None Remove="Converter\**" />
+    <Page Remove="Converter\**" />
   </ItemGroup>
 </Project>

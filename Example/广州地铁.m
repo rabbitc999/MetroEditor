@@ -1,4 +1,4 @@
-﻿# %DEFINE SHOW_FUTURE_LINES
+﻿%DEFINE SHOW_FUTURE_LINES
 
 # 数据集信息
 PROGRAM_DEFINE
@@ -37,97 +37,6 @@ OPERATOR_DEFINE FSMTR
     HOTLINE '0757-83310000'
     DESCRIPTION '佛山市城市轨道交通运营主体'
     LINES ['F2', 'F3', 'F4', 'F11']
-END_DEFINE
-
-# ===== 区域定义 =====
-ZONE_DEFINE ZN_PRC_NEW_CITY
-    NAME '珠江新城CBD'
-    TYPE CBD
-    CITY '广州'
-    COLOR '#FF6D00'
-    CENTER 113.315734, 23.121984
-    RADIUS 1500
-    STATIONS ['珠江新城', '猎德', '花城大道', '大剧院', '海心沙', '妇儿中心', '黄埔大道']
-    ATTRIBUTES
-        PEAK_HOURS ['08:00-09:00', '18:00-19:00']
-        POPULATION_DENSITY 4.2
-        AVG_RENT 15000
-    END_ATTRIBUTES
-END_DEFINE
-
-ZONE_DEFINE ZN_GZ_SOUTH_HUB
-    NAME '广州南站枢纽'
-    TYPE TRANSPORT_HUB
-    CITY '广州'
-    COLOR '#2962FF'
-    CENTER 113.264476, 22.991778
-    RADIUS 1000
-    STATIONS ['广州南站', '石壁', '谢村']
-    ATTRIBUTES
-        PEAK_HOURS ['07:00-09:00', '17:00-20:00']
-        POPULATION_DENSITY 2.8
-        AVG_RENT 6000
-    END_ATTRIBUTES
-END_DEFINE
-
-ZONE_DEFINE ZN_BAIYUN_AIRPORT
-    NAME '白云机场空港区'
-    TYPE TRANSPORT_HUB
-    CITY '广州'
-    COLOR '#00C853'
-    CENTER 113.299638, 23.397975
-    RADIUS 2500
-    STATIONS ['机场北(T2)', '机场南(T1)']
-    ATTRIBUTES
-        PEAK_HOURS ['05:00-07:00', '21:00-23:00']
-        POPULATION_DENSITY 1.2
-        AVG_RENT 8000
-    END_ATTRIBUTES
-END_DEFINE
-
-ZONE_DEFINE ZN_BEIJING_ROAD
-    NAME '北京路商圈'
-    TYPE COMMERCIAL
-    CITY '广州'
-    COLOR '#F50057'
-    CENTER 113.264987, 23.121689
-    RADIUS 800
-    STATIONS ['北京路', '公园前', '农讲所', '海珠广场']
-    ATTRIBUTES
-        PEAK_HOURS ['11:00-12:00', '18:00-20:00']
-        POPULATION_DENSITY 5.6
-        AVG_RENT 20000
-    END_ATTRIBUTES
-END_DEFINE
-
-ZONE_DEFINE ZN_FS_QIANDENG
-    NAME '千灯湖金融区'
-    TYPE CBD
-    CITY '佛山'
-    COLOR '#AA00FF'
-    CENTER 113.149950, 23.057504
-    RADIUS 1200
-    STATIONS ['千灯湖', '金融高新区', '南桂路']
-    ATTRIBUTES
-        PEAK_HOURS ['08:30-09:30', '17:30-18:30']
-        POPULATION_DENSITY 3.1
-        AVG_RENT 9000
-    END_ATTRIBUTES
-END_DEFINE
-
-ZONE_DEFINE ZN_NS_JIAOMEN
-    NAME '南沙蕉门中心'
-    TYPE MIXED
-    CITY '广州'
-    COLOR '#0091EA'
-    CENTER 113.522405, 22.803446
-    RADIUS 2000
-    STATIONS ['蕉门', '金洲', '飞沙角']
-    ATTRIBUTES
-        PEAK_HOURS ['08:00-09:00', '18:00-19:00']
-        POPULATION_DENSITY 1.8
-        AVG_RENT 5000
-    END_ATTRIBUTES
 END_DEFINE
 
 # REGION 线路定义
@@ -247,9 +156,7 @@ LINE_DEFINE G3
   DIRECTION_DEFINE G3_0
     STATIONS ['海傍', '海涌路', '石碁南', '傍江', '番禺广场', '市桥', '汉溪长隆', '大石', '厦滘', '沥滘', '大塘', '客村', '广州塔', '珠江新城', '体育西路', '林和西', '广州东站', '燕塘', '梅花园', '京溪南方医院', '同和', '永泰', '白云大道北', '嘉禾望岗', '龙归', '人和', '高增', '机场南(T1)', '机场北(T2)']
     DISTANCE [1.990000, 1.850000, 3.130000, 2.470000, 2.870000, 5.800000, 2.930000, 2.240000, 1.810000, 2.660000, 2.040000, 1.160000, 1.460000, 1.280000, 1.180000, 1.100000, 1.010000, 1.810000, 1.250000, 1.320000, 3.260000, 0.930000, 1.900000, 5.870000, 5.190000, 2.180000, 3.580000, 1.000000, NIL]
-    ROUTING '主线大交路' ['番禺广场', '市桥', '汉溪长隆', '大石', '厦滘', '沥滘', '大塘', '客村', '广州塔', '珠江新城', '体育西路', '林和西', '广州东站', '燕塘', '梅花园', '京溪南方医院', '同和', '永泰', '白云大道北', '嘉禾望岗', '龙归', '人和', '高增', '机场南(T1)', '机场北(T2)']
-    ROUTING '机场北小交路' ['体育西路', '林和西', '广州东站', '燕塘', '梅花园', '京溪南方医院', '同和', '永泰', '白云大道北', '嘉禾望岗', '龙归', '人和', '高增', '机场南(T1)', '机场北(T2)']
-  END_DEFINE
+   END_DEFINE
   DIRECTION_DEFINE G3_1
     STATIONS ['海傍', '海涌路', '石碁南', '傍江', '番禺广场', '市桥', '汉溪长隆', '大石', '厦滘', '沥滘', '大塘', '客村', '广州塔', '珠江新城', '体育西路', '石牌桥', '岗顶', '华师', '五山', '天河客运站']
     DISTANCE [1.990000, 1.850000, 3.130000, 2.470000, 2.870000, 5.800000, 2.930000, 2.240000, 1.810000, 2.660000, 2.040000, 1.160000, 1.460000, 1.280000, 1.110000, 0.800000, 0.860000, 1.550000, 2.100000, NIL]
@@ -434,14 +341,8 @@ LINE_DEFINE G14
     STATIONS ['东风', '从化客运站', '赤草', '神岗', '太平', '新和', '马沥', '钟落潭', '竹料', '太和', '夏良', '白云东平', '嘉禾望岗', '彭边', '鹤龙', '鹤边', '马务', '新市墟', '云霄路', '乐嘉路', '广州火车站']
     DISTANCE [3.960000, 4.870000, 5.270000, 3.670000, 5.010000, 2.710000, 5.520000, 4.430000, 5.960000, 3.370000, 2.980000, 3.350000, 1.360000, 1.050000, 1.240000, 1.290000, 0.850000, 1.190000, 1.380000, 2.560000, NIL]
   END_DEFINE
-  DIRECTION_DEFINE G14_4
-    STATIONS ['东风', '从化客运站', '赤草', '神岗', '太平', '新和', '马沥', '钟落潭', '竹料', '太和', '夏良', '白云东平', '嘉禾望岗', '彭边', '鹤龙', '鹤边', '马务', '新市墟', '云霄路', '乐嘉路', '广州火车站']
-    DISTANCE [3.960000, 4.870000, 5.270000, 3.670000, 5.010000, 2.710000, 5.520000, 4.430000, 5.960000, 3.370000, 2.980000, 3.350000, 1.360000, 1.050000, 1.240000, 1.290000, 0.850000, 1.190000, 1.380000, 2.560000, NIL]
-    EXPRESS_STOPS ['东风', '从化客运站', '新和', '竹料', '白云东平', '嘉禾望岗', '彭边', '鹤龙', '鹤边', '马务', '新市墟', '云霄路', '乐嘉路', '广州火车站']
-  END_DEFINE
   DIRECTION_DEFINE G14_1 REV G14_0
   DIRECTION_DEFINE G14_3 REV G14_2
-  DIRECTION_DEFINE G14_5 REV G14_4
 END_DEFINE
 
 LINE_DEFINE G18
@@ -454,12 +355,7 @@ LINE_DEFINE G18
   DIRECTION_DEFINE G18_0
     STATIONS ['万顷沙', '横沥', '番禺广场', '南村万博', '沙溪', '龙潭', '磨碟沙', '冼村', '广州东站']
     DISTANCE [7.660000, 23.920000, 8.820000, 3.690000, 4.840000, 2.340000, 3.180000, 2.640000, NIL]
-  END_DEFINE
-  DIRECTION_DEFINE G18_1
-    STATIONS ['万顷沙', '横沥', '番禺广场', '南村万博', '沙溪', '龙潭', '磨碟沙', '冼村', '广州东站']
-    DISTANCE [7.660000, 23.920000, 8.820000, 3.690000, 4.840000, 2.340000, 3.180000, 2.640000, NIL]
-    EXPRESS_STOPS ['万顷沙', '横沥', '番禺广场', '南村万博', '磨碟沙', '冼村', '广州东站']
-  END_DEFINE
+  END_DEFINE 
   DIRECTION_DEFINE G18_2 REV G18_0
   DIRECTION_DEFINE G18_3
     FUTURE
@@ -487,13 +383,7 @@ LINE_DEFINE G21
     STATIONS ['天河公园', '棠东', '黄村', '大观南路', '天河智慧城', '神舟路', '科学城', '苏元', '水西', '长平', '金坑', '镇龙西', '镇龙', '中新', '坑贝', '凤岗', '朱村', '山田', '钟岗', '增城广场']
     DISTANCE [2.840000, 1.720000, 1.210000, 2.080000, 2.870000, 1.890000, 1.960000, 2.140000, 2.780000, 5.810000, 5.790000, 2.100000, 2.040000, 3.130000, 2.810000, 3.230000, 4.430000, 4.860000, 2.220000, NIL]
   END_DEFINE
-  DIRECTION_DEFINE G21_1
-    STATIONS ['天河公园', '棠东', '黄村', '大观南路', '天河智慧城', '神舟路', '科学城', '苏元', '水西', '长平', '金坑', '镇龙西', '镇龙', '中新', '坑贝', '凤岗', '朱村', '山田', '钟岗', '增城广场']
-    DISTANCE [2.840000, 1.720000, 1.210000, 2.080000, 2.870000, 1.890000, 1.960000, 2.140000, 2.780000, 5.810000, 5.790000, 2.100000, 2.040000, 3.130000, 2.810000, 3.230000, 4.430000, 4.860000, 2.220000, NIL]
-    EXPRESS_STOPS ['天河公园', '棠东', '黄村', '天河智慧城', '神舟路', '苏元', '水西', '镇龙', '凤岗', '增城广场']
-  END_DEFINE
   DIRECTION_DEFINE G21_2 REV G21_0
-  DIRECTION_DEFINE G21_3 REV G21_1
 END_DEFINE
 
 LINE_DEFINE G22
@@ -939,15 +829,6 @@ CROWD_PROFILE G14_3
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.3 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.5 WORKDAY
 END_DEFINE
-# 14号线快线，客流略低
-CROWD_PROFILE G14_4
-    PERIOD TIME_RANGE 07:30 09:00 VALUE 1.2 WORKDAY
-    PERIOD TIME_RANGE 17:30 19:00 VALUE 1.1 WORKDAY
-END_DEFINE
-CROWD_PROFILE G14_5
-    PERIOD TIME_RANGE 07:30 09:00 VALUE 1.1 WORKDAY
-    PERIOD TIME_RANGE 17:30 19:00 VALUE 1.2 WORKDAY
-END_DEFINE
 
 # 18号线（快线，南沙-市区，客流中等偏高）
 CROWD_PROFILE G18_0
@@ -957,11 +838,6 @@ END_DEFINE
 CROWD_PROFILE G18_2
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.5 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.7 WORKDAY
-END_DEFINE
-# 18号线快线（越行线，客流稍低）
-CROWD_PROFILE G18_1
-    PERIOD TIME_RANGE 07:30 09:00 VALUE 1.5 WORKDAY
-    PERIOD TIME_RANGE 17:30 19:00 VALUE 1.3 WORKDAY
 END_DEFINE
 
 # 21号线（东部，客流中等）
@@ -974,11 +850,11 @@ CROWD_PROFILE G21_2
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.5 WORKDAY
 END_DEFINE
 # 21号线快线，客流略低
-CROWD_PROFILE G21_1
+CROWD_PROFILE G21_0
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.4 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.2 WORKDAY
 END_DEFINE
-CROWD_PROFILE G21_3
+CROWD_PROFILE G21_2
     PERIOD TIME_RANGE 07:30 09:00 VALUE 1.2 WORKDAY
     PERIOD TIME_RANGE 17:30 19:00 VALUE 1.4 WORKDAY
 END_DEFINE
