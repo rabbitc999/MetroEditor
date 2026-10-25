@@ -1,6 +1,6 @@
 # Metro Editor – 地铁线路编辑器  
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com/)  
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)   1
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)   
 
 **Metro Editor** 是一款专为地铁线路数据编辑、编译、可视化与分析而设计的桌面工具。它基于 **C# WPF (.NET 8)** 构建，提供了完整的图形化界面，支持从线路定义、站点管理、票价规则到运行参数的全流程编辑，并内置了编译/反编译、地图微调、通勤分析等高级功能。其核心引擎集成了**物理级列车运行时间计算**与**多目标路径规划**，可支撑专业级的城市轨道交通出行分析与路网管理。  
 
