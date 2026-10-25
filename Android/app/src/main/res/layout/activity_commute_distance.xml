@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:background="#F5F7FA"
+    tools:ignore="HardcodedText">
+
+    <!-- 通勤计算页面按地址输入、定位结果、路线摘要和分段列表组织。 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:orientation="vertical"
+        android:padding="8dp"
+        tools:ignore="HardcodedText">
+        <LinearLayout
+            android:id="@+id/selectionPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_rounded_card"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+            <Button
+                android:id="@+id/btnBack"
+                style="@style/BackButton"
+                android:text="← 返回" />
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="😂 通勤距离计算"
+                android:textSize="20sp"
+                android:textColor="#1A73E8"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnBatchCalc"
+                style="@style/ModeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="批量计算"
+                android:textSize="13sp"
+                android:backgroundTint="#1A73E8" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🏠 住处位置"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1A73E8" />
+
+            <AutoCompleteTextView
+                android:id="@+id/homeStationInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="或输入家最近的地铁站"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/homeDistanceInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="家到该站步行距离（米）"
+                android:inputType="numberDecimal" />
+
+            <Button
+                android:id="@+id/btnGpsHome"
+                style="@style/ModeButton"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="使用当前 GPS 获取"
+                android:backgroundTint="#34A853" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🏢 公司位置"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1A73E8" />
+
+            <EditText
+                android:id="@+id/companyAddressInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="公司详细地址"
+                android:maxLines="1"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/amapApiKeyInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="高德 Web 服务 API Key"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+            <Button
+                android:id="@+id/btnCalculate"
+                style="@style/ModeButton"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:text="计算"
+                android:backgroundTint="#FF7043" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card"
+            android:padding="14dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📊 计算结果"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+
+            <TextView
+                android:id="@+id/tvResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="等待计算中..."
+                android:layout_marginTop="6dp"
+                android:textSize="13sp"
+                android:textColor="#888888"
+                android:lineSpacingExtra="3dp"
+                android:gravity="start" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvCommuteDistance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="12sp"
+                    android:textColor="#5A73E8"
+                    android:background="#EEF1FB"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:text="0千米" />
+
+                <TextView
+                    android:id="@+id/tvCommuteTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:textSize="12sp"
+                    android:textColor="#2E8B57"
+                    android:background="#EAF6F0"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:text="0分钟" />
+
+                <TextView
+                    android:id="@+id/tvCommuteTransfers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:textSize="12sp"
+                    android:textColor="#B8860B"
+                    android:background="#FBF5E6"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:text="0次换乘" />
+
+                <TextView
+                    android:id="@+id/tvCommuteFare"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:textSize="12sp"
+                    android:textColor="#E24B4A"
+                    android:background="#FBECEC"
+                    android:padding="6dp"
+                    android:gravity="center"
+                    android:text="0元" />
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/commuteRouteList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@null"
+                android:dividerHeight="0dp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

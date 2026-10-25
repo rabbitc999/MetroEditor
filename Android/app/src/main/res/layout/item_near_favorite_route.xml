@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_favorite_route"
+    android:padding="5dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:layout_marginEnd="12dp">
+
+    <!-- 卡片文本同时支持点击填入路线和长按管理收藏。 -->
+    <TextView
+        android:id="@+id/tvFavoriteInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="测试文本"
+        android:textColor="#333"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground" />
+</LinearLayout>

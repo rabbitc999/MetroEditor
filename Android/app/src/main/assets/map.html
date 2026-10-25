@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>交互式地铁线路图</title>
+    <link rel="stylesheet" href="file:///android_asset/map.css" />
+</head>
+<body>
+<div id="container">
+        <div id="loading">
+            地图加载中...
+        </div>
+</div>
+
+<!-- 提示浮窗 -->
+<div class="tooltip" id="tooltip">
+    <div class="station-name"></div>
+    <div class="line-tag-container"></div>
+    <div class="express-container"></div>
+    <div class="pending-container"></div>
+    <div class="routing-container"></div>
+    <div class="other-names-container"></div>
+</div>
+
+<!-- 区域提示浮窗 -->
+<div class="tooltip" id="zone-tooltip">
+    <div class="zone-title"></div>
+    <div class="zone-meta"></div>
+    <div class="zone-attributes"></div>
+    <div class="zone-stations"></div>
+</div>
+
+<!-- 依赖库 -->
+<script src="file:///android_asset/d3.min.js"></script>
+<!-- 主脚本 -->
+<script src="file:///android_asset/map.js"></script>
+</body>
+</html>

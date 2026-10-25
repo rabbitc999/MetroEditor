@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:gravity="center_vertical">
+
+        <!-- 序号 -->
+        <TextView
+            android:id="@+id/tvIndex"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"
+            android:textColor="#666" />
+
+        <!-- 站名 -->
+        <TextView
+            android:id="@+id/tvStationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="体育西路"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:maxLines="1" />
+
+        <!-- 分隔线 -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:background="#CCCCCC"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <!-- 时间 -->
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0 分钟"
+            android:textSize="13sp"
+            android:paddingLeft="8dp"
+            android:textColor="#888" />
+
+        <!-- 时间 -->
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0 分钟"
+            android:textSize="13sp"
+            android:textColor="#888"
+            android:paddingRight="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <!-- 弹性空间：将换乘标签推到右侧（剩余宽度不足时自动压缩，实现滑动） -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- 换乘标签容器（右对齐） -->
+        <LinearLayout
+            android:id="@+id/llTransferLines"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+    </LinearLayout>
+</HorizontalScrollView>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F7FA"
+    android:fitsSystemWindows="true"
+    android:padding="16dp"
+    tools:ignore="HardcodedText">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="8dp"
+        tools:ignore="HardcodedText">
+        <!-- ================= 标题 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:id="@+id/selectionPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/backMainBtn"
+                    style="@style/BackButton"
+                    android:text="← 返回" />
+
+                <TextView
+                    android:layout_width="0sp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="📂 管理文件"
+                    android:textSize="20sp"
+                    android:textColor="#1A73E8"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/syncBtn"
+                    style="@style/BackButton"
+                    android:text="电脑同步"
+                    android:backgroundTint="#7B68EE" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ================= 文件列表卡片 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="12dp"
+                android:orientation="vertical">
+
+                <!-- 列表标题 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="📋 地图文件列表（单击选中，长按操作）"
+                    android:textColor="#1A73E8"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <!-- 列表 -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="4dp">
+                    <ListView
+                        android:id="@+id/listView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#FFFFFF"
+                        android:divider="#E8ECF0"
+                        android:dividerHeight="1dp"
+                        android:paddingHorizontal="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ================= 底部操作按钮卡片 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:weightSum="3">
+
+                <Button
+                    android:id="@+id/btn_import"
+                    style="@style/FileManageButton"
+                    android:layout_weight="1"
+                    android:text="📥 导入"
+                    android:backgroundTint="#1A73E8" />
+
+                <Button
+                    android:id="@+id/btn_export"
+                    style="@style/FileManageButton"
+                    android:layout_weight="1"
+                    android:text="📤 导出"
+                    android:backgroundTint="#FF8F00" />
+
+                <Button
+                    android:id="@+id/btn_refresh"
+                    style="@style/FileManageButton"
+                    android:layout_weight="1"
+                    android:text="🔄 刷新"
+                    android:backgroundTint="#43A047" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

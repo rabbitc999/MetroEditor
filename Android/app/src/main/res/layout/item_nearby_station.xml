@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="10dp"
+    android:layout_marginBottom="6dp"
+    android:background="#F0F4F8"
+    tools:ignore="HardcodedText">
+
+    <!-- 距离序号圆点 -->
+    <TextView
+        android:id="@+id/tvNearbyIndex"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:gravity="center"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/bg_route_detail_card"
+        tools:text="1" />
+
+    <!-- 站点信息 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvNearbyStationName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            tools:text="体育西路站" />
+
+        <TextView
+            android:id="@+id/tvNearbyStationDistance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:textColor="#5A73E8"
+            tools:text="距离 850米" />
+
+    </LinearLayout>
+
+    <!-- 打卡按钮 -->
+    <Button
+        android:id="@+id/btnCheckIn"
+        style="@style/ModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:minWidth="64dp"
+        android:text="打卡"
+        android:textSize="12sp"
+        android:backgroundTint="#7B68EE" />
+
+</LinearLayout>

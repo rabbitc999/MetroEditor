@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:background="#F5F7FA"
+    tools:ignore="HardcodedText">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:orientation="vertical"
+            android:padding="8dp"
+            tools:ignore="HardcodedText">
+            <!-- 地图加载与导航行（支持滑动，美观） -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded_card"
+                android:padding="12dp"
+                android:orientation="vertical">
+
+                <!-- 标题行：左侧标题，右侧控制按钮 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🚇 地铁路线规划器"
+                        android:textSize="26sp"
+                        android:textColor="#5A73E8"
+                        android:textStyle="bold"
+                        android:shadowColor="#44000000"
+                        android:shadowDx="2"
+                        android:shadowDy="3"
+                        android:shadowRadius="4"
+                        android:letterSpacing="0.05"
+                        android:gravity="center" />
+
+                    <Button
+                        android:id="@+id/btnToggleMenu"
+                        style="@style/GridModeButton"
+                        android:layout_width="70sp"
+                        android:layout_height="40sp"
+                        android:text="展开"
+                        android:backgroundTint="#34A853"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+                </LinearLayout>
+
+                <!-- 按钮容器（默认隐藏） -->
+                <LinearLayout
+                    android:id="@+id/menuButtonContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- 九宫格 3行 × 3列 -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:columnCount="3"
+                        android:rowCount="3"
+                        android:horizontalSpacing="8dp"
+                        android:verticalSpacing="8dp">
+
+                        <Button
+                            android:id="@+id/toCityInfoBtn"
+                            style="@style/GridModeButton"
+                            android:text="🏙️ 城市详情"
+                            android:backgroundTint="#34A853" />
+
+                        <Button
+                            android:id="@+id/showMapBtn"
+                            style="@style/GridModeButton"
+                            android:text="🗺️ 查看地图"
+                            android:backgroundTint="#1A73E8" />
+
+
+
+                        <Button
+                            android:id="@+id/toStationInfoBtn"
+                            style="@style/GridModeButton"
+                            android:text="🚉 站点信息"
+                            android:backgroundTint="#34A853" />
+
+                        <Button
+                            android:id="@+id/mapFileBtn"
+                            style="@style/GridModeButton"
+                            android:text="📂 选择地图"
+                            android:backgroundTint="#607D8B" />
+
+                        <Button
+                            android:id="@+id/checkInBtn"
+                            style="@style/GridModeButton"
+                            android:text="📍 站点打卡"
+                            android:backgroundTint="#FF7043" />
+
+                        <Button
+                            android:id="@+id/tripHistoryBtn"
+                            style="@style/GridModeButton"
+                            android:text="🚇 历史行程"
+                            android:backgroundTint="#26A69A" />
+
+                        <Button
+                            android:id="@+id/commuteDistanceButton"
+                            style="@style/GridModeButton"
+                            android:text="😂 通勤距离"
+                            android:backgroundTint="#607D8B" />
+
+                        <Button
+                            android:id="@+id/favoriteBtn"
+                            style="@style/GridModeButton"
+                            android:text="⭐ 收藏管理"
+                            android:backgroundTint="#26A69A" />
+
+                        <Button
+                            android:id="@+id/aboutAuthorBtn"
+                            style="@style/GridModeButton"
+                            android:text="👤 关于作者"
+                            android:backgroundTint="#EA4335" />
+
+                    </GridLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <!-- 查询输入区 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_rounded_card"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🔍 查询路线"
+                    android:textColor="#1A73E8"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="0dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/startInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:ignore="TouchTargetSizeCheck"
+                        android:hint="起点站"
+                        android:enabled="false"
+                        android:inputType="text" />
+
+                    <Button
+                        style="@style/ModeButton"
+                        android:id="@+id/swapBtn"
+                        android:layout_width="80dp"
+                        android:layout_height="48dp"
+                        android:text="⇄"
+                        android:textSize="20sp"
+                        android:enabled="false"
+                        app:cornerRadius="0dp"/>
+
+                    <AutoCompleteTextView
+                        android:id="@+id/endInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:ignore="TouchTargetSizeCheck"
+                        android:hint="终点站"
+                        android:enabled="false"
+                        android:inputType="text" />
+                </LinearLayout>
+
+
+                <!-- 规划模式 -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="horizontal"
+                    android:fillViewport="true">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="6dp"
+                        android:paddingEnd="4dp">
+
+                        <!-- 第一行：两个核心按钮 + "更多" 按钮 -->
+                        <GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:columnCount="3"
+                            android:rowCount="1"
+                            android:horizontalSpacing="8dp"
+                            android:verticalSpacing="8dp">
+
+                            <Button
+                                android:id="@+id/timeMinButton"
+                                style="@style/GridModeButton"
+                                android:text="⏱️ 最短时间"
+                                android:enabled="false"
+                                android:backgroundTint="#2196F3" />
+
+                            <Button
+                                android:id="@+id/transferMinButton"
+                                style="@style/GridModeButton"
+                                android:text="🔄 最少换乘"
+                                android:enabled="false"
+                                android:backgroundTint="#9C27B0" />
+
+                            <Button
+                                android:id="@+id/moreStrategyBtn"
+                                style="@style/GridModeButton"
+                                android:text="➕ 更多选项"
+                                android:backgroundTint="#757575" />
+                        </GridLayout>
+
+                        <!-- 第二行：其余 7 个策略按钮（默认隐藏） -->
+                        <GridLayout
+                            android:id="@+id/strategyGridLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:columnCount="3"
+                            android:rowCount="3"
+                            android:horizontalSpacing="8dp"
+                            android:verticalSpacing="8dp"
+                            android:visibility="gone">
+
+                            <Button
+                                android:id="@+id/btnSaveFavorite"
+                                style="@style/GridModeButton"
+                                android:backgroundTint="#4C55FD"
+                                android:enabled="true"
+                                android:text="💾 收藏路线" />
+
+                            <Button
+                                android:id="@+id/crowdMinButton"
+                                style="@style/GridModeButton"
+                                android:text="👥 最不拥挤"
+                                android:enabled="false"
+                                android:backgroundTint="#4CAF50" />
+
+                            <Button
+                                android:id="@+id/randomBtn"
+                                style="@style/GridModeButton"
+                                android:text="🎲 随机路线"
+                                android:enabled="false"
+                                android:backgroundTint="#03dc5c" />
+
+                            <Button
+                                android:id="@+id/shortestDistanceButton"
+                                style="@style/GridModeButton"
+                                android:text="📏 最短距离"
+                                android:enabled="false"
+                                android:backgroundTint="#00ACC1" />
+
+                            <Button
+                                android:id="@+id/cheapRouteButton"
+                                style="@style/GridModeButton"
+                                android:text="💰 氪金路线"
+                                android:enabled="false"
+                                android:backgroundTint="#FF9800" />
+
+                            <Button
+                                android:id="@+id/customWeightButton"
+                                style="@style/GridModeButton"
+                                android:text="⚖️ 自定义权重"
+                                android:enabled="false"
+                                android:backgroundTint="#607D8B" />
+
+                        </GridLayout>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/favoriteView"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="⭐ 收藏路线（长按可管理标签）"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#CCCCCC"
+                        app:cornerRadius="0dp"/>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:scrollbars="none"
+                        tools:ignore="SpeakableTextPresentCheck">
+
+                        <LinearLayout
+                            android:id="@+id/favoriteContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- 最近站点快速输入区（GPS 定位 5km 内） -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:id="@+id/nearbyStationView">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📍 附近站点（点击填入起点，长按填入终点）"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#CCCCCC" />
+                    </LinearLayout>
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:scrollbars="none"
+                        tools:ignore="SpeakableTextPresentCheck">
+
+                        <LinearLayout
+                            android:id="@+id/nearbyStationContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 查询结果 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_rounded_card"
+                android:layout_marginTop="12dp"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📊 查询结果"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="20dp"
+                        android:textColor="#1A73E8"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+
+                <!-- 汇总信息 -->
+                <TextView
+                    android:id="@+id/summaryText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="⏳ 等待查询..."
+                    android:textSize="14sp"
+                    android:textColor="#333"/>
+
+                <!-- 汇总信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/summarySuggestion"
+                        android:layout_width="0sp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:padding="8dp"
+                        android:text="💡 等待查询..."
+                        android:textSize="14sp"
+                        android:textColor="#F00"/>
+                    <Button
+                        style="@style/ModeButton"
+                        android:id="@+id/btnNavigateAmap"
+                        android:layout_width="105dp"
+                        android:layout_height="50dp"
+                        android:text="🧭 高德导航"
+                        android:backgroundTint="#FF6B00"
+                        android:visibility="gone"
+                        app:cornerRadius="0dp" />
+                </LinearLayout>
+
+                <!-- 汇总信息卡片 -->
+                <LinearLayout
+                    android:id="@+id/summaryTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvDistance"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="12sp"
+                            android:textColor="#5A73E8"
+                            android:background="#EEF1FB"
+                            android:padding="6dp"
+                            android:gravity="center"
+                            android:text="0 km" />
+
+                        <TextView
+                            android:id="@+id/tvTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:textSize="12sp"
+                            android:textColor="#2E8B57"
+                            android:background="#EAF6F0"
+                            android:padding="6dp"
+                            android:gravity="center"
+                            android:text="0 分钟" />
+
+                        <TextView
+                            android:id="@+id/tvTransfers"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:textSize="12sp"
+                            android:textColor="#B8860B"
+                            android:background="#FBF5E6"
+                            android:padding="6dp"
+                            android:gravity="center"
+                            android:text="0 次换乘" />
+
+                        <TextView
+                            android:id="@+id/tvFare"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:textSize="12sp"
+                            android:textColor="#E24B4A"
+                            android:background="#FBECEC"
+                            android:padding="6dp"
+                            android:gravity="center"
+                            android:text="¥0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 乘车路线卡片 -->
+            <LinearLayout
+                android:id="@+id/resultView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_rounded_card"
+                android:padding="16dp">
+                <!-- 标题行 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🚉 乘车路线"
+                        android:textColor="#1A73E8"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnShowPath"
+                        style="@style/ModeButton"
+                        android:layout_width="105dp"
+                        tools:ignore="TouchTargetSizeCheck"
+                        android:text="📋 路线详情"
+                        android:enabled="true" />
+                </LinearLayout>
+
+                <!-- 路线内容 -->
+                <ListView
+                    android:id="@+id/routeSegmentListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@null"
+                    android:dividerHeight="0dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

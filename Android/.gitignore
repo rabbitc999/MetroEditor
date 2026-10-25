@@ -1,0 +1,72 @@
+*.iml
+*.osm.pbf
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+/.workbuddy
+.externalNativeBuild
+.cxx
+local.properties
+
+*.d
+*.slo
+*.lo
+*.o
+*.obj
+*.gch
+*.pch
+*.so
+*.dylib
+*.dll
+*.mod
+*.smod
+*.lai
+*.la
+*.a
+*.lib
+*.out
+*.app
+
+# 用户特定文件
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# 编译输出目录
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# VS 缓存目录
+MetroEditor/.vs/
+
+# 测试结果
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NuGet 包
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+# 发布配置
+*.pubxml
+*.publishproj
+
+# 其他常见忽略项
+node_modules/
+*.pdb
+*.tmp

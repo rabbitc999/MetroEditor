@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 旧版本写外部存储需要 -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <!-- TCP 同步客户端需要网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- 站点打卡/最近站点需要定位权限 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Subway">
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.MapViewActivity" />
+        <activity android:name=".activity.DirectionInfoActivity" />
+        <activity android:name=".activity.CityInfoActivity" />
+        <activity android:name=".activity.MapManageActivity" />
+        <activity android:name=".activity.RouteDetailActivity" />
+        <activity android:name=".activity.StationInfoActivity" />
+        <activity android:name=".activity.LineInfoActivity" />
+        <activity android:name=".activity.CheckInActivity" />
+        <activity android:name=".activity.AddCheckInActivity" />
+        <activity android:name=".activity.CheckInFormActivity" />
+        <activity android:name=".activity.CheckInDetailActivity" />
+        <activity android:name=".activity.EditCheckInActivity" />
+        <activity android:name=".activity.FavoriteRoutesActivity" />
+        <activity android:name=".activity.MultiStopPlanActivity" />
+        <activity android:name=".activity.CommuteActivity" />
+        <activity android:name=".activity.CommuteDistanceActivity" />
+        <activity android:name=".activity.TripHistoryActivity" />
+
+        <!-- 打卡拍照：临时图片文件共享 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.rabbitc.subway.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

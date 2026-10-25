@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="#F5F7FA"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        tools:ignore="HardcodedText">
+        <!-- 顶部操作栏（返回 + 标题） -->
+
+        <!-- ================= 标题 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:id="@+id/selectionPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/backToMainBtn"
+                    style="@style/BackButton"
+                    android:text="← 返回" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="🚉 站点信息查看器"
+                    android:textSize="20sp"
+                    android:textColor="#1A73E8"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 搜索卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
+
+                <AutoCompleteTextView
+                    android:id="@+id/stationInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="输入站点名"
+                    android:padding="12dp"
+                    android:dropDownHeight="300dp"
+                    android:dropDownAnchor="@id/stationInput"
+                    android:completionThreshold="1" />
+
+                <Button
+                    style="@style/GridModeButton"
+                    android:id="@+id/queryBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="查看"
+                    android:paddingHorizontal="24dp"
+                    android:backgroundTint="#1A73E8" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 信息展示卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:id="@+id/infoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- 站点名称 -->
+                <TextView
+                    android:id="@+id/stationName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="站点名称"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#0b3b5c"
+                    android:gravity="center" />
+
+                <!-- 坐标 -->
+                <TextView
+                    android:id="@+id/stationCoord"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="经度：0.000000  纬度：0.000000"
+                    android:textSize="15sp"
+                    android:textColor="#555"
+                    android:gravity="center" />
+
+                <!-- 分割线 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="12dp"
+                    android:background="#E0E0E0" />
+
+                <!-- 所属线路 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="所属线路："
+                        android:textSize="15sp"
+                        android:textColor="#555" />
+                    <com.rabbitc.subway.widget.FlowLayout
+                        android:id="@+id/stationLinesContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- 换乘线路 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="换乘线路："
+                        android:textSize="15sp"
+                        android:textColor="#555" />
+                    <com.rabbitc.subway.widget.FlowLayout
+                        android:id="@+id/stationTransfersContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- 站点状态（仅在该线路上的状态） -->
+                <TextView
+                    android:id="@+id/stationStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="站点状态：无"
+                    android:textSize="15sp"
+                    android:textColor="#555" />
+
+                <!-- 站点模式（如果有） -->
+                <TextView
+                    android:id="@+id/stationMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="站点模式："
+                    android:textSize="15sp"
+                    android:textColor="#555"
+                    android:visibility="gone" />
+
+                <!-- 虚拟换乘 -->
+                <TextView
+                    android:id="@+id/tvVirtualTransfer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="虚拟换乘：无"
+                    android:textSize="15sp"
+                    android:textColor="#555" />
+
+                <!-- 无障碍设施 -->
+                <TextView
+                    android:id="@+id/tvFacilities"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="无障碍设施：无"
+                    android:textSize="15sp"
+                    android:textColor="#555" />
+
+                <!-- 收藏信息 -->
+                <TextView
+                    android:id="@+id/tvFavoriteInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="收藏信息：无"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#555" />
+
+                <ListView
+                    android:id="@+id/stationFavoriteList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:divider="@null"
+                    android:dividerHeight="0dp" />
+
+                <!-- 打卡信息 -->
+                <TextView
+                    android:id="@+id/tvCheckInTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="打卡信息：无"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#555" />
+
+                <LinearLayout
+                    android:id="@+id/stationCheckInContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical" />
+
+                <!-- 提示信息（无数据时） -->
+                <TextView
+                    android:id="@+id/emptyHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="请输入站点名并点击查看"
+                    android:textSize="16sp"
+                    android:textColor="#999"
+                    android:gravity="center" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

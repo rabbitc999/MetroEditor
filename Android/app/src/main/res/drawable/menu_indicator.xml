@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#1A73E8" /> <!-- 颜色将根据 TextView 的 textColor 自动匹配，这里默认蓝色 -->
+    <size android:height="2dp" />
+</shape>

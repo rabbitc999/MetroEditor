@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:padding="16dp"
+    tools:ignore="HardcodedText,Autofill,LabelFor,ButtonStyle">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:orientation="vertical">
+
+        <!-- ================= 顶部选择面板（卡片） ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_rounded_card">
+
+            <com.rabbitc.subway.widget.StartEndBar
+                android:id="@+id/startEndBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:startText="体育西路"
+                app:endText="广州东站"
+                app:showBackButton="true" />
+
+        </LinearLayout>
+
+        <!-- ================= 线路详情卡片 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="vertical">
+
+                <!-- 标题栏 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🚇 线路详情（仅为参考）"
+                    android:textColor="#1A73E8"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <!-- 左侧：线路信息 -->
+                <LinearLayout
+                    android:layout_marginTop="12dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvLineName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="线路名称："
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#0b3b5c" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- 内容区：左右布局 -->
+                        <LinearLayout
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            tools:ignore="Suspicious0dp">
+                            <TextView
+                                android:id="@+id/tvCity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="所属城市："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvFormation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="编组信息："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvCurrentLength"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="目前线路长度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvFutureLength"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="未来线路长度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvOpenYear"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="开通时间："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvMaxSpeed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="最大速度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvOpenTimes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="运营时间："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                        </LinearLayout>
+
+                        <!-- 右侧：地图容器 -->
+                        <FrameLayout
+                            android:id="@+id/mapContainer"
+                            android:layout_width="140dp"
+                            android:layout_height="140dp"
+                            android:background="@drawable/bg_route_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- 内容区：左右布局 -->
+                        <LinearLayout
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_route_detail_card"
+                            tools:ignore="Suspicious0dp">
+                            <TextView
+                                android:id="@+id/tvCurrentHeadway"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="当前发车间隔："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvMaxHeadway"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="最大发车间隔："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvMinHeadway"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="最小发车间隔："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvPower"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="运行功率："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvBrake"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="制动加速度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvShortTurnCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="小交路数量："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_route_detail_card"
+                            tools:ignore="Suspicious0dp">
+                            <TextView
+                                android:id="@+id/tvCurrentCrowd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="当前拥挤度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvMaxCrowd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="最大拥挤度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                            <TextView
+                                android:id="@+id/tvMinCrowd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="最小拥挤度："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+
+                            <TextView
+                                android:id="@+id/tvSpeedLimits"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="限速区间："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+
+                            <!-- 新增：虚拟换乘 -->
+                            <TextView
+                                android:id="@+id/tvVirtualTransfer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="虚拟换乘："
+                                android:textSize="15sp"
+                                android:textColor="#555" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                    <!-- 标签行 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="标签："
+                            android:textSize="15sp"
+                            android:textColor="#555" />
+
+                        <LinearLayout
+                            android:id="@+id/lineTagsContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical" />
+                    </LinearLayout>
+
+                    <!-- 详情链接行 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="详情链接："
+                            android:textSize="15sp"
+                            android:textColor="#555" />
+
+                        <LinearLayout
+                            android:id="@+id/tvLink"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ================= 站点列表卡片 ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:background="@drawable/bg_rounded_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 标题栏 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:text="📍 站点列表（长按设点，点击换乘站跳转）"
+                    android:textColor="#1A73E8"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ListView
+                        android:id="@+id/listViewStations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="400dp"
+                        android:background="#FFFFFF"
+                        android:divider="#FFFFFF"
+                        android:dividerHeight="0dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
